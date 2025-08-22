@@ -1,0 +1,57 @@
+/* src/quill-custom.css */
+
+/* General editor styling to match the app theme */
+.ql-editor {
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 1.6;
+  color: hsl(var(--foreground)); /* Use your app's text color */
+}
+
+.ql-editor.ql-blank::before {
+  color: hsl(var(--muted-foreground));
+  font-style: normal;
+  opacity: 0.7;
+}
+
+/* Toolbar styling */
+.ql-toolbar {
+  background-color: hsl(var(--card)); /* Match card background */
+  border: none !important;
+  border-bottom: 1px solid hsl(var(--border)) !important;
+  padding: 12px !important;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+/* Toolbar button styling */
+.ql-toolbar .ql-stroke {
+  stroke: hsl(var(--foreground));
+}
+.ql-toolbar .ql-fill {
+  fill: hsl(var(--foreground));
+}
+.ql-toolbar button:hover,
+.ql-toolbar .ql-picker-label:hover {
+  background-color: hsl(var(--muted)); /* Use a hover color */
+  border-radius: 4px;
+}
+.ql-toolbar button:hover .ql-stroke,
+.ql-toolbar .ql-picker-label:hover .ql-stroke {
+  stroke: hsl(var(--primary));
+}
+
+/* Remove default borders from the container */
+.ql-container.ql-snow {
+  border: none !important;
+}
+
+/* Selected/active toolbar button */
+.ql-toolbar .ql-active .ql-stroke,
+.ql-toolbar .ql-picker-label.ql-active .ql-stroke {
+    stroke: hsl(var(--primary));
+}
+.ql-toolbar .ql-active {
+    background-color: hsl(var(--primary) / 0.1);
+    border-radius: 4px;
+} 

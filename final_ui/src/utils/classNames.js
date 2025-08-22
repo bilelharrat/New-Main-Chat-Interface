@@ -1,0 +1,1 @@
+export const cardClass = "bg-white dark:bg-[#121212] border border-gray-200/80 dark:border-gray-700 rounded-2xl shadow-md"; 

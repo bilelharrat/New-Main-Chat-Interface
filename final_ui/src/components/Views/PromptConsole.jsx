@@ -2054,25 +2054,35 @@ export default function PromptConsole({ setView, embedded = false, researchMode 
         <div className="flex-1 min-h-[200px] max-h-[calc(100vh-220px)] overflow-y-auto px-6 flex flex-col bg-white dark:bg-black">
           {messages.length === 0 ? (
             <div className="flex-1 flex flex-col items-center justify-center text-center text-gray-400 dark:text-gray-500">
-              <div className="mb-4">
-                <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mx-auto text-gray-300 dark:text-gray-600">
-                  <path d="M12 2L2 7V17L12 22L22 17V7L12 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
-                  <path d="M2 7L12 12M12 22V12M22 7L12 12M17 4.5L7 9.5" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
-                </svg>
+              {/* Elegant Icon with Subtle Glow */}
+              <div className="mb-8 relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 rounded-full blur-3xl animate-pulse"></div>
+                <div className="relative w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 rounded-3xl shadow-2xl flex items-center justify-center border border-gray-200/50 dark:border-gray-700/50">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-gray-400 dark:text-gray-500">
+                    <path d="M12 2L2 7V17L12 22L22 17V7L12 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+                    <path d="M2 7L12 12M12 22V12M22 7L12 12M17 4.5L7 9.5" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+                  </svg>
+                </div>
               </div>
-              <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-300">Welcome to Eden</h2>
-              <p className="mt-2 max-w-sm">Your agentic reasoning partner for high-stakes work. Start a conversation below to begin.</p>
               
-              {/* Coding Mode Indicator */}
+              {/* Refined Typography with Better Hierarchy */}
+              <h2 className="text-3xl font-light text-gray-700 dark:text-gray-300 mb-4 tracking-tight">
+                Welcome to Eden
+              </h2>
+              <p className="mt-2 max-w-md text-base leading-relaxed text-gray-500 dark:text-gray-400 font-light">
+                Your intelligent reasoning partner for high-stakes work. Start a conversation below to begin.
+              </p>
+              
+              {/* Enhanced Coding Mode Indicator */}
               {selectedMode === "Coding" && (
-                <div className="mt-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg max-w-md">
-        <div className="flex items-center gap-3">
-                    <div className="p-2 bg-red-100 dark:bg-red-800 rounded-lg">
-                      <div className="w-5 h-5 bg-red-600 dark:bg-red-400 rounded flex items-center justify-center text-white text-xs font-bold">C</div>
+                <div className="mt-8 p-6 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 border border-red-200/50 dark:border-red-800/50 rounded-2xl max-w-md backdrop-blur-sm">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-gradient-to-br from-red-500 to-orange-500 rounded-xl shadow-lg">
+                      <div className="w-6 h-6 bg-white rounded flex items-center justify-center text-red-600 text-sm font-bold">C</div>
                     </div>
                     <div className="text-left">
-                      <h3 className="font-semibold text-red-800 dark:text-red-200">Coding Mode Active</h3>
-                      <p className="text-sm text-red-600 dark:text-red-300">
+                      <h3 className="font-semibold text-red-800 dark:text-red-200 text-lg">Coding Mode Active</h3>
+                      <p className="text-sm text-red-600 dark:text-red-300 leading-relaxed">
                         Coding mode is active. Ask coding questions or use the available tools.
                       </p>
                     </div>
@@ -2081,32 +2091,40 @@ export default function PromptConsole({ setView, embedded = false, researchMode 
               )}
             </div>
           ) : (
-            <div className="w-full max-w-3xl mx-auto">
-              {/* Coding Mode Banner */}
-
+            <div className="w-full max-w-4xl mx-auto space-y-8">
+              {/* Enhanced Coding Mode Banner */}
+              {selectedMode === "Coding" && (
+                <div className="flex justify-center mb-8">
+                  <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-red-500 to-orange-500 text-white rounded-2xl shadow-lg border border-red-400/20">
+                    <div className="w-3 h-3 bg-white rounded-full"></div>
+                    <span className="text-sm font-medium">Coding Mode Active</span>
+                    <div className="w-3 h-3 bg-white rounded-full"></div>
+                  </div>
+                </div>
+              )}
               
               {messages.map((msg, idx) => {
                 if (msg.loading) {
                   return (
-                    <div key="skeleton" className="flex justify-center my-6">
+                    <div key="skeleton" className="flex justify-center my-8">
                       <div className="flex flex-col w-full max-w-2xl">
-                        <div className="relative px-4 py-3 rounded-xl shadow-sm bg-white dark:bg-gray-800">
+                        <div className="relative px-6 py-4 rounded-2xl shadow-sm bg-white dark:bg-gray-800/50 border border-gray-200/50 dark:border-gray-700/50 backdrop-blur-sm">
                           {msg.isHierarchicalSummarizer ? (
-                            <div className="flex items-center justify-center space-x-2 py-4">
-                              <div className="flex space-x-1">
-                                <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
-                                <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                                <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                            <div className="flex items-center justify-center space-x-3 py-6">
+                              <div className="flex space-x-2">
+                                <div className="w-2.5 h-2.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-bounce shadow-lg"></div>
+                                <div className="w-2.5 h-2.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-bounce shadow-lg" style={{ animationDelay: '0.1s' }}></div>
+                                <div className="w-2.5 h-2.5 bg-gradient-to-r from-pink-500 to-orange-500 rounded-full animate-bounce shadow-lg" style={{ animationDelay: '0.2s' }}></div>
                               </div>
-                              <span className="text-sm text-gray-600 dark:text-gray-400 ml-3">
+                              <span className="text-sm text-gray-600 dark:text-gray-400 ml-4 font-medium">
                                 Summarization in progress...
                               </span>
                             </div>
                           ) : (
-                            <div className="space-y-3 animate-pulse">
-                              <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-5/6"></div>
-                              <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
-                              <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-4/6"></div>
+                            <div className="space-y-4 animate-pulse">
+                              <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 rounded-full w-5/6"></div>
+                              <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 rounded-full w-full"></div>
+                              <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 rounded-full w-4/6"></div>
                             </div>
                           )}
                         </div>
@@ -2118,18 +2136,17 @@ export default function PromptConsole({ setView, embedded = false, researchMode 
                   <div
                     key={idx}
                     ref={msg.role === 'ai' ? (el => messageRefs.current[idx] = el) : null}
-                    className={`flex my-6 ${msg.role === 'user' ? 'justify-end' : 'justify-center'}`}
+                    className={`flex my-8 ${msg.role === 'user' ? 'justify-end' : 'justify-center'} animate-fade-in`}
                     data-msg-idx={msg.role === 'ai' ? idx : undefined}
                   >
-                    {/* Message content and actions */}
-                    <div className={`flex flex-col max-w-2xl group`}>
+                    {/* Enhanced Message Container */}
+                    <div className={`flex flex-col max-w-2xl group transition-all duration-300 hover:scale-[1.01]`}>
                         <div 
-                            className={`relative px-4 py-3 rounded-2xl shadow-sm transition-all duration-300 hover:shadow-md ${
+                            className={`relative px-6 py-4 rounded-2xl shadow-sm transition-all duration-300 hover:shadow-lg ${
                                 msg.role === 'user' 
-                                    ? 'message-bubble user text-white shadow-apple' 
-                                    : 'message-bubble ai bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 border border-gray-200 dark:border-gray-700 shadow-apple'
+                                    ? 'message-bubble user text-white shadow-apple bg-gradient-to-r from-blue-500 to-blue-600' 
+                                    : 'message-bubble ai bg-white dark:bg-gray-800/50 text-gray-900 dark:text-gray-200 border border-gray-200/50 dark:border-gray-700/50 shadow-apple backdrop-blur-sm'
                             } ${citedMessageIndices.includes(idx) ? 'ring-2 ring-accent animate-cited-glow' : ''}`}
-
                         >
                             
 

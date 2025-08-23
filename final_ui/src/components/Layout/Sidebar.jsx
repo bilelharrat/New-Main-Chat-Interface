@@ -78,14 +78,14 @@ export default function Sidebar({ currentView, setCurrentView, collapsed, setCol
   if (collapsed) {
     // Collapsed: vertical, centered, icon-only layout
     return (
-      <div className="h-full bg-white dark:bg-gray-900 text-black dark:text-white flex flex-col w-16 items-center nav-spacing py-3 transition-all duration-300 shadow-apple">
+      <div className="h-full bg-gray-50 dark:bg-gray-800 text-black dark:text-white flex flex-col w-16 items-center nav-spacing py-3 transition-all duration-300 shadow-apple">
         <div className="flex flex-col items-center nav-spacing w-full flex-1">
           <div className="w-8 h-8 m-sm">
             <img src="/logo.png" alt="Eden Logo" className="w-full h-full object-contain bg-gradient-to-r from-apple-success to-apple-primary rounded-xl shadow-sm" />
           </div>
           <button onClick={() => setCollapsed(false)} className="m-sm p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 focus-ring" title="Expand sidebar"><ChevronRight size={18}/></button>
           <button
-            className="flex items-center justify-center w-10 h-10 rounded-xl transition hover:bg-gray-100 dark:hover:bg-gray-800 text-black dark:text-white dark:hover:bg-gray-800 m-sm focus-ring"
+            className="flex items-center justify-center w-10 h-10 rounded-xl transition hover:bg-gray-100 dark:hover:bg-gray-700 text-black dark:text-white dark:hover:bg-gray-700 m-sm focus-ring"
             title="Search everything (⌘K)"
             onClick={() => setShowSearchModal(true)}
           >
@@ -122,7 +122,7 @@ export default function Sidebar({ currentView, setCurrentView, collapsed, setCol
   return (
     <>
       <div 
-        className={`h-full bg-white dark:bg-gray-900 text-gray-900 dark:text-white flex flex-col transition-all duration-300 min-h-screen justify-between overflow-x-hidden shadow-apple relative ${
+        className={`h-full bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white flex flex-col transition-all duration-300 min-h-screen justify-between overflow-x-hidden shadow-apple relative ${
           isResizing ? 'select-none' : ''
         }`}
         style={{
@@ -131,7 +131,7 @@ export default function Sidebar({ currentView, setCurrentView, collapsed, setCol
         }}
       >
         <div>
-          <div className="flex items-center bg-white dark:bg-gray-900 card-padding-md pb-2 justify-between border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center bg-gray-50 dark:bg-gray-800 card-padding-md pb-2 justify-between border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center component-gap-md flex-1">
               <img src="/logo.png" alt="Eden Logo" className="w-8 h-8 object-contain bg-gradient-to-r from-apple-success to-apple-primary rounded-full shadow-sm" />
               <h2 className="text-gray-900 dark:text-white text-heading-3 font-bold leading-tight tracking-tight text-gradient-primary text-render-optimized">Eden</h2>
@@ -154,18 +154,20 @@ export default function Sidebar({ currentView, setCurrentView, collapsed, setCol
                 placeholder="Search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-gray-100 rounded-lg pl-10 pr-3 py-2 text-sm text-gray-800 placeholder:text-gray-600 border-none focus:outline-none focus:ring-0 transition-all duration-200"
+                className="w-full bg-white dark:bg-gray-700 rounded-lg pl-10 pr-3 py-2 text-sm text-gray-800 dark:text-gray-200 placeholder:text-gray-600 dark:placeholder:text-gray-400 border-none focus:outline-none focus:ring-0 transition-all duration-200 cursor-pointer"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && searchQuery.trim()) {
                     setShowSearchModal(true);
                   }
                 }}
+                onClick={() => setShowSearchModal(true)}
+                readOnly
               />
             </div>
           </div>
           
           <div className="flex flex-col component-gap-xs px-2">
-            <div className="flex items-center component-gap-md bg-white dark:bg-gray-900 px-3 min-h-12">
+            <div className="flex items-center component-gap-md bg-gray-50 dark:bg-gray-800 px-3 min-h-12">
               <div
                 className="flex items-center w-full component-gap-md cursor-pointer transition rounded-xl px-3 py-2.5 hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-600 hover:text-white focus-ring"
                 onClick={() => setCurrentView('prompt-console')}
@@ -179,7 +181,7 @@ export default function Sidebar({ currentView, setCurrentView, collapsed, setCol
             {navItems.filter(item => item.id !== 'new-chat').map((item) => (
               <div
                 key={item.id}
-                className={`flex items-center component-gap-md bg-white dark:bg-gray-900 px-3 min-h-12 ${item.id === 'settings' ? 'm-sm border-t border-gray-200 dark:border-gray-700 pt-2' : ''}`}
+                className={`flex items-center component-gap-md bg-gray-50 dark:bg-gray-800 px-3 min-h-12 ${item.id === 'settings' ? 'm-sm border-t border-gray-200 dark:border-gray-700 pt-2' : ''}`}
               >
                 <div
                   className={`flex items-center w-full component-gap-md cursor-pointer transition-all duration-300 rounded-xl px-3 py-2.5 focus-ring-enhanced ${
@@ -202,7 +204,7 @@ export default function Sidebar({ currentView, setCurrentView, collapsed, setCol
             ))}
           </div>
         </div>
-        <div><div className="h-4 bg-white dark:bg-gray-900"></div></div>
+        <div><div className="h-4 bg-gray-50 dark:bg-gray-800"></div></div>
         
         {/* Resize Handle */}
         <div

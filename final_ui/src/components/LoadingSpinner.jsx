@@ -28,7 +28,7 @@ export function TypingIndicator() {
         <div className="w-2 h-2 bg-gray-400 rounded-full animate-blink" style={{ animationDelay: '150ms' }}></div>
         <div className="w-2 h-2 bg-gray-400 rounded-full animate-blink" style={{ animationDelay: '300ms' }}></div>
       </div>
-      <span className="text-sm text-gray-500 dark:text-gray-400">AI is thinking...</span>
+      <span className="text-sm text-gray-500 dark:text-gray-400">Eden is thinking...</span>
     </div>
   );
 }

@@ -94,6 +94,48 @@ body {
   background-color: hsl(var(--background)) !important;
 }
 
+/* Smart Prompt Suggestor Animations */
+@keyframes slide-in-from-bottom {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in-scale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-in {
+  animation: slide-in-from-bottom 0.2s ease-out;
+}
+
+.slide-in-from-top-2 {
+  animation: slide-in-from-top-2 0.2s ease-out;
+}
+
+@keyframes slide-in-from-top-2 {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 
 
 a {
@@ -1830,4 +1872,93 @@ a {
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+} 
+
+/* Apple-inspired Text Editor Styles */
+.apple-notes-editor,
+.apple-writing-editor {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.6;
+  color: #1d1d1f;
+  height: 100% !important;
+}
+
+.apple-notes-editor .ql-container,
+.apple-writing-editor .ql-container {
+  border: none !important;
+  font-family: inherit !important;
+  height: calc(100% - 42px) !important;
+}
+
+.apple-notes-editor .ql-editor,
+.apple-writing-editor .ql-editor {
+  padding: 2rem;
+  min-height: 400px;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  letter-spacing: -0.003em;
+  height: 100% !important;
+  overflow-y: auto !important;
+}
+
+/* Ensure proper height and scrolling */
+.apple-notes-editor,
+.apple-writing-editor {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.apple-notes-editor .ql-editor,
+.apple-writing-editor .ql-editor {
+  flex: 1 !important;
+  min-height: 0 !important;
+}
+
+/* Basic toolbar styling */
+.apple-notes-editor .ql-toolbar,
+.apple-writing-editor .ql-toolbar {
+  border: none !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  border-radius: 8px !important;
+  margin: 0.5rem !important;
+  padding: 0.5rem !important;
+}
+
+.dark .apple-notes-editor .ql-toolbar,
+.dark .apple-writing-editor .ql-toolbar {
+  background: rgba(0, 0, 0, 0.9) !important;
+}
+
+/* Floating action button animations */
+@keyframes float-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.floating-action {
+  animation: float-in 0.3s ease-out;
+}
+
+/* AI Suggestions panel animations */
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ai-suggestions-enter {
+  animation: slide-down 0.2s ease-out;
 } 

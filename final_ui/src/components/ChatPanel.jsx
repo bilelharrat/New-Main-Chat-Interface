@@ -35,15 +35,19 @@ export default function ChatPanel({
               <div className="flex flex-col max-w-2xl group">
                 <div className={`relative px-4 py-3 rounded-xl shadow-sm ${
                   msg.role === 'user'
-                    ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-200'
-                    : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200'
+                    ? 'bg-gradient-to-r from-emerald-500 to-cyan-500 text-white shadow-lg shadow-emerald-500/25'
+                    : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 border border-emerald-200/50'
                 }`}>
                   {/* Avatar/Icon */}
                   <div className="absolute -left-10 top-2">
                     {msg.role === 'user' ? (
-                      <User className="w-6 h-6 text-blue-500 bg-blue-100 rounded-full p-1" />
+                      <div className="w-6 h-6 bg-gradient-to-br from-emerald-400 to-cyan-400 rounded-full p-1 flex items-center justify-center">
+                        <User className="w-4 h-4 text-white" />
+                      </div>
                     ) : (
-                      <Bot className="w-6 h-6 text-accent bg-accent/10 rounded-full p-1" />
+                      <div className="w-6 h-6 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-full p-1 flex items-center justify-center">
+                        <Bot className="w-4 h-4 text-white" />
+                      </div>
                     )}
                   </div>
                   {/* Content */}
@@ -55,7 +59,7 @@ export default function ChatPanel({
                 <div className="mt-2 flex justify-end items-center w-full text-xs text-gray-500 dark:text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300 gap-2">
                   <button
                     type="button"
-                    className="flex items-center gap-1 hover:text-accent"
+                    className="flex items-center gap-1 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
                     onClick={() => onCopy && onCopy(idx)}
                     title="Copy Message"
                   >
@@ -64,7 +68,7 @@ export default function ChatPanel({
                   {onCite && (
                     <button
                       type="button"
-                      className="flex items-center gap-1 hover:text-accent"
+                      className="flex items-center gap-1 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
                       onClick={() => onCite(msg, idx)}
                       title="Cite to Notes"
                     >
@@ -74,7 +78,7 @@ export default function ChatPanel({
                   {onWrite && (
                     <button
                       type="button"
-                      className="flex items-center gap-1 hover:text-accent"
+                      className="flex items-center gap-1 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
                       onClick={() => onWrite(msg)}
                       title="Send to Write"
                     >
@@ -84,7 +88,7 @@ export default function ChatPanel({
                   {onNotes && (
                     <button
                       type="button"
-                      className="flex items-center gap-1 hover:text-accent"
+                      className="flex items-center gap-1 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
                       onClick={() => onNotes(msg)}
                       title="Open Notes"
                     >
@@ -112,15 +116,15 @@ export default function ChatPanel({
           value={inputValue}
           onChange={e => onInputChange && onInputChange(e.target.value)}
           placeholder={inputPlaceholder}
-          className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+          className="flex-1 px-3 py-2 border border-emerald-300 dark:border-emerald-600 rounded-lg bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 text-sm transition-all duration-200"
           disabled={loading}
         />
         <button
           type="submit"
-          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-1"
+          className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white rounded-lg hover:from-emerald-600 hover:to-cyan-600 transition-all duration-300 flex items-center gap-1 shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/30 transform hover:scale-105 group"
           disabled={loading || !inputValue.trim()}
         >
-          <ArrowRight className="w-4 h-4" />
+          <ArrowRight className="w-4 h-4 transition-all duration-300 group-hover:-translate-y-2 group-hover:rotate-90" />
         </button>
       </form>
     </div>

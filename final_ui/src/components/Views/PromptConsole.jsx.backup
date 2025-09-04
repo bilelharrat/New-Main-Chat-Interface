@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { ArrowRight, FileText, MessageSquare, Sliders, Maximize2, Minimize2, StickyNote, Copy, Pencil, Clock, Clipboard, CheckSquare, Download, ChevronLeft, ChevronRight, User, X, Search, Inbox, GripVertical, Settings, PanelLeftClose, PanelRightClose, Sun, Moon, Bot, Upload, Filter, Star, Sparkles, Send, Trash2, Lightbulb, Zap, Target, Brain } from 'lucide-react';
+import { ArrowRight, FileText, MessageSquare, Sliders, Maximize2, Minimize2, StickyNote, Copy, Pencil, Clock, Clipboard, CheckSquare, Download, ChevronLeft, ChevronRight, User, X, Search, Inbox, GripVertical, Settings, PanelLeftClose, PanelRightClose, Sun, Moon, Bot, Upload, Filter, Star, Sparkles, Send, Layout } from 'lucide-react';
 import { cardClass } from '../../utils/classNames';
 import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
 import ReactMarkdown from 'react-markdown';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { useTheme } from '../../context/ThemeContext';
@@ -23,199 +22,6 @@ const isHierarchicalSummarizerMode = (mode) => {
     "Enterprise Model"
   ];
   return hierarchicalModes.includes(mode);
-};
-
-// AI Action Handlers
-const handleAIAction = (panel, action) => {
-  console.log(`AI Action: ${action} on ${panel} panel`);
-  // TODO: Implement AI actions
-  // This would integrate with your AI service to perform the requested action
-};
-
-// Quick Action Handlers
-const handleQuickAction = (panel, action) => {
-  console.log(`Quick Action: ${action} on ${panel} panel`);
-  switch (action) {
-    case 'cite':
-      // TODO: Implement citation to chat
-      break;
-    case 'export':
-      // TODO: Implement export functionality
-      break;
-    case 'share':
-      // TODO: Implement sharing functionality
-      break;
-    default:
-      break;
-  }
-};
-
-// Clear editor content
-const clearEditorContent = (panel) => {
-  if (panel === 'notes') {
-    // This will be called from within the component
-    console.log('Clearing notes content');
-  } else if (panel === 'write') {
-    // This will be called from within the component
-    console.log('Clearing write content');
-  }
-};
-
-// Smart Prompt Suggestor Component
-const SmartPromptSuggestor = ({ prompt, onSuggestionSelect, onClose, visible }) => {
-  const [suggestions, setSuggestions] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState(0);
-
-  // Generate smart prompt suggestions based on input
-  useEffect(() => {
-    if (!visible || prompt.length < 3) {
-      setSuggestions([]);
-      return;
-    }
-
-    setLoading(true);
-    
-    // Simulate API call delay for better UX
-    const timer = setTimeout(() => {
-      const newSuggestions = generateSmartSuggestions(prompt);
-      setSuggestions(newSuggestions);
-      setLoading(false);
-      setSelectedIndex(0);
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [prompt, visible]);
-
-  const generateSmartSuggestions = (input) => {
-    const suggestions = [];
-    const lowerInput = input.toLowerCase();
-    
-    // Simple smart suggestions based on input content
-    if (lowerInput.includes('create') || lowerInput.includes('build')) {
-      suggestions.push('Create a responsive component');
-      suggestions.push('Build a landing page');
-      suggestions.push('Create an API endpoint');
-    }
-    
-    if (lowerInput.includes('explain') || lowerInput.includes('how')) {
-      suggestions.push('Explain this code');
-      suggestions.push('How does this work?');
-      suggestions.push('Explain the concept');
-    }
-    
-    if (lowerInput.includes('fix') || lowerInput.includes('error')) {
-      suggestions.push('Fix this error');
-      suggestions.push('Debug this issue');
-      suggestions.push('Optimize this code');
-    }
-    
-    if (lowerInput.includes('analyze') || lowerInput.includes('review')) {
-      suggestions.push('Analyze this data');
-      suggestions.push('Review this code');
-      suggestions.push('Evaluate this approach');
-    }
-    
-    // Default suggestions if no specific pattern matches
-    if (suggestions.length === 0) {
-      suggestions.push('Explain this code');
-      suggestions.push('How does this work?');
-      suggestions.push('Explain the concept');
-    }
-    
-    return suggestions.slice(0, 3);
-  };
-
-  // Handle keyboard navigation
-  useEffect(() => {
-    if (!visible) return;
-    
-    const handleKeyDown = (e) => {
-      switch (e.key) {
-        case 'ArrowDown':
-          e.preventDefault();
-          setSelectedIndex(prev => (prev + 1) % suggestions.length);
-          break;
-        case 'ArrowUp':
-          e.preventDefault();
-          setSelectedIndex(prev => (prev - 1 + suggestions.length) % suggestions.length);
-          break;
-        case 'Enter':
-          e.preventDefault();
-          if (suggestions[selectedIndex]) {
-            onSuggestionSelect(suggestions[selectedIndex]);
-          }
-          break;
-        case 'Escape':
-          e.preventDefault();
-          onClose();
-          break;
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [visible, suggestions, selectedIndex, onSuggestionSelect, onClose]);
-
-  if (!visible || suggestions.length === 0) return null;
-
-  return (
-    <div className="absolute bottom-full left-0 right-0 mb-2 z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 backdrop-blur-xl overflow-hidden">
-        {/* Header */}
-        <div className="px-4 py-3 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-b border-gray-200/50 dark:border-gray-700/50">
-          <div className="flex items-center gap-2">
-            <Lightbulb className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Smart Suggestions
-            </span>
-            <button
-              onClick={onClose}
-              className="ml-auto p-1 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-            >
-              <X size={14} />
-            </button>
-          </div>
-        </div>
-        
-        {/* Suggestions List */}
-        <div className="max-h-80 overflow-y-auto">
-          {loading ? (
-            <div className="p-4 text-center">
-              <div className="flex items-center justify-center space-x-2">
-                <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
-                <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                <div className="w-2 h-2 bg-pink-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-              </div>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Analyzing your prompt...</p>
-            </div>
-          ) : (
-            suggestions.map((suggestion, index) => (
-              <button
-                key={index}
-                className={`w-full p-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg text-sm text-gray-700 dark:text-gray-300 transition-colors duration-200 ${
-                  index === selectedIndex ? 'bg-blue-50 dark:bg-blue-900/20 ring-2 ring-blue-200 dark:ring-blue-800' : ''
-                }`}
-                onClick={() => onSuggestionSelect(suggestion)}
-              >
-                {suggestion}
-              </button>
-            ))
-          )}
-        </div>
-        
-        {/* Footer */}
-        <div className="px-4 py-2 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-200/50 dark:border-gray-700/50">
-          <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-            <span>Use ↑↓ arrows to navigate, Enter to select, Esc to close</span>
-            <span className="text-blue-600 dark:text-blue-400 font-medium">
-              {suggestions.length} suggestion{suggestions.length !== 1 ? 's' : ''}
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
 };
 
 export default function PromptConsole({ setView, embedded = false, researchMode = false }) {
@@ -245,14 +51,6 @@ export default function PromptConsole({ setView, embedded = false, researchMode 
   // State declarations - moved to top to fix initialization order
   const [prompt, setPrompt] = useState("");
   const [showSettings, setShowSettings] = useState(false);
-  const [showAISuggestions, setShowAISuggestions] = useState({ notes: false, write: false });
-  
-  // Smart prompt suggestor state
-  const [showPromptSuggestor, setShowPromptSuggestor] = useState(false);
-  const [promptSuggestorDebounce, setPromptSuggestorDebounce] = useState(null);
-  
-  // Right-click context menu state
-  const [contextMenu, setContextMenu] = useState({ show: false, x: 0, y: 0, target: null });
   
   // Load messages from sessionStorage for session persistence (not localStorage for refresh clearing)
   const [messages, setMessages] = useState(() => {
@@ -471,7 +269,6 @@ export default function PromptConsole({ setView, embedded = false, researchMode 
   const minWriteWidth = 320;
   const maxWriteWidth = 900;
   const writeDragHandleRef = useRef();
-  const notesDragHandleRef = useRef();
   const [notesBottomLeftSize, setNotesBottomLeftSize] = useState({ width: 360, height: 320 });
   const notesBottomLeftMin = { width: 220, height: 120 };
   const notesBottomLeftMax = { width: 600, height: 600 };
@@ -543,21 +340,13 @@ export default function PromptConsole({ setView, embedded = false, researchMode 
       if (openResponseFilter !== null) {
         setOpenResponseFilter(null);
       }
-      // Close context menu when clicking outside
-      if (contextMenu.show) {
-        setContextMenu({ show: false, x: 0, y: 0, target: null });
-      }
-      // Close smart prompt suggestor when clicking outside
-      if (showPromptSuggestor) {
-        setShowPromptSuggestor(false);
-      }
     };
     
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [openActionMenu, openResponseFilter, contextMenu.show, showPromptSuggestor]);
+  }, [openActionMenu, openResponseFilter]);
   
   // Export settings
   const [exportSettings, setExportSettings] = useState({
@@ -601,84 +390,6 @@ export default function PromptConsole({ setView, embedded = false, researchMode 
   const [showModeSelector, setShowModeSelector] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
 
-  // Initialize editors properly
-  useEffect(() => {
-    // Ensure editors start with clean content
-    if (notes && notes.trim() === '') {
-      setNotes('');
-    }
-    if (writeContent && writeContent.trim() === '') {
-      setWriteContent('');
-    }
-  }, [notes, writeContent]);
-
-  // Right-click context menu handlers
-  const handleEditorRightClick = (e, panel) => {
-    e.preventDefault();
-    setContextMenu({
-      show: true,
-      x: e.clientX,
-      y: e.clientY,
-      target: panel
-    });
-  };
-
-  const handleContextMenuAction = (action, panel) => {
-    switch (action) {
-      case 'ai-assistant':
-        // TODO: Implement AI writing assistant
-        console.log(`AI Writing Assistant for ${panel} panel`);
-        break;
-      case 'improve-text':
-        // TODO: Implement text improvement
-        console.log(`Improve text in ${panel} panel`);
-        break;
-      case 'rewrite-selection':
-        // TODO: Implement text rewriting
-        console.log(`Rewrite selection in ${panel} panel`);
-        break;
-      case 'research-topic':
-        // TODO: Implement topic research
-        console.log(`Research topic for ${panel} panel`);
-        break;
-      case 'cite-sources':
-        // TODO: Implement source citation
-        console.log(`Cite sources for ${panel} panel`);
-        break;
-      case 'check-grammar':
-        // TODO: Implement grammar checking
-        console.log(`Check grammar for ${panel} panel`);
-        break;
-      case 'export':
-        openExportModal(panel);
-        break;
-      case 'clear':
-        if (panel === 'notes') {
-          setNotes('');
-        } else if (panel === 'write') {
-          setWriteContent('');
-        }
-        break;
-      case 'copy':
-        const content = panel === 'notes' ? notes : writeContent;
-        navigator.clipboard.writeText(content);
-        break;
-      case 'paste':
-        navigator.clipboard.readText().then(text => {
-          if (panel === 'notes') {
-            setNotes(prev => prev + text);
-          } else if (panel === 'write') {
-            setWriteContent(prev => prev + text);
-          }
-        });
-        break;
-      default:
-        break;
-    }
-    
-    setContextMenu({ show: false, x: 0, y: 0, target: null });
-  };
-
   // Progressive disclosure - show more options as user becomes more proficient
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -719,14 +430,6 @@ export default function PromptConsole({ setView, embedded = false, researchMode 
       if (e.key === 'Escape') {
         setPrompt('');
       }
-      
-      // ⌘/ for smart prompt suggestions
-      if (e.metaKey && e.key === '/') {
-        e.preventDefault();
-        if (prompt.length >= 3) {
-          setShowPromptSuggestor(true);
-        }
-      }
     };
 
     document.addEventListener('keydown', handleKeyDown);
@@ -735,28 +438,6 @@ export default function PromptConsole({ setView, embedded = false, researchMode 
 
   // Smart input suggestions
   const [inputSuggestions, setInputSuggestions] = useState([]);
-  
-  // Smart prompt suggestor logic
-  useEffect(() => {
-    if (promptSuggestorDebounce) {
-      clearTimeout(promptSuggestorDebounce);
-    }
-    
-    if (prompt.length >= 3) {
-      const timer = setTimeout(() => {
-        setShowPromptSuggestor(true);
-      }, 500); // Show after 500ms of typing
-      setPromptSuggestorDebounce(timer);
-    } else {
-      setShowPromptSuggestor(false);
-    }
-    
-    return () => {
-      if (promptSuggestorDebounce) {
-        clearTimeout(promptSuggestorDebounce);
-      }
-    };
-  }, [prompt, promptSuggestorDebounce]);
   
   useEffect(() => {
     if (prompt.length > 2) {
@@ -787,19 +468,6 @@ export default function PromptConsole({ setView, embedded = false, researchMode 
       suggestions.push('Fix this error');
       suggestions.push('Debug this issue');
       suggestions.push('Optimize this code');
-    }
-    
-    if (lowerQuery.includes('analyze') || lowerQuery.includes('review')) {
-      suggestions.push('Analyze this data');
-      suggestions.push('Review this code');
-      suggestions.push('Evaluate this approach');
-    }
-    
-    // Default suggestions if no specific pattern matches
-    if (suggestions.length === 0) {
-      suggestions.push('Explain this code');
-      suggestions.push('How does this work?');
-      suggestions.push('Explain the concept');
     }
     
     return suggestions.slice(0, 3);
@@ -1309,20 +977,6 @@ export default function PromptConsole({ setView, embedded = false, researchMode 
         textarea.style.height = '';
       }
     }
-  };
-
-  // Smart prompt suggestor handlers
-  const handlePromptSuggestionSelect = (suggestion) => {
-    setPrompt(suggestion);
-    setShowPromptSuggestor(false);
-    // Focus back to the input
-    if (textareaRef.current) {
-      textareaRef.current.focus();
-    }
-  };
-
-  const handlePromptSuggestorClose = () => {
-    setShowPromptSuggestor(false);
   };
 
   const handleSubmit = async (e) => {
@@ -1966,88 +1620,16 @@ export default function PromptConsole({ setView, embedded = false, researchMode 
           
           {/* Elegant Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100/60 dark:border-gray-800/60 bg-gradient-to-r from-slate-50/80 to-white/80 dark:from-slate-900/80 dark:to-slate-800/80 backdrop-blur-sm">
-            {!writeCollapsed && (
-              <div className="flex items-center gap-3">
-                <div className="w-2 h-2 bg-gradient-to-r from-[#1565C0] to-[#2E7D32] rounded-full animate-pulse"></div>
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Write Panel</span>
-                {/* Layout Toggle Button */}
-                <button
-                  onClick={togglePanelLayout}
-                  className="ml-3 px-3 py-1.5 text-xs bg-gradient-to-r from-slate-100/80 to-slate-200/80 dark:from-slate-700/80 dark:to-slate-600/80 hover:from-slate-200/80 hover:to-slate-300/80 dark:hover:from-slate-600/80 dark:hover:from-slate-500/80 text-gray-700 dark:text-gray-300 rounded-lg font-medium transition-all duration-200 hover:scale-105 border border-slate-200/60 dark:border-slate-600/60"
-                  title={`Current: ${panelLayout} - Click to cycle layouts`}
-                >
-                  Layout: {panelLayout === 'right' ? 'Right' : panelLayout === 'split' ? 'Split' : panelLayout === 'left' ? 'Left' : 'Notes-Left'}
-                </button>
-              </div>
-            )}
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-3">
+              <div className="w-2 h-2 bg-gradient-to-r from-[#1565C0] to-[#2E7D32] rounded-full animate-pulse"></div>
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Write Panel</span>
+            </div>
+            <div className="flex items-center gap-2">
               <button
-                className="p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100/80 dark:hover:bg-gray-800/80 hover:text-gray-700 dark:hover:text-gray-200 transition-all duration-200 hover:scale-105"
-                onClick={() => setWriteCollapsed(!writeCollapsed)}
-                title={writeCollapsed ? 'Expand' : 'Collapse'}
+                className="ml-3 px-3 py-1.5 text-xs bg-gradient-to-r from-slate-100/80 to-slate-200/80 dark:from-slate-700/80 dark:to-slate-600/80 hover:from-slate-200/80 hover:to-slate-300/80 dark:hover:from-slate-600/80 dark:hover:to-slate-500/80 text-gray-700 dark:text-gray-300 rounded-lg transition-all duration-200"
+                onClick={() => setShowSettings(!showSettings)}
               >
-                {writeIsLeft ? <PanelRightClose size={16} /> : <PanelLeftClose size={16} />}
-              </button>
-              {!writeCollapsed && (
-                <>
-                  <button
-                    className="p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100/80 dark:hover:bg-gray-800/80 hover:text-gray-700 dark:hover:text-gray-200 transition-all duration-200 hover:scale-105"
-                    onClick={() => setShowWriteHistory(true)}
-                    title="View version history"
-                  > <Clock size={16} /> </button>
-                  <button
-                    className="p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100/80 dark:hover:bg-gray-800/80 hover:text-gray-700 dark:hover:text-gray-200 transition-all duration-200 hover:scale-105"
-                    onClick={() => handleCopyPanelLink('writing')}
-                    title="Copy Writing Link"
-                  > <Clipboard size={16} /> </button>
-                  <button
-                    className="p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100/80 dark:hover:bg-gray-800/80 hover:text-gray-700 dark:hover:text-gray-200 transition-all duration-200 hover:scale-105"
-                    onClick={() => setShowTodos(prev => ({ ...prev, write: !prev.write }))}
-                    title="Toggle To-Do List"
-                  > <CheckSquare size={16} /> </button>
-                  <button
-                    className="p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100/80 dark:hover:bg-gray-800/80 hover:text-gray-700 dark:hover:text-gray-200 transition-all duration-200 hover:scale-105"
-                    onClick={() => openExportModal('write')}
-                    title="Export Content"
-                  > <Download size={16} /> </button>
-                  <button
-                    className="p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 transition-all duration-200 hover:scale-105"
-                    onClick={() => setWriteContent('')}
-                    title="Clear Writing"
-                  > <Trash2 size={16} /> </button>
-                  <div className="relative">
-                    <button
-                      className="p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100/80 dark:hover:bg-gray-800/80 hover:text-gray-700 dark:hover:text-gray-200 transition-all duration-200 hover:scale-105"
-                      onClick={() => setShowFormatInput(f => !f)}
-                      title="Request a writing format"
-                    >
-                      {writeFormat ? `Format: ${writeFormat}` : 'Format'}
-                    </button>
-                    {showFormatInput && (
-                      <div className="absolute right-0 mt-3 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 rounded-2xl shadow-2xl p-4 z-50 flex items-center gap-3 animate-in slide-in-from-top-2">
-                        <input
-                          type="text"
-                          className="px-3 py-2 rounded-xl border border-gray-200/60 dark:border-gray-700/60 bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#1565C0]/30 focus:border-[#1565C0] transition-all duration-200"
-                          placeholder="e.g. MLA, APA"
-                          value={writeFormat}
-                          onChange={e => setWriteFormat(e.target.value)}
-                          onKeyDown={e => { if (e.key === 'Enter') setShowFormatInput(false); }}
-                          autoFocus
-                        />
-                        <button
-                          className="text-sm px-4 py-2 rounded-xl bg-gradient-to-r from-[#1565C0] to-[#2E7D32] text-white font-medium hover:from-[#1565C0] hover:to-[#2E7D32] transition-all duration-200 hover:scale-105 shadow-lg"
-                          onClick={() => setShowFormatInput(false)}
-                        >OK</button>
-                      </div>
-                    )}
-                  </div>
-                </>
-              )}
-              <button 
-                onClick={() => setWriteOpen(false)} 
-                className="p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 transition-all duration-200 hover:scale-105"
-              >
-                <X size={18} />
+                <Settings className="w-3 h-3" />
               </button>
             </div>
           </div>
@@ -2056,72 +1638,59 @@ export default function PromptConsole({ setView, embedded = false, researchMode 
                 onDragOver={e => e.preventDefault()}
                 onDrop={handleQuillDrop(setWriteContent)}
               >
-              {/* Enhanced Writing Editor with AI Features */}
-              <div className="flex-1 flex flex-col">
+              <ReactQuill
+                theme="snow"
+                value={writeContent}
+                onChange={setWriteContent}
+                className="flex-1 bg-transparent apple-writing-editor"
+                style={{ border: 'none' }}
+                placeholder="Write essays, long answers, or brainstorm in real time..."
+              />
 
-
-                {/* Enhanced Rich Text Editor */}
-                <div className="flex-1 relative">
-                  <div 
-                    onContextMenu={(e) => handleEditorRightClick(e, 'write')}
-                    className="h-full"
-                  >
-                    <ReactQuill
-                      theme="snow"
-                      value={writeContent}
-                      onChange={setWriteContent}
-                      className="flex-1 bg-transparent apple-writing-editor h-full"
-                      style={{ border: 'none' }}
-                      placeholder="Start writing your document here..."
-                      modules={{
-                        toolbar: [
-                          [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-                          ['bold', 'italic', 'underline', 'strike'],
-                          [{ 'color': [] }, { 'background': [] }],
-                          [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                          [{ 'indent': '-1'}, { 'indent': '+1' }],
-                          [{ 'align': [] }],
-                          ['link', 'image', 'code-block', 'blockquote'],
-                          [{ 'script': 'sub'}, { 'script': 'super' }],
-                          [{ 'direction': 'rtl' }],
-                          ['clean']
-                        ]
-                      }}
-                      formats={[
-                        'header', 'bold', 'italic', 'underline', 'strike',
-                        'color', 'background', 'list', 'bullet', 'indent',
-                        'align', 'link', 'image', 'code-block', 'blockquote',
-                        'script', 'direction'
-                      ]}
-                    />
+              
+              {/* To-Do List for Write Panel */}
+              {showTodos.write && (
+                <div className="mx-6 mb-4 p-5 bg-gradient-to-br from-white/80 to-gray-50/80 dark:from-gray-800/80 dark:to-gray-700/80 rounded-2xl border border-gray-200/40 dark:border-gray-700/40 backdrop-blur-sm shadow-lg">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="font-medium text-sm text-gray-900 dark:text-white tracking-wide">To-Do List</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100/60 dark:bg-gray-700/60 px-3 py-1 rounded-full">
+                      {getTodoStats(writeTodos).completed}/{getTodoStats(writeTodos).total} completed
+                    </div>
                   </div>
                   
-                  {/* Floating Action Menu */}
-                  <div className="absolute bottom-6 right-6 flex flex-col gap-2">
+                  {/* Add new todo */}
+                  <div className="flex gap-3 mb-4">
+                    <input
+                      type="text"
+                      placeholder="Add a new task..."
+                      className="flex-1 px-4 py-3 text-sm border border-gray-200/60 dark:border-gray-600/60 rounded-xl bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-apple-blue-500/30 focus:border-apple-blue-500 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && e.target.value.trim()) {
+                          addTodo('write', e.target.value);
+                          e.target.value = '';
+                        }
+                      }}
+                    />
                     <button
-                      onClick={() => handleQuickAction('write', 'cite')}
-                      className="w-12 h-12 bg-gradient-to-r from-[#1565C0] to-[#2E7D32] text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 flex items-center justify-center"
-                      title="Cite to Chat"
+                      className="px-4 py-3 text-sm bg-gradient-to-r from-[#1565C0] to-[#2E7D32] text-white rounded-xl hover:from-[#1565C0] hover:to-[#2E7D32] transition-all duration-200 hover:scale-105 shadow-lg font-medium"
+                      onClick={(e) => {
+                        const input = e.target.previousElementSibling;
+                        if (input.value.trim()) {
+                          addTodo('write', input.value);
+                          input.value = '';
+                        }
+                      }}
                     >
-                      <MessageSquare size={20} />
-                    </button>
-                    <button
-                      onClick={() => handleQuickAction('write', 'export')}
-                      className="w-12 h-12 bg-gradient-to-r from-[#1565C0] to-[#2E7D32] text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 flex items-center justify-center"
-                      title="Export Writing"
-                    >
-                      <Download size={20} />
-                    </button>
-                    <button
-                      onClick={() => handleQuickAction('write', 'share')}
-                      className="w-12 h-12 bg-gradient-to-r from-[#1565C0] to-[#2E7D32] text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 flex items-center justify-center"
-                      title="Share Document"
-                    >
-                      <Send size={20} />
+                      Add
                     </button>
                   </div>
+                  
+                  {/* Todo items - temporarily simplified */}
+                  <div className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
+                    Todo list functionality temporarily disabled
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
       </div>
@@ -2141,7 +1710,7 @@ export default function PromptConsole({ setView, embedded = false, researchMode 
         {/* Drag handle */}
         {!notesCollapsed && (
           <div
-            ref={notesDragHandleRef}
+            ref={dragHandleRef}
             onMouseDown={startDrag}
             className={`absolute top-0 h-full w-1 cursor-ew-resize z-40 group ${notesIsLeft ? 'right-0' : 'left-0'}`}
           >
@@ -2151,62 +1720,16 @@ export default function PromptConsole({ setView, embedded = false, researchMode 
         
         {/* Elegant Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100/60 dark:border-gray-800/60 bg-gradient-to-r from-slate-50/80 to-white/80 dark:from-slate-900/80 dark:to-slate-800/80 backdrop-blur-sm">
-          {!notesCollapsed && (
-            <div className="flex items-center gap-3">
-              <div className="w-2 h-2 bg-gradient-to-r from-[#1565C0] to-[#2E7D32] rounded-full animate-pulse"></div>
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Notes Panel</span>
-              {/* Layout Toggle Button */}
-              <button
-                onClick={togglePanelLayout}
-                className="ml-3 px-3 py-1.5 text-xs bg-gradient-to-r from-slate-100/80 to-slate-200/80 dark:from-slate-700/80 dark:to-slate-600/80 hover:from-slate-200/80 hover:to-slate-300/80 dark:hover:from-slate-600/80 dark:hover:from-slate-500/80 text-gray-700 dark:text-gray-300 rounded-lg font-medium transition-all duration-200 hover:scale-105 border border-slate-200/60 dark:border-slate-600/60"
-                title={`Current: ${panelLayout} - Click to cycle layouts`}
-              >
-                Layout: {panelLayout === 'right' ? 'Right' : panelLayout === 'split' ? 'Split' : panelLayout === 'left' ? 'Left' : 'Notes-Left'}
-              </button>
-            </div>
-          )}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-3">
+            <div className="w-2 h-2 bg-gradient-to-r from-[#1565C0] to-[#2E7D32] rounded-full animate-pulse"></div>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Notes Panel</span>
+          </div>
+          <div className="flex items-center gap-2">
             <button
-              className="p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100/80 dark:hover:bg-gray-800/80 hover:text-gray-700 dark:hover:text-gray-200 transition-all duration-200 hover:scale-105"
-              onClick={() => setNotesCollapsed(!notesCollapsed)}
-              title={notesCollapsed ? 'Expand' : 'Collapse'}
+              className="ml-3 px-3 py-1.5 text-xs bg-gradient-to-r from-slate-100/80 to-slate-200/80 dark:from-slate-700/80 dark:to-slate-600/80 hover:from-slate-200/80 hover:to-slate-300/80 dark:hover:from-slate-600/80 dark:hover:to-slate-500/80 text-gray-700 dark:text-gray-300 rounded-lg transition-all duration-200"
+              onClick={() => setShowSettings(!showSettings)}
             >
-              {notesIsLeft ? <PanelRightClose size={16} /> : <PanelLeftClose size={16} />}
-            </button>
-            {!notesCollapsed && (
-              <>
-                <button
-                  className="p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100/80 dark:hover:bg-gray-800/80 hover:text-gray-700 dark:hover:text-gray-200 transition-all duration-200 hover:scale-105"
-                  onClick={() => setShowNotesHistory(true)}
-                  title="View version history"
-                > <Clock size={16} /> </button>
-                <button
-                  className="p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100/80 dark:hover:bg-gray-800/80 hover:text-gray-700 dark:hover:text-gray-200 transition-all duration-200 hover:scale-105"
-                  onClick={() => handleCopyPanelLink('note')}
-                  title="Copy Notes Link"
-                > <Clipboard size={16} /> </button>
-                <button
-                  className="p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100/80 dark:hover:bg-gray-800/80 hover:text-gray-700 dark:hover:text-gray-200 transition-all duration-200 hover:scale-105"
-                  onClick={() => setShowTodos(prev => ({ ...prev, notes: !prev.notes }))}
-                  title="Toggle To-Do List"
-                > <CheckSquare size={16} /> </button>
-                <button
-                  className="p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100/80 dark:hover:bg-gray-800/80 hover:text-gray-700 dark:hover:text-gray-200 transition-all duration-200 hover:scale-105"
-                  onClick={() => openExportModal('notes')}
-                  title="Export Content"
-                > <Download size={16} /> </button>
-                <button
-                  className="p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 transition-all duration-200 hover:scale-105"
-                  onClick={() => setNotes('')}
-                  title="Clear Notes"
-                > <Trash2 size={16} /> </button>
-              </>
-            )}
-            <button 
-              onClick={() => setNotesOpen(false)} 
-              className="p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 transition-all duration-200 hover:scale-105"
-            >
-              <X size={18} />
+              <Settings className="w-3 h-3" />
             </button>
           </div>
         </div>
@@ -2215,80 +1738,77 @@ export default function PromptConsole({ setView, embedded = false, researchMode 
             onDragOver={e => e.preventDefault()}
             onDrop={handleQuillDrop(setNotes)}
           >
-            {/* Enhanced Notes Editor with AI Features */}
-            <div className="flex-1 flex flex-col">
+            <ReactQuill
+              theme="snow"
+              value={notes}
+              onChange={setNotes}
+              className="flex-1 bg-transparent apple-notes-editor"
+              style={{ border: 'none' }}
+              placeholder="Jot down notes, cite outputs, or take class notes..."
+            />
 
-
-              {/* Enhanced Rich Text Editor */}
-              <div className="flex-1 relative">
-                <div 
-                  onContextMenu={(e) => handleEditorRightClick(e, 'notes')}
-                  className="h-full"
-                >
-                  <ReactQuill
-                    theme="snow"
-                    value={notes}
-                    onChange={setNotes}
-                    className="flex-1 bg-transparent apple-notes-editor h-full"
-                    style={{ border: 'none' }}
-                    placeholder="Start writing your notes here..."
-                    modules={{
-                      toolbar: [
-                        [{ 'header': [1, 2, 3, false] }],
-                        ['bold', 'italic', 'underline', 'strike'],
-                        [{ 'color': [] }, { 'background': [] }],
-                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                        [{ 'indent': '-1'}, { 'indent': '+1' }],
-                        [{ 'align': [] }],
-                        ['link', 'image', 'code-block'],
-                        ['clean']
-                      ]
-                    }}
-                    formats={[
-                      'header', 'bold', 'italic', 'underline', 'strike',
-                      'color', 'background', 'list', 'bullet', 'indent',
-                      'align', 'link', 'image', 'code-block'
-                    ]}
-                  />
+            
+            {/* To-Do List for Notes Panel */}
+            {showTodos.notes && (
+              <div className="mx-6 mb-4 p-5 bg-gradient-to-br from-white/80 to-gray-50/80 dark:from-gray-800/80 dark:to-gray-700/80 rounded-2xl border border-gray-200/40 dark:border-gray-700/40 backdrop-blur-sm shadow-lg">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="font-medium text-sm text-gray-900 dark:text-white tracking-wide">To-Do List</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100/60 dark:bg-gray-700/60 px-3 py-1 rounded-full">
+                    {getTodoStats(notesTodos).completed}/{getTodoStats(notesTodos).total} completed
+                  </div>
                 </div>
                 
-                {/* Floating Action Menu */}
-                <div className="absolute bottom-6 right-6 flex flex-col gap-2">
+                {/* Add new todo */}
+                <div className="flex gap-3 mb-4">
+                  <input
+                    type="text"
+                    placeholder="Add a new task..."
+                    className="flex-1 px-4 py-3 text-sm border border-gray-200/60 dark:border-gray-600/60 rounded-xl bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-apple-green-500/30 focus:border-apple-green-500 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && e.target.value.trim()) {
+                        addTodo('notes', e.target.value);
+                        e.target.value = '';
+                      }
+                    }}
+                  />
                   <button
-                    onClick={() => handleQuickAction('notes', 'cite')}
-                    className="w-12 h-12 bg-gradient-to-r from-[#1565C0] to-[#2E7D32] text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 flex items-center justify-center"
-                    title="Cite to Chat"
+                    className="px-4 py-3 text-sm bg-gradient-to-r from-[#1565C0] to-[#2E7D32] text-white rounded-xl hover:from-[#1565C0] hover:to-[#2E7D32] transition-all duration-200 hover:scale-105 shadow-lg font-medium"
+                    onClick={(e) => {
+                      const input = e.target.previousElementSibling;
+                      if (input.value.trim()) {
+                        addTodo('notes', input.value);
+                        input.value = '';
+                      }
+                    }}
                   >
-                    <MessageSquare size={20} />
-                  </button>
-                  <button
-                    onClick={() => handleQuickAction('notes', 'export')}
-                    className="w-12 h-12 bg-gradient-to-r from-[#1565C0] to-[#2E7D32] text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 flex items-center justify-center"
-                    title="Export Notes"
-                  >
-                    <Download size={20} />
+                    Add
                   </button>
                 </div>
-              </div>
-            </div>
-            {/* Cited Notes List */}
-            {!notesCollapsed && citedNotes.length > 0 && (
-              <div className="border-t border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-800">
-                <div className="font-semibold text-xs text-gray-500 mb-2">Cited Outputs</div>
-                <ul className="space-y-2">
-                  {citedNotes.map((note, i) => (
-                    <li key={i}>
-                      <button
-                        className="text-left text-xs text-accent hover:underline focus:outline-none"
-                        onClick={() => handleCitedNoteClick(note.messageIdx)}
-                      >
-                        {note.text.length > 60 ? note.text.slice(0, 60) + '...' : note.text}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
+                
+                {/* Todo items - temporarily simplified */}
+                <div className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
+                  Todo list functionality temporarily disabled
+                </div>
               </div>
             )}
+          </div>
+        )}
+        {/* Cited Notes List */}
+        {!notesCollapsed && citedNotes.length > 0 && (
+          <div className="border-t border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-800">
+            <div className="font-semibold text-xs text-gray-500 mb-2">Cited Outputs</div>
+            <ul className="space-y-2">
+              {citedNotes.map((note, i) => (
+                <li key={i}>
+                  <button
+                    className="text-left text-xs text-accent hover:underline focus:outline-none"
+                    onClick={() => handleCitedNoteClick(note.messageIdx)}
+                  >
+                    {note.text.length > 60 ? note.text.slice(0, 60) + '...' : note.text}
+                  </button>
+                </li>
+              ))}
+            </ul>
           </div>
         )}
       </div>
@@ -2342,7 +1862,7 @@ export default function PromptConsole({ setView, embedded = false, researchMode 
         </div>
         {/* Input Bar */}
         <form
-          className="w-full max-w-2xl mx-auto flex items-center gap-2 px-4 pb-4 pt-2 relative"
+          className="w-full max-w-2xl mx-auto flex items-center gap-2 px-4 pb-4 pt-2"
           onSubmit={e => {
             e.preventDefault();
             if (!prompt.trim()) return;
@@ -2353,7 +1873,6 @@ export default function PromptConsole({ setView, embedded = false, researchMode 
             }, 1000);
           }}
         >
-          <div className="flex-1 relative">
           <input
             type="text"
             value={prompt}
@@ -2375,27 +1894,18 @@ export default function PromptConsole({ setView, embedded = false, researchMode 
               }
             }}
             placeholder="Ask Eden..."
-              className="w-full px-3 py-2 border border-[#1565C0] dark:border-[#1565C0] rounded-lg bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1565C0]/50 focus:border-[#1565C0] text-sm transition-all duration-200"
-            />
-            
-            {/* Smart Prompt Suggestor */}
-            <SmartPromptSuggestor
-              prompt={prompt}
-              onSuggestionSelect={handlePromptSuggestionSelect}
-              onClose={handlePromptSuggestorClose}
-              visible={showPromptSuggestor}
-            />
-          </div>
+            className="flex-1 px-3 py-2 border border-[#1565C0] dark:border-[#1565C0] rounded-lg bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1565C0]/50 focus:border-[#1565C0] text-sm transition-all duration-200"
+          />
           <button
             type="submit"
-            className="relative px-4 py-2 bg-gradient-to-r from-[#1565C0] to-[#2E7D32] text-white rounded-lg hover:from-[#1565C0] hover:to-[#2E7D32] transition-all duration-300 flex items-center gap-1 shadow-lg shadow-[#1565C0]/25 hover:shadow-xl hover:shadow-[#2E7D32]/30 transform hover:scale-105 group overflow-hidden"
+            className="relative px-4 py-2 bg-gradient-to-r from-[#1565C0] to-[#2E7D32] text-white rounded-lg hover:from-[#1565C0] hover:to-[#2E7D32] transition-all duration-300 flex items-center gap-1 shadow-lg shadow-[#1565C0]/25 hover:shadow-xl hover:shadow-[#1565C0]/30 transform hover:scale-105 group overflow-hidden"
             disabled={!prompt.trim()}
           >
             {/* Hover overlay */}
             <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"></div>
             {/* Content with relative positioning */}
             <div className="relative z-10 flex items-center gap-1">
-              <ArrowRight size={18} className="text-white transition-all duration-300 group-hover:-translate-y-2 group-hover:-rotate-90" />
+              <ArrowRight size={18} className="text-white" />
             </div>
           </button>
         </form>
@@ -2545,7 +2055,117 @@ export default function PromptConsole({ setView, embedded = false, researchMode 
                                 <div className="prose prose-sm dark:prose-invert max-w-none">
                                   <div className="whitespace-pre-line">{msg.content}</div>
                                 </div>
+                              ) : multipleResponses[idx] && showMultiResponseView && activeMultiResponseMessage === idx ? (
+                                // Apple-inspired resizable compare layout
+                                <div className="flex justify-center w-full">
+                                  <div className="compare-window relative bg-white dark:bg-gray-800 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-2xl overflow-hidden min-w-[800px] min-h-[600px] h-[80vh] max-h-[900px] transition-all duration-500"
+                                       style={{
+                                         width: compareWindowExpanded ? '99vw' : '90vw',
+                                         maxWidth: compareWindowExpanded ? '1800px' : '1200px'
+                                       }}>
+                                    {/* Resizable Container */}
+                                    <div className="absolute inset-0">
+                                      {/* Header Bar */}
+                                      <div className="flex items-center justify-between px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-600">
+                                        <div className="flex items-center gap-3">
+                                          <div className="w-3 h-3 bg-red-500 rounded-full cursor-pointer hover:bg-red-600 transition-colors"></div>
+                                          <div className="w-3 h-3 bg-yellow-500 rounded-full cursor-pointer hover:bg-yellow-600 transition-colors"></div>
+                                          <div 
+                                            className={`w-3 h-3 rounded-full cursor-pointer transition-all duration-200 ${
+                                              compareWindowExpanded 
+                                                ? 'bg-green-600 scale-110 shadow-lg' 
+                                                : 'bg-green-500 hover:bg-green-600'
+                                            }`}
+                                            onClick={() => {
+                                              console.log('Green button clicked! Current state:', compareWindowExpanded);
+                                              setCompareWindowExpanded(!compareWindowExpanded);
+                                              console.log('New state will be:', !compareWindowExpanded);
+                                            }}
+                                            title="Click to toggle window width"
+                                          ></div>
+                                        </div>
+                                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                                          Compare AI Responses
+                                          <span className="ml-2 text-xs text-gray-500">
+                                            {compareWindowExpanded ? '(EXPANDED)' : '(NORMAL)'}
+                                          </span>
+                                        </h3>
+                                        <button
+                                          onClick={() => {
+                                            setShowMultiResponseView(false);
+                                            setActiveMultiResponseMessage(null);
+                                          }}
+                                          className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                                        >
+                                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                          </svg>
+                                        </button>
+                                      </div>
+
+                                      {/* Content Grid */}
+                                      <div className="grid grid-cols-2 grid-rows-2 gap-6 p-6 h-full">
+                                        {Object.entries(multipleResponses[idx].allResponses).map(([modelName, content]) => (
+                                          <div
+                                            key={modelName}
+                                            className="cursor-pointer"
+                                            onClick={() => {
+                                              setSelectedResponseModel(prev => ({
+                                                ...prev,
+                                                [idx]: modelName
+                                              }));
+                                              setMessages(prev => prev.map((m, i) => 
+                                                i === idx 
+                                                  ? { ...m, content: multipleResponses[idx].allResponses[modelName] }
+                                                  : m
+                                              ));
+                                              setShowMultiResponseView(false);
+                                              setActiveMultiResponseMessage(null);
+                                            }}
+                                          >
+                                            {/* Chat Bubble */}
+                                            <div className="relative px-4 py-3 rounded-2xl bg-white text-gray-900 border border-gray-200 shadow-sm overflow-hidden h-48">
+                                              {/* Content with scrolling */}
+                                              <div className="h-full overflow-y-auto prose prose-sm max-w-none pr-2">
+                                                <ReactMarkdown
+                                                  components={{
+                                                    h1: ({node, ...props}) => <h1 className="text-lg font-bold mb-2 mt-3 first:mt-0 text-gradient-primary" {...props} />,
+                                                    h2: ({node, ...props}) => <h2 className="text-base font-bold mb-2 mt-3 first:mt-0 text-gradient-primary" {...props} />,
+                                                    h3: ({node, ...props}) => <h3 className="text-sm font-bold mb-2 mt-2 first:mt-0" {...props} />,
+                                                    p: ({node, ...props}) => <p className="mb-2 last:mb-0 text-sm leading-relaxed" {...props} />,
+                                                    ul: ({node, ...props}) => <ul className="list-disc list-inside mb-2 space-y-1" {...props} />,
+                                                    ol: ({node, ...props}) => <ol className="list-decimal list-inside mb-2 space-y-1" {...props} />,
+                                                    li: ({node, ...props}) => <li className="ml-2 text-sm" {...props} />,
+                                                    blockquote: ({node, ...props}) => <blockquote className="border-l-4 border-apple-blue-300 dark:border-apple-blue-600 pl-3 italic my-2 bg-apple-blue-50 dark:bg-apple-blue-900/20 rounded-r-lg py-1" {...props} />,
+                                                    code: ({node, inline, ...props}) => inline ? 
+                                                      <code className="bg-gray-100 dark:bg-gray-700 px-1 py-0.5 rounded text-xs font-mono" {...props} /> :
+                                                      <code className="block bg-gray-100 dark:bg-gray-700 p-2 rounded text-xs font-mono overflow-x-auto border border-gray-200 dark:border-gray-600" {...props} />,
+                                                    pre: ({node, ...props}) => <pre className="bg-gray-100 dark:bg-gray-700 p-2 rounded text-xs font-mono overflow-x-auto mb-2 border border-gray-200 dark:border-gray-600" {...props} />,
+                                                    strong: ({node, ...props}) => <strong className="font-bold" {...props} />,
+                                                    em: ({node, ...props}) => <em className="italic" {...props} />,
+                                                    a: ({node, ...props}) => <a className="text-apple-blue-600 dark:text-apple-blue-400 underline hover:no-underline transition-colors duration-200" {...props} />,
+                                                    hr: ({node, ...props}) => <hr className="border-gray-300 dark:border-gray-600 my-3" {...props} />
+                                                  }}
+                                                >
+                                                  {content}
+                                                </ReactMarkdown>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+
+                                    {/* Resize Handles */}
+                                    <div className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize opacity-0 hover:opacity-100 transition-opacity">
+                                      <svg className="w-full h-full text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M22 22H20V20H22V22ZM22 20H20V18H22V20ZM20 22H18V20H20V22ZM18 22H16V20H18V22Z"/>
+                                      </svg>
+                                    </div>
+                                  </div>
+                                </div>
                               ) : (
+                                // Show normal single response
                                 <div className="prose prose-sm dark:prose-invert max-w-none">
                                   {highlightedMsgIdx === idx
                                     ? highlightQuery(msg.content, highlightedQuery)
@@ -2573,11 +2193,10 @@ export default function PromptConsole({ setView, embedded = false, researchMode 
                                         >
                                           {msg.content}
                                         </ReactMarkdown>
-                                    )
-                                  }
+                                      )
+                                    }
                                 </div>
                               )}
-                            </div>
                         </div>
 
                         {/* AI message footer with actions */}
@@ -2876,121 +2495,28 @@ export default function PromptConsole({ setView, embedded = false, researchMode 
               </div>
             </div>
           );
-              })}
-              {/* Auto-scroll anchor */}
-              <div ref={messagesEndRef} />
+        })}
+        {/* Auto-scroll anchor */}
+        <div ref={messagesEndRef} />
       </div>
-          )}
-          {/* Floating Cite Selection Button */}
-          {selection.text && selection.messageIdx !== null && selection.rect && (
-            <button
-              style={{
-                position: 'fixed',
-                top: selection.rect.top - 40,
-                left: selection.rect.left + (selection.rect.width / 2) - 60,
-                zIndex: 50
-              }}
-              className="bg-gray-900 dark:bg-gray-50 text-white dark:text-black px-3 py-1 rounded-lg shadow-lg text-xs flex items-center gap-2 animate-fade-in"
-              onClick={handleCiteSelectionToNotes}
-            >
-              <Copy size={14} /> Cite to Notes
-            </button>
-          )}
-
-          {/* AI Writing Assistant Modal */}
-          {contextMenu.show && (
-            <div
-              style={{
-                position: 'fixed',
-                top: contextMenu.y,
-                left: contextMenu.x,
-                zIndex: 1000
-              }}
-              className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-2xl shadow-2xl p-6 min-w-[320px] max-w-[400px]"
-            >
-              {/* AI Writing Assistant Section */}
-              <div className="space-y-4 mb-6">
-                <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
-                     onClick={() => handleContextMenuAction('ai-assistant', contextMenu.target)}>
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <div className="font-semibold text-gray-900 dark:text-white">AI Writing Assistant</div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">Get writing help and suggestions</div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
-                     onClick={() => handleContextMenuAction('improve-text', contextMenu.target)}>
-                  <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <div className="font-semibold text-gray-900 dark:text-white">Improve Text</div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">Enhance clarity and flow</div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
-                     onClick={() => handleContextMenuAction('rewrite-selection', contextMenu.target)}>
-                  <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center">
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <div className="font-semibold text-gray-900 dark:text-white">Rewrite Selection</div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">Alternative phrasing options</div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
-                     onClick={() => handleContextMenuAction('research-topic', contextMenu.target)}>
-                  <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center">
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <div className="font-semibold text-gray-900 dark:text-white">Research Topic</div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">Explore and expand ideas</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Divider */}
-              <div className="border-t border-gray-200 dark:border-gray-600 mb-4"></div>
-
-              {/* Quick Actions Section */}
-              <div className="mb-4">
-                <div className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">Quick Actions</div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleContextMenuAction('cite-sources', contextMenu.target)}
-                    className="flex-1 px-4 py-2 text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                  >
-                    Cite Sources
-                  </button>
-                  <button
-                    onClick={() => handleContextMenuAction('check-grammar', contextMenu.target)}
-                    className="flex-1 px-4 py-2 text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                  >
-                    Check Grammar
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+      
+      {/* Floating Cite Selection Button */}
+      {selection.text && selection.messageIdx !== null && selection.rect && (
+        <button
+          style={{
+            position: 'fixed',
+            top: selection.rect.top - 40,
+            left: selection.rect.left + (selection.rect.width / 2) - 60,
+            zIndex: 50
+          }}
+          className="bg-gray-900 dark:bg-gray-50 text-white dark:text-black px-3 py-1 rounded-lg shadow-lg text-xs flex items-center gap-2 animate-fade-in"
+          onClick={handleCiteSelectionToNotes}
+        >
+          <Copy size={14} /> Cite to Notes
+        </button>
+      )}
         <div className="mt-4">
           
-
-
           <form 
             onSubmit={handleSubmit} 
             className={`w-full max-w-3xl mx-auto card-modern glass rounded-2xl border border-gray-200 dark:border-gray-700 shadow-apple p-3 ${researchMode ? 'mb-10' : ''}`}
@@ -3001,16 +2527,11 @@ export default function PromptConsole({ setView, embedded = false, researchMode 
                 
                 {/* Smart Input Suggestions */}
                 {inputSuggestions.length > 0 && (
-                  <div className="absolute bottom-full left-0 right-0 mb-2 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 backdrop-blur-xl overflow-hidden">
-                    <div className="px-4 py-3 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-b border-gray-200/50 dark:border-gray-700/50">
-                      <div className="flex items-center gap-2">
-                        <Lightbulb className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <div className="absolute bottom-full left-0 right-0 mb-2 card-modern glass border border-gray-200 dark:border-gray-700 rounded-xl shadow-apple p-2">
+                    <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2 flex items-center gap-1">
+                      <Sparkles size={12} />
                       Smart Suggestions
-                        </span>
                     </div>
-                    </div>
-                    <div className="p-2">
                     {inputSuggestions.map((suggestion, index) => (
                       <button
                         key={index}
@@ -3018,33 +2539,18 @@ export default function PromptConsole({ setView, embedded = false, researchMode 
                           setPrompt(suggestion);
                           setInputSuggestions([]);
                         }}
-                          className="w-full p-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg text-sm text-gray-700 dark:text-gray-300 transition-colors duration-200"
+                        className="w-full p-2 text-left hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-sm text-gray-700 dark:text-gray-300 transition-colors duration-200"
                       >
                         {suggestion}
                       </button>
                     ))}
-                    </div>
                   </div>
                 )}
 
-                {/* Smart Prompt Suggestor */}
-                <SmartPromptSuggestor
-                  prompt={prompt}
-                  onSuggestionSelect={handlePromptSuggestionSelect}
-                  onClose={handlePromptSuggestorClose}
-                  visible={showPromptSuggestor}
-                />
-
-                <div className="relative">
                 <textarea
                   ref={textareaRef}
             value={prompt}
                   onInput={handleInput}
-                    onFocus={() => {
-                      if (prompt.length >= 3) {
-                        setShowPromptSuggestor(true);
-                      }
-                    }}
                   onKeyDown={(e) => {
                     // Handle arrow key (up arrow) to submit like Enter
                     if (e.key === 'ArrowUp' && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
@@ -3062,19 +2568,10 @@ export default function PromptConsole({ setView, embedded = false, researchMode 
                     }
                   }}
                   className={`w-full input-modern ${fullscreen ? 'min-h-[200px] max-h-[400px]' : 'min-h-[24px] max-h-[160px]'} resize-none bg-transparent text-gray-900 dark:text-white px-4 py-2 focus:outline-none transition-all duration-200 border border-[#1565C0] dark:border-[#1565C0] rounded-lg focus:ring-2 focus:ring-[#1565C0]/50 focus:border-[#1565C0]`}
-                    placeholder="Ask Eden... (⌘Enter to send, ⌘/ for suggestions)"
+                  placeholder="Ask Eden... (⌘Enter to send)"
                   rows={1}
                   style={{ transition: 'height 0.15s' }}
                 />
-                  
-                  {/* Smart Prompt Indicator */}
-                  {prompt.length >= 3 && (
-                    <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center gap-1">
-                      <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-pulse"></div>
-                      <Lightbulb size={14} className="text-blue-500 dark:text-blue-400" />
-                    </div>
-                  )}
-                </div>
                 {(isMultiline || fullscreen) && (
                   <button
                     type="button"
@@ -3098,7 +2595,7 @@ export default function PromptConsole({ setView, embedded = false, researchMode 
                   {isProcessing ? (
                     <div className="apple-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
                   ) : (
-                    <ArrowRight size={18} className="text-white transition-all duration-300 group-hover:-translate-y-2 group-hover:-rotate-90"/>
+                    <ArrowRight size={18} className="text-white"/>
                   )}
                 </div>
               </button>
@@ -3112,7 +2609,7 @@ export default function PromptConsole({ setView, embedded = false, researchMode 
                   <div className="w-2 h-2 bg-gradient-to-r from-[#0277BD] to-[#1565C0] rounded-full animate-blink" style={{ animationDelay: '150ms' }}></div>
                   <div className="w-2 h-2 bg-gradient-to-r from-[#7B1FA2] to-[#4527A0] rounded-full animate-blink" style={{ animationDelay: '300ms' }}></div>
                 </div>
-                <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">Eden is thinking...</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">AI is thinking...</span>
                 <div className="flex items-center gap-1 ml-auto">
                   <span className="text-xs text-gray-500 dark:text-gray-400">Using {selectedMode || 'GPT-4'}</span>
                   <div className="w-2 h-2 bg-gradient-to-r from-[#1565C0] to-[#2E7D32] rounded-full animate-pulse"></div>
@@ -3121,36 +2618,39 @@ export default function PromptConsole({ setView, embedded = false, researchMode 
             )}
             {/* Pills row - Streamlined */}
             <div className="w-full flex items-center gap-3 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700/50">
-              {/* Smart Suggestions Hint */}
-              {prompt.length >= 3 && (
-                <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                  <Lightbulb size={12} className="text-blue-500" />
-                  <span>Smart suggestions available</span>
-                  <kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-xs">⌘/</kbd>
-                  <span>to show</span>
+              {/* Panel Layout Toggle */}
+              <button
+                type="button"
+                className="flex items-center gap-2 text-sm transition px-3 py-1.5 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-accent dark:hover:text-accent-foreground"
+                onClick={togglePanelLayout}
+                title={`Current: ${panelLayout} - Click to cycle layouts`}
+              >
+                <Layout size={14} />
+                <span className="text-xs font-medium">Panel Layout</span>
+                <div className="text-xs text-accent font-medium">
+                  {panelLayout === 'right' && 'Right'}
+                  {panelLayout === 'left' && 'Left'}
+                  {panelLayout === 'split' && 'Split'}
+                  {panelLayout === 'notes-left-write-right' && 'Notes Left'}
                 </div>
-              )}
-              
+              </button>
+
               {/* Mode Selector - Essential Only */}
           <div className="relative">
             <button
               type="button"
                   className={`flex items-center gap-2 text-sm transition px-3 py-1.5 rounded-xl ${
-                    selectedMode === "Coding" 
-                      ? 'text-white bg-gradient-to-r from-[#FF5722] to-[#FF9800] shadow-sm' 
-                      : isHierarchicalSummarizerMode(selectedMode)
-                      ? 'text-white bg-gradient-to-r from-[#2196F3] to-[#03A9F4] shadow-sm'
-                      : 'text-gray-500 dark:text-gray-400 hover:text-accent dark:hover:text-accent-foreground hover:bg-gray-100 dark:hover:bg-gray-700'
+                    notesOpen ? 'text-white bg-gradient-to-r from-[#1565C0] to-[#2E7D32] shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
                   }`}
-              onClick={() => setModeMenuOpen((open) => !open)}
+              onClick={() => setNotesOpen((open) => !open)}
             >
-                  {selectedMode === "Coding" ? <div className="w-3.5 h-3.5 bg-red-600 rounded flex items-center justify-center text-white text-xs font-bold">C</div> : <Sliders size={14} />}
-                  <span className="text-xs font-medium">{selectedMode}</span>
+                  {notesOpen ? <div className="w-3.5 h-3.5 bg-red-600 rounded flex items-center justify-center text-white text-xs font-bold">C</div> : <StickyNote size={14} />}
+                  <span className="text-xs font-medium">{notesOpen ? 'Close Notes' : 'Open Notes'}</span>
                   {isHierarchicalSummarizerMode(selectedMode) && (
                     <div className="w-2 h-2 bg-white rounded-full shadow-sm" title="Hierarchical Summarizer Mode" />
                   )}
             </button>
-            {modeMenuOpen && (
+            {notesOpen && (
                   <div className="absolute left-0 bottom-full mb-2 w-64 card-modern glass border border-gray-200 dark:border-gray-700 rounded-xl shadow-apple z-10">
                 {modeOptions.map((mode) => (
                   <button
@@ -3437,7 +2937,15 @@ export default function PromptConsole({ setView, embedded = false, researchMode 
         </div>
       )}
 
-
+      {/* Floating Search Button */}
+      <button
+        className="fixed bottom-8 right-8 z-50 bg-accent text-accent-foreground rounded-full shadow-lg p-4 hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-accent"
+        title="Smart Search (⌘/Ctrl+K)"
+        onClick={() => setShowSearchModal(true)}
+        style={{ boxShadow: '0 4px 24px 0 rgba(0,0,0,0.12)' }}
+      >
+        <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-search"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      </button>
 
 
 
@@ -3553,110 +3061,11 @@ export default function PromptConsole({ setView, embedded = false, researchMode 
         />
       )}
 
-      {/* Multi-Response Compare Window */}
-      {showMultiResponseView && activeMultiResponseMessage !== null && (
-        <div className="fixed inset-0 z-50 bg-black/20 backdrop-blur-xl flex items-center justify-center p-8">
-          <div 
-            className="compare-window relative bg-white dark:bg-gray-800 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-2xl overflow-hidden min-w-[800px] min-h-[600px] h-[80vh] max-h-[900px] transition-all duration-500"
-            style={{
-              width: compareWindowExpanded ? '99vw' : '90vw',
-              maxWidth: compareWindowExpanded ? '1800px' : '1200px'
-            }}
-          >
-            {/* Resizable Container */}
-            <div className="absolute inset-0">
-              {/* Header Bar */}
-              <div className="flex items-center justify-between px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-600">
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-red-500 rounded-full cursor-pointer hover:bg-red-600 transition-colors"></div>
-                  <div className="w-3 h-3 bg-yellow-500 rounded-full cursor-pointer hover:bg-yellow-600 transition-colors"></div>
-                  <div 
-                    className={`w-3 h-3 rounded-full cursor-pointer transition-all duration-200 ${
-                      compareWindowExpanded 
-                        ? 'bg-green-600 scale-110 shadow-lg' 
-                        : 'bg-green-500 hover:bg-green-600'
-                    }`}
-                    onClick={() => {
-                      console.log('Green button clicked! Current state:', compareWindowExpanded);
-                      setCompareWindowExpanded(!compareWindowExpanded);
-                      console.log('New state will be:', !compareWindowExpanded);
-                    }}
-                    title="Click to toggle window width"
-                  ></div>
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Compare AI Responses
-                  <span className="ml-2 text-xs text-gray-500">
-                    {compareWindowExpanded ? '(EXPANDED)' : '(NORMAL)'}
-                  </span>
-                </h3>
-                <button
-                  onClick={() => {
-                    setShowMultiResponseView(false);
-                    setActiveMultiResponseMessage(null);
-                  }}
-                  className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
 
-              {/* Content Grid */}
-              <div className="grid grid-cols-2 grid-rows-2 gap-6 p-6 h-full">
-                {Object.entries(multipleResponses[activeMultiResponseMessage].allResponses).map(([modelName, content]) => (
-                  <div
-                    key={modelName}
-                    className="cursor-pointer"
-                    onClick={() => {
-                      setSelectedResponseModel(prev => ({
-                        ...prev,
-                        [activeMultiResponseMessage]: modelName
-                      }));
-                      setMessages(prev => prev.map((m, i) => 
-                        i === activeMultiResponseMessage 
-                          ? { ...m, content: multipleResponses[activeMultiResponseMessage].allResponses[modelName] }
-                          : m
-                      ));
-                      setShowMultiResponseView(false);
-                      setActiveMultiResponseMessage(null);
-                    }}
-                  >
-                    {/* Chat Bubble */}
-                    <div className="relative px-4 py-3 rounded-2xl bg-white text-gray-900 border border-gray-200 shadow-sm overflow-hidden h-48">
-                      {/* Model Name Header */}
-                      <div className="flex items-center justify-between mb-2 pb-2 border-b border-gray-100">
-                        <span className="text-sm font-semibold text-gray-700">{modelName}</span>
-                        {modelName === multipleResponses[activeMultiResponseMessage].bestModel && (
-                          <div className="flex items-center gap-1">
-                            <Star size={12} className="text-yellow-500 fill-current" />
-                            <span className="text-xs text-yellow-600">Best</span>
-                          </div>
-                        )}
-                      </div>
-                      
-                      {/* Content with scrolling */}
-                      <div className="h-full overflow-y-auto prose prose-sm max-w-none pr-2">
-                        <div className="whitespace-pre-line text-sm leading-relaxed">
-                          {content}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
 
-            {/* Resize Handles */}
-            <div className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize opacity-0 hover:opacity-100 transition-opacity">
-              <svg className="w-full h-full text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M22 22H20V20H22V22ZM22 20H20V18H22V20ZM20 22H18V20H20V22ZM18 22H16V20H18V22Z"/>
-              </svg>
-            </div>
-          </div>
-        </div>
-      )}
+
+
+
 
     </div>
   );

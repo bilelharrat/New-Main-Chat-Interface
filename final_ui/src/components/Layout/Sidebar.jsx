@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { FileText, MemoryStick, Settings, MessageSquare, ChevronLeft, ChevronRight, Folder, Search, Plus, BookOpen, Code } from 'lucide-react';
+import { FileText, MemoryStick, Settings, MessageSquare, ChevronLeft, ChevronRight, Folder, Search, Plus, BookOpen } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { useSearch } from '../../context/SearchContext';
 import SmartSearchModal from '../SmartSearchModal';
@@ -11,6 +11,7 @@ const navItems = [
   { id: 'projects', label: 'Projects', icon: Folder },
   { id: 'research-mode', label: 'Research Mode', icon: BookOpen },
   { id: 'memory-retrieval', label: 'Memory & Retrieval', icon: MemoryStick },
+
   { id: 'settings', label: 'Settings', icon: Settings },
 ];
 

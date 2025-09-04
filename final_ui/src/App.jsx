@@ -13,6 +13,7 @@ import MemoryRetrieval from './components/Views/MemoryRetrieval';
 import Login from './components/Auth/Login';
 import Signup from './components/Auth/Signup';
 import ForgotPassword from './components/Auth/ForgotPassword';
+
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 
 // --- Helper Components ---
@@ -248,6 +249,11 @@ function AppShell() {
         setCurrentView('login');
     };
 
+    const handleCloseAuth = () => {
+        // Close auth modal and return to main app
+        setCurrentView('prompt-console');
+    };
+
     if (!isAuthenticated) {
         return (
             <Router>
@@ -273,12 +279,14 @@ function AppShell() {
                 return <ResearchMode />;
             case 'memory-retrieval':
                 return <MemoryRetrieval />;
+
+
             case 'settings':
                 return <SettingsPanel darkMode={darkMode} toggleDarkMode={toggleDarkMode} accentColor={accentColor} setAccentColor={setAccentColor} />;
             case 'login':
-                return <Login onLogin={handleLogin} />;
+                return <Login onLogin={handleLogin} onClose={handleCloseAuth} />;
             case 'signup':
-                return <Signup onSignup={handleLogin} />;
+                return <Signup onSignup={handleLogin} onClose={handleCloseAuth} />;
             case 'forgot-password':
                 return <ForgotPassword />;
             default:

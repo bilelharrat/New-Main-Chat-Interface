@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, X, MessageSquare, FileText, Folder, Database } from 'lucide-react';
+import { Search, X, MessageCircle, File, FolderOpen, Brain } from 'lucide-react';
 import { useSearch } from '../context/SearchContext';
 
 export default function SmartSearchModal({ open, onClose }) {
@@ -143,45 +143,25 @@ export default function SmartSearchModal({ open, onClose }) {
     { 
       id: 'conversations', 
       name: 'Conversations', 
-      icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect width="18" height="18" rx="4" fill="white"/>
-          <path d="M16 10.5C16 11.2956 15.6839 12.0587 15.1213 12.6213C14.5587 13.1839 13.7956 13.5 13 13.5H8L6 15.5V8.5C6 7.70435 6.31607 6.94129 6.87868 6.37868C7.44129 5.81607 8.20435 5.5 9 5.5H13C13.7956 5.5 14.5587 5.81607 15.1213 6.37868C15.6839 6.94129 16 7.70435 16 8.5V10.5Z" stroke="#4CAF50" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      ),
+      icon: <MessageCircle className="w-6 h-6 text-white" />,
       bgGradient: 'from-[#4CAF50] to-[#2196F3]'
     },
     { 
       id: 'documents', 
       name: 'Documents', 
-      icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect width="18" height="18" rx="4" fill="white"/>
-          <path d="M13 6H9C8.44772 6 8 6.44772 8 7V14C8 14.5523 8.44772 15 9 15H15C15.5523 15 16 14.5523 16 14V9M13 6L16 9M13 6V9H16" stroke="#2196F3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      ),
+      icon: <File className="w-6 h-6 text-white" />,
       bgGradient: 'from-[#2196F3] to-[#03A9F4]'
     },
     { 
       id: 'projects', 
       name: 'Projects', 
-      icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect width="18" height="18" rx="4" fill="white"/>
-          <path d="M15 14C15 14.5304 14.7893 15.0391 14.4142 15.4142C14.0391 15.7893 13.5304 16 13 16H7C6.46957 16 5.96086 15.7893 5.58579 15.4142C5.21071 15.0391 5 14.5304 5 14V8C5 7.46957 5.21071 6.96086 5.58579 6.58579C5.96086 6.21071 6.46957 6 7 6H9L10 7.5H13C13.5304 7.5 14.0391 7.71071 14.4142 8.08579C14.7893 8.46086 15 8.96957 15 9.5V14Z" stroke="#673AB7" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      ),
+      icon: <FolderOpen className="w-6 h-6 text-white" />,
       bgGradient: 'from-[#673AB7] to-[#9C27B0]'
     },
     { 
       id: 'memory', 
       name: 'Memory', 
-      icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect width="18" height="18" rx="4" fill="white"/>
-          <path d="M7 7V14M9 7V14M15 7V14M13 7V14M9 7H13M9 14H13M9 10.5H13M7 7H9M7 14H9M13 7H15M13 14H15" stroke="#FF5722" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      ),
+      icon: <Brain className="w-6 h-6 text-white" />,
       bgGradient: 'from-[#FF5722] to-[#FF9800]'
     }
   ];

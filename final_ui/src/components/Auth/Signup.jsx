@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Eye, EyeOff, ArrowRight, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-const Signup = ({ onSignup }) => {
+const Signup = ({ onSignup, onClose }) => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -105,7 +105,10 @@ const Signup = ({ onSignup }) => {
           {/* Header with Gradient Background */}
           <div className="relative bg-gradient-to-r from-green-500 to-blue-500 p-8 text-center">
             {/* Close Button */}
-            <button className="absolute top-4 right-4 w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-300 transition-colors">
+            <button 
+              onClick={onClose}
+              className="absolute top-4 right-4 w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-300 transition-colors"
+            >
               <X size={16} />
             </button>
             

@@ -27,6 +27,7 @@ import {
   Eye
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
+import ShareModal from '../ShareModal';
 
 export default function Files() {
   const { darkMode } = useTheme();
@@ -37,6 +38,9 @@ export default function Files() {
   const [activeFilter, setActiveFilter] = useState('all');
   const [sortBy, setSortBy] = useState('date');
   const [isDragging, setIsDragging] = useState(false);
+  const [openMoreMenu, setOpenMoreMenu] = useState(null);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
   const [uploadedFiles, setUploadedFiles] = useState([
     {
       id: 1,
@@ -144,6 +148,40 @@ export default function Files() {
       f.id === fileId ? { ...f, favorite: !f.favorite } : f
     ));
   };
+
+  // File action handlers
+  const handleDownloadFile = (fileId) => {
+    console.log('Downloading file:', fileId);
+    setSuccessMessage('File downloaded successfully!');
+    setTimeout(() => setSuccessMessage(""), 3000);
+  };
+
+  const handleShareFile = (fileId) => {
+    const file = uploadedFiles.find(f => f.id === fileId);
+    setSelectedFile(file);
+    setShowShareModal(true);
+  };
+
+  const handleDeleteFile = (fileId) => {
+    console.log('Deleting file:', fileId);
+    setUploadedFiles(prev => prev.filter(f => f.id !== fileId));
+    setSuccessMessage('File deleted successfully!');
+    setTimeout(() => setSuccessMessage(""), 3000);
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (openMoreMenu !== null) {
+        setOpenMoreMenu(null);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [openMoreMenu]);
 
   // Get file icon based on type
   const getFileIcon = (fileType) => {
@@ -470,15 +508,66 @@ export default function Files() {
                     {/* Bottom section with actions and favorite */}
                     <div className="flex items-center justify-between">
                       {/* Action buttons */}
-                      <div className="flex items-center gap-1">
-                        <button className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                          <Download className="w-3 h-3" />
+                      <div className="flex items-center gap-2">
+                        <button 
+                          className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDownloadFile(file.id);
+                          }}
+                          title="Download File"
+                        >
+                          <Download className="w-4 h-4" />
                         </button>
-                        <button className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                          <Share2 className="w-3 h-3" />
+                        <button 
+                          className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleShareFile(file.id);
+                          }}
+                          title="Share File"
+                        >
+                          <Share2 className="w-4 h-4" />
                         </button>
-                        <button className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                          <MoreVertical className="w-3 h-3" />
+                        <button 
+                          className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors relative"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setOpenMoreMenu(openMoreMenu === file.id ? null : file.id);
+                          }}
+                          title="More Options"
+                        >
+                          <MoreVertical className="w-4 h-4" />
+                          
+                          {/* More Options Dropdown */}
+                          {openMoreMenu === file.id && (
+                            <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
+                              <div className="py-1">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDownloadFile(file.id);
+                                    setOpenMoreMenu(null);
+                                  }}
+                                  className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+                                >
+                                  <Download className="w-4 h-4" />
+                                  Download
+                                </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteFile(file.id);
+                                    setOpenMoreMenu(null);
+                                  }}
+                                  className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                  Delete
+                                </button>
+                              </div>
+                            </div>
+                          )}
                         </button>
                       </div>
 
@@ -579,14 +668,65 @@ export default function Files() {
 
                     {/* Action buttons */}
                     <div className="flex items-center gap-2 flex-shrink-0 mr-4">
-                      <button className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                        <Download className="w-4 h-4" />
+                      <button 
+                        className="p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDownloadFile(file.id);
+                        }}
+                        title="Download File"
+                      >
+                        <Download className="w-5 h-5" />
                       </button>
-                      <button className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                        <Share2 className="w-4 h-4" />
+                      <button 
+                        className="p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleShareFile(file.id);
+                        }}
+                        title="Share File"
+                      >
+                        <Share2 className="w-5 h-5" />
                       </button>
-                      <button className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                        <MoreVertical className="w-4 h-4" />
+                      <button 
+                        className="p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors relative"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setOpenMoreMenu(openMoreMenu === file.id ? null : file.id);
+                        }}
+                        title="More Options"
+                      >
+                        <MoreVertical className="w-5 h-5" />
+                        
+                        {/* More Options Dropdown */}
+                        {openMoreMenu === file.id && (
+                          <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
+                            <div className="py-1">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDownloadFile(file.id);
+                                  setOpenMoreMenu(null);
+                                }}
+                                className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+                              >
+                                <Download className="w-4 h-4" />
+                                Download
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteFile(file.id);
+                                  setOpenMoreMenu(null);
+                                }}
+                                className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                                Delete
+                              </button>
+                            </div>
+                          </div>
+                        )}
                       </button>
                     </div>
 
@@ -868,6 +1008,14 @@ export default function Files() {
           </div>
         </div>
       )}
+
+      {/* Share Modal */}
+      <ShareModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        itemName={selectedFile?.name || ''}
+        itemType="file"
+      />
     </div>
   );
 } 

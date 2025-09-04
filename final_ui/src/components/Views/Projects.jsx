@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   Folder, 
   Plus, 
@@ -27,6 +27,7 @@ import {
   X
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
+import ShareModal from '../ShareModal';
 
 const mockProjects = [
   { 
@@ -132,6 +133,9 @@ export default function Projects() {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isDragging, setIsDragging] = useState(false);
+  const [openMoreMenu, setOpenMoreMenu] = useState(null);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [selectedProject, setSelectedProject] = useState(null);
   const fileInputRef = useRef(null);
 
   const getStatusColor = (status) => {
@@ -216,6 +220,38 @@ export default function Projects() {
     setSuccessMessage('Project deleted successfully!');
     setTimeout(() => setSuccessMessage(""), 3000);
   };
+
+  const handleRunProject = (projectId) => {
+    console.log('Running project:', projectId);
+    setSuccessMessage('Project started successfully!');
+    setTimeout(() => setSuccessMessage(""), 3000);
+  };
+
+  const handleShareProject = (projectId) => {
+    const project = mockProjects.find(p => p.id === projectId);
+    setSelectedProject(project);
+    setShowShareModal(true);
+  };
+
+  const handleDownloadProject = (projectId) => {
+    console.log('Downloading project:', projectId);
+    setSuccessMessage('Project downloaded successfully!');
+    setTimeout(() => setSuccessMessage(""), 3000);
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (openMoreMenu !== null) {
+        setOpenMoreMenu(null);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [openMoreMenu]);
 
   return (
     <div className={`flex flex-col h-full w-full ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
@@ -308,7 +344,7 @@ export default function Projects() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 px-8 py-6 overflow-auto">
         <div className="max-w-7xl mx-auto">
           {/* View Toggle */}
           <div className="flex items-center justify-between mb-8">
@@ -458,15 +494,66 @@ export default function Projects() {
                       {/* Bottom section with actions and favorite */}
                       <div className="flex items-center justify-between">
                         {/* Action buttons */}
-                        <div className="flex items-center gap-1">
-                          <button className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                            <Play className="w-3 h-3" />
+                        <div className="flex items-center gap-2">
+                          <button 
+                            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRunProject(project.id);
+                            }}
+                            title="Run Project"
+                          >
+                            <Play className="w-4 h-4" />
                           </button>
-                          <button className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                            <Share2 className="w-3 h-3" />
+                          <button 
+                            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleShareProject(project.id);
+                            }}
+                            title="Share Project"
+                          >
+                            <Share2 className="w-4 h-4" />
                           </button>
-                          <button className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                            <MoreVertical className="w-3 h-3" />
+                          <button 
+                            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors relative"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setOpenMoreMenu(openMoreMenu === project.id ? null : project.id);
+                            }}
+                            title="More Options"
+                          >
+                            <MoreVertical className="w-4 h-4" />
+                            
+                            {/* More Options Dropdown */}
+                            {openMoreMenu === project.id && (
+                              <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
+                                <div className="py-1">
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDownloadProject(project.id);
+                                      setOpenMoreMenu(null);
+                                    }}
+                                    className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+                                  >
+                                    <Download className="w-4 h-4" />
+                                    Download
+                                  </button>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      deleteProject(project.id);
+                                      setOpenMoreMenu(null);
+                                    }}
+                                    className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                    Delete
+                                  </button>
+                                </div>
+                              </div>
+                            )}
                           </button>
                         </div>
 
@@ -585,15 +672,66 @@ export default function Projects() {
                         </div>
                         
                         <div className="flex items-center gap-2">
-                          <button className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                            <Play className="w-4 h-4" />
+                          <button 
+                            className="p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRunProject(project.id);
+                            }}
+                            title="Run Project"
+                          >
+                            <Play className="w-5 h-5" />
                           </button>
-                          <button className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                            <Share2 className="w-4 h-4" />
+                          <button 
+                            className="p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleShareProject(project.id);
+                            }}
+                            title="Share Project"
+                          >
+                            <Share2 className="w-5 h-5" />
                           </button>
-                          <button className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                            <MoreVertical className="w-4 h-4" />
+                          <button 
+                            className="p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setOpenMoreMenu(openMoreMenu === project.id ? null : project.id);
+                            }}
+                            title="More Options"
+                          >
+                            <MoreVertical className="w-5 h-5" />
                           </button>
+                          
+                          {/* More Options Dropdown */}
+                          {openMoreMenu === project.id && (
+                            <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
+                              <div className="py-1">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDownloadProject(project.id);
+                                    setOpenMoreMenu(null);
+                                  }}
+                                  className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+                                >
+                                  <Download className="w-4 h-4" />
+                                  Download
+                                </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    deleteProject(project.id);
+                                    setOpenMoreMenu(null);
+                                  }}
+                                  className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                  Delete
+                                </button>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -927,6 +1065,14 @@ export default function Projects() {
           </div>
         </div>
         )}
+
+        {/* Share Modal */}
+        <ShareModal
+          isOpen={showShareModal}
+          onClose={() => setShowShareModal(false)}
+          itemName={selectedProject?.name || ''}
+          itemType="project"
+        />
     </div>
   );
 } 

@@ -4,7 +4,6 @@ import { Settings, MemoryStick, Search } from 'lucide-react';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { SearchProvider } from './context/SearchContext';
 import Sidebar from './components/Layout/Sidebar';
-import Topbar from './components/Layout/Topbar';
 import PromptConsole from './components/Views/PromptConsole';
 import Files from './components/Views/Files';
 import Projects from './components/Views/Projects';
@@ -222,7 +221,6 @@ function AppShell() {
     const { darkMode, toggleDarkMode, accentColor, setAccentColor } = useTheme();
     const [currentView, setCurrentView] = useState('prompt-console');
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-    const [showSettings, setShowSettings] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
 
     // Move useKeyboardShortcuts before any conditional returns
@@ -244,15 +242,6 @@ function AppShell() {
         setIsAuthenticated(false);
     };
 
-    const handleLoginClick = () => {
-        // Navigate to login page properly
-        setCurrentView('login');
-    };
-
-    const handleCloseAuth = () => {
-        // Close auth modal and return to main app
-        setCurrentView('prompt-console');
-    };
 
     if (!isAuthenticated) {
         return (
@@ -311,13 +300,6 @@ function AppShell() {
                         onLogout={handleLogout}
                     />
                     <div className="flex-1 flex flex-col">
-                        <Topbar 
-                            onMenuClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-                            onSettingsClick={() => setShowSettings(!showSettings)}
-                            darkMode={darkMode}
-                            toggleDarkMode={toggleDarkMode}
-                            onLoginClick={handleLoginClick}
-                        />
                         <main className="flex-1 overflow-hidden">
                             {renderView()}
                         </main>

@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Sparkles, Target, Zap, Lightbulb, TrendingUp, Calendar, Bookmark, Share2,
   Milestone, Paperclip, CheckCircle, AlertCircle, Edit3, Brain, Sparkles as SparklesIcon,
   Settings, Send, X, Bold, Italic, Underline, Strikethrough, AlignLeft, AlignCenter, 
   AlignRight, AlignJustify, Highlighter, Link, Quote, Code, Type, List, ListOrdered,
-  Save, BookOpen, BarChart3, Clock, Plus, Pencil, ChevronDown, FileText, Download,
-  Minus, Eye, MessageSquare, History, Superscript, Edit3 as TrackChanges
+  Save, BookOpen, BarChart3, Clock, Plus, Pencil, ChevronDown, FileText, Download, File, Search
 } from 'lucide-react';
 
 const ResearchMode = () => {
@@ -23,46 +22,75 @@ const ResearchMode = () => {
   const [wordCount, setWordCount] = useState(0);
   const [charCount, setCharCount] = useState(0);
 
-  // LaTeX-style editor states
-  const editorRef = useRef(null);
-  const [isEditorFocused, setIsEditorFocused] = useState(false);
-  const [currentFormat, setCurrentFormat] = useState({
-    bold: false,
-    italic: false,
-    underline: false,
-    strikethrough: false
-  });
-  const [showColorPicker, setShowColorPicker] = useState(false);
-  const [colorPickerType, setColorPickerType] = useState('text');
-  const [zoomLevel, setZoomLevel] = useState(100);
-  const [showComments, setShowComments] = useState(false);
-  const [comments, setComments] = useState([]);
-  const [showHistory, setShowHistory] = useState(false);
-  const [documentHistory, setDocumentHistory] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [showOutline, setShowOutline] = useState(true);
-  const [documentOutline, setDocumentOutline] = useState([]);
-  const [showCitationManager, setShowCitationManager] = useState(false);
-  const [showFootnotes, setShowFootnotes] = useState(false);
-  const [showTrackChanges, setShowTrackChanges] = useState(false);
-  const [showSpellCheck, setShowSpellCheck] = useState(true);
-  const [showFocusMode, setShowFocusMode] = useState(false);
-  const [citations, setCitations] = useState([]);
-  const [footnotes, setFootnotes] = useState([]);
-  const [trackChanges, setTrackChanges] = useState([]);
-  const [spellErrors, setSpellErrors] = useState([]);
-  const [writingStats, setWritingStats] = useState({
-    words: 0,
-    characters: 0,
-    paragraphs: 0,
-    readingTime: 0,
-    gradeLevel: 0
-  });
-
   const [lastSaved, setLastSaved] = useState('12:22:45 PM');
   const [aiSidebarWidth, setAiSidebarWidth] = useState(320);
   const [isResizingAi, setIsResizingAi] = useState(false);
+  const [isAiSidebarCollapsed, setIsAiSidebarCollapsed] = useState(false);
+  const [isAiSidebarMinimized, setIsAiSidebarMinimized] = useState(false);
+  const [aiChatHistory, setAiChatHistory] = useState([]);
+  const [currentAiMessage, setCurrentAiMessage] = useState('');
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [outlineSections, setOutlineSections] = useState([
+    {
+      id: 1,
+      title: 'Introduction',
+      description: 'Background, problem statement, research questions',
+      order: 1
+    },
+    {
+      id: 2,
+      title: 'Literature Review',
+      description: 'Existing research, theoretical framework',
+      order: 2
+    },
+    {
+      id: 3,
+      title: 'Methodology',
+      description: 'Research design, data collection, analysis methods',
+      order: 3
+    }
+  ]);
+  const [showAddSectionModal, setShowAddSectionModal] = useState(false);
+  const [newSectionTitle, setNewSectionTitle] = useState('');
+  const [newSectionDescription, setNewSectionDescription] = useState('');
+  const [papers, setPapers] = useState([
+    {
+      id: 1,
+      title: 'Smith et al. (2023) - "Advances in Research Methodology"',
+      description: 'This study presents innovative approaches to qualitative research design, particularly focusing on ethnographic methods in digital environments.',
+      journal: 'Journal of Research Methods',
+      citations: 45,
+      impactFactor: 3.2,
+      authors: 'Smith, J., Johnson, A., & Brown, M.',
+      year: 2023
+    },
+    {
+      id: 2,
+      title: 'Johnson & Lee (2022) - "Digital Transformation in Academia"',
+      description: 'A comprehensive analysis of how digital technologies are reshaping academic research practices and collaboration patterns.',
+      journal: 'Digital Research Quarterly',
+      citations: 32,
+      impactFactor: 2.8,
+      authors: 'Johnson, R. & Lee, S.',
+      year: 2022
+    }
+  ]);
+  const [showAddPaperModal, setShowAddPaperModal] = useState(false);
+  const [newPaper, setNewPaper] = useState({
+    title: '',
+    authors: '',
+    year: '',
+    journal: '',
+    description: '',
+    citations: '',
+    impactFactor: ''
+  });
+  const [uploadedFile, setUploadedFile] = useState(null);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [showScholarSearch, setShowScholarSearch] = useState(false);
+  const [scholarQuery, setScholarQuery] = useState('');
+  const [scholarResults, setScholarResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   const formatOptions = [
     { id: 'Academic', name: 'Academic', description: 'Formal, scholarly writing' },
@@ -159,238 +187,346 @@ const ResearchMode = () => {
     }));
   };
 
+  // AI Chat functionality
+  const handleAiMessageSend = () => {
+    if (!currentAiMessage.trim()) return;
+    
+    const newMessage = {
+      id: Date.now(),
+      type: 'user',
+      content: currentAiMessage,
+      timestamp: new Date().toLocaleTimeString()
+    };
+    
+    setAiChatHistory(prev => [...prev, newMessage]);
+    setCurrentAiMessage('');
+    
+    // Simulate AI response
+    setTimeout(() => {
+      const aiResponse = {
+        id: Date.now() + 1,
+        type: 'ai',
+        content: `I understand you're asking about "${currentAiMessage}". Let me help you with that. This is a simulated response that would normally come from an AI service.`,
+        timestamp: new Date().toLocaleTimeString()
+      };
+      setAiChatHistory(prev => [...prev, aiResponse]);
+    }, 1000);
+  };
+
+  const toggleAiSidebar = () => {
+    setIsAiSidebarCollapsed(!isAiSidebarCollapsed);
+  };
+
+  const minimizeAiSidebar = () => {
+    setIsAiSidebarMinimized(!isAiSidebarMinimized);
+  };
+
+  // Export handlers
+  const handleExport = (format) => {
+    const content = researchContent || notes;
+    const filename = `research-${new Date().toISOString().split('T')[0]}`;
+    
+    switch (format) {
+      case 'pdf':
+        const pdfContent = `Research Document\n\n${content}`;
+        downloadFile(pdfContent, `${filename}.txt`, 'text/plain');
+        break;
+      case 'docx':
+        downloadFile(content, `${filename}.txt`, 'text/plain');
+        break;
+      case 'txt':
+        downloadFile(content, `${filename}.txt`, 'text/plain');
+        break;
+      case 'md':
+        downloadFile(content, `${filename}.md`, 'text/markdown');
+        break;
+      default:
+        break;
+    }
+    
+    setShowExportModal(false);
+  };
+
+  const downloadFile = (content, filename, mimeType) => {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  // Outline section handlers
+  const handleAddSection = () => {
+    if (newSectionTitle.trim()) {
+      const newSection = {
+        id: Date.now(),
+        title: newSectionTitle.trim(),
+        description: newSectionDescription.trim() || 'Add description...',
+        order: outlineSections.length + 1
+      };
+      setOutlineSections([...outlineSections, newSection]);
+      setNewSectionTitle('');
+      setNewSectionDescription('');
+      setShowAddSectionModal(false);
+    }
+  };
+
+  const handleDeleteSection = (id) => {
+    setOutlineSections(outlineSections.filter(section => section.id !== id));
+  };
+
+  const handleEditSection = (id, newTitle, newDescription) => {
+    setOutlineSections(outlineSections.map(section => 
+      section.id === id 
+        ? { ...section, title: newTitle, description: newDescription }
+        : section
+    ));
+  };
+
+  // Paper handlers
+  const handleAddPaper = () => {
+    if (newPaper.title.trim() && newPaper.authors.trim()) {
+      const paper = {
+        id: Date.now(),
+        title: newPaper.title.trim(),
+        authors: newPaper.authors.trim(),
+        year: newPaper.year || new Date().getFullYear(),
+        journal: newPaper.journal.trim() || 'Unknown Journal',
+        description: newPaper.description.trim() || 'No description provided',
+        citations: parseInt(newPaper.citations) || 0,
+        impactFactor: parseFloat(newPaper.impactFactor) || 0,
+        pdfFile: uploadedFile ? {
+          name: uploadedFile.name,
+          size: uploadedFile.size,
+          type: uploadedFile.type,
+          lastModified: uploadedFile.lastModified
+        } : null
+      };
+      setPapers([...papers, paper]);
+      setNewPaper({
+        title: '',
+        authors: '',
+        year: '',
+        journal: '',
+        description: '',
+        citations: '',
+        impactFactor: ''
+      });
+      setUploadedFile(null);
+      setShowAddPaperModal(false);
+    }
+  };
+
+  const handleDeletePaper = (id) => {
+    setPapers(papers.filter(paper => paper.id !== id));
+  };
+
+  const handleEditPaper = (id, updatedPaper) => {
+    setPapers(papers.map(paper => 
+      paper.id === id ? { ...paper, ...updatedPaper } : paper
+    ));
+  };
+
+  const handlePaperInputChange = (field, value) => {
+    setNewPaper(prev => ({ ...prev, [field]: value }));
+  };
+
+  // File handling functions
+  const handleFileUpload = (file) => {
+    if (file && file.type === 'application/pdf') {
+      setUploadedFile(file);
+      if (!newPaper.title) {
+        setNewPaper(prev => ({ ...prev, title: file.name.replace('.pdf', '') }));
+      }
+    } else {
+      alert('Please upload a PDF file only.');
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      handleFileUpload(files[0]);
+    }
+  };
+
+  const handleFileInputChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      handleFileUpload(file);
+    }
+  };
+
+  const removeUploadedFile = () => {
+    setUploadedFile(null);
+  };
+
+  // Google Scholar search functions
+  const handleScholarSearch = async () => {
+    if (!scholarQuery.trim()) return;
+    
+    setIsSearching(true);
+    setScholarResults([]);
+    
+    setTimeout(() => {
+      const mockResults = [
+        {
+          id: 1,
+          title: `${scholarQuery} - A Comprehensive Study`,
+          authors: 'Smith, J., Johnson, A., & Brown, M.',
+          year: 2023,
+          journal: 'Journal of Academic Research',
+          citations: Math.floor(Math.random() * 100) + 10,
+          impactFactor: (Math.random() * 3 + 1).toFixed(1),
+          description: `This study explores various aspects of ${scholarQuery.toLowerCase()} and provides insights into current research trends and methodologies.`,
+          url: 'https://scholar.google.com/scholar?q=' + encodeURIComponent(scholarQuery)
+        },
+        {
+          id: 2,
+          title: `Recent Advances in ${scholarQuery}`,
+          authors: 'Wilson, R. & Davis, S.',
+          year: 2022,
+          journal: 'Research Quarterly',
+          citations: Math.floor(Math.random() * 80) + 5,
+          impactFactor: (Math.random() * 2.5 + 0.5).toFixed(1),
+          description: `A detailed analysis of recent developments in ${scholarQuery.toLowerCase()} with focus on practical applications and future directions.`,
+          url: 'https://scholar.google.com/scholar?q=' + encodeURIComponent(scholarQuery)
+        },
+        {
+          id: 3,
+          title: `${scholarQuery}: Theoretical Framework and Applications`,
+          authors: 'Garcia, M., Lee, K., & Thompson, P.',
+          year: 2023,
+          journal: 'Academic Studies Journal',
+          citations: Math.floor(Math.random() * 60) + 8,
+          impactFactor: (Math.random() * 2 + 1).toFixed(1),
+          description: `This paper presents a comprehensive theoretical framework for understanding ${scholarQuery.toLowerCase()} and its various applications in modern research.`,
+          url: 'https://scholar.google.com/scholar?q=' + encodeURIComponent(scholarQuery)
+        }
+      ];
+      
+      setScholarResults(mockResults);
+      setIsSearching(false);
+    }, 1500);
+  };
+
+  const importPaperFromScholar = (result) => {
+    const newPaper = {
+      id: Date.now(),
+      title: result.title,
+      authors: result.authors,
+      year: result.year.toString(),
+      journal: result.journal,
+      description: result.description,
+      citations: result.citations.toString(),
+      impactFactor: result.impactFactor.toString(),
+      pdfFile: null,
+      isBookmarked: false,
+      addedDate: new Date().toISOString().split('T')[0]
+    };
+    
+    setPapers(prev => [...prev, newPaper]);
+    setScholarQuery('');
+    setScholarResults([]);
+  };
+
+  const openScholarInNewTab = (url) => {
+    window.open(url, '_blank');
+  };
+
   // Render content based on active tab
   const renderTabContent = () => {
     switch (activeTab) {
       case 'Writing':
         return (
-          <div className="flex-1 flex flex-col bg-white">
-            {/* AI-Powered Minimalist Toolbar */}
-            <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200 bg-white/95 backdrop-blur-sm">
-              {/* Left: Document Info */}
-              <div className="flex items-center gap-3">
-                <input
-                  type="text"
-                  placeholder="Research Paper Title"
-                  className="text-lg font-semibold bg-transparent border-0 focus:outline-none text-gray-900 placeholder-gray-400 min-w-[200px]"
+          <div className="flex-1 flex flex-col">
+            {/* Toolbar integrated into text editor */}
+            <div className="flex items-center gap-3 p-4 border-b border-gray-200 bg-gray-50">
+                <select className="text-sm border-0 bg-transparent focus:outline-none text-gray-700 font-semibold pr-10 cursor-pointer hover:text-gray-900 transition-colors">
+                  <option>Normal</option>
+                  <option>Heading 1</option>
+                  <option>Heading 2</option>
+                </select>
+                <div className="h-5 w-px bg-gray-300 mx-4"></div>
+                <button className="w-9 h-9 flex items-center justify-center hover:bg-white rounded-lg transition-all duration-200 group">
+                  <Bold className="w-4 h-4 text-gray-600 group-hover:text-gray-900" />
+                </button>
+                <button className="w-9 h-9 flex items-center justify-center hover:bg-white rounded-lg transition-all duration-200 group">
+                  <Italic className="w-4 h-4 text-gray-600 group-hover:text-gray-900" />
+                </button>
+                <button className="w-9 h-9 flex items-center justify-center hover:bg-white rounded-lg transition-all duration-200 group">
+                  <Underline className="w-4 h-4 text-gray-600 group-hover:text-gray-900" />
+                </button>
+                <button className="w-9 h-9 flex items-center justify-center hover:bg-white rounded-lg transition-all duration-200 group">
+                  <Strikethrough className="w-4 h-4 text-gray-600 group-hover:text-gray-900" />
+                </button>
+                <div className="h-5 w-px bg-gray-300 mx-4"></div>
+                <button className="w-9 h-9 flex items-center justify-center hover:bg-white rounded-lg transition-all duration-200 group">
+                  <AlignLeft className="w-4 h-4 text-gray-600 group-hover:text-gray-900" />
+                </button>
+                <button className="w-9 h-9 flex items-center justify-center hover:bg-white rounded-lg transition-all duration-200 group">
+                  <AlignCenter className="w-4 h-4 text-gray-600 group-hover:text-gray-900" />
+                </button>
+                <button className="w-9 h-9 flex items-center justify-center hover:bg-white rounded-lg transition-all duration-200 group">
+                  <AlignRight className="w-4 h-4 text-gray-600 group-hover:text-gray-900" />
+                </button>
+                <button className="w-9 h-9 flex items-center justify-center hover:bg-white rounded-lg transition-all duration-200 group">
+                  <AlignJustify className="w-4 h-4 text-gray-600 group-hover:text-gray-900" />
+                </button>
+                <div className="h-5 w-px bg-gray-300 mx-4"></div>
+                <button className="w-9 h-9 flex items-center justify-center hover:bg-white rounded-lg transition-all duration-200 group">
+                  <List className="w-4 h-4 text-gray-600 group-hover:text-gray-900" />
+                </button>
+                <button className="w-9 h-9 flex items-center justify-center hover:bg-white rounded-lg transition-all duration-200 group">
+                  <ListOrdered className="w-4 h-4 text-gray-600 group-hover:text-gray-900" />
+                </button>
+                <div className="h-5 w-px bg-gray-300 mx-4"></div>
+                <button className="w-9 h-9 flex items-center justify-center hover:bg-white rounded-lg transition-all duration-200 group">
+                  <Type className="w-4 h-4 text-gray-600 group-hover:text-gray-900" />
+                </button>
+                <button className="w-9 h-9 flex items-center justify-center hover:bg-white rounded-lg transition-all duration-200 group">
+                  <Highlighter className="w-4 h-4 text-gray-600 group-hover:text-gray-900" />
+                </button>
+                <button className="w-9 h-9 flex items-center justify-center hover:bg-white rounded-lg transition-all duration-200 group">
+                  <Link className="w-4 h-4 text-gray-600 group-hover:text-gray-900" />
+                </button>
+                <button className="w-9 h-9 flex items-center justify-center hover:bg-white rounded-lg transition-all duration-200 group">
+                  <Quote className="w-4 h-4 text-gray-600 group-hover:text-gray-900" />
+                </button>
+                <button className="w-9 h-9 flex items-center justify-center hover:bg-white rounded-lg transition-all duration-200 group">
+                  <Code className="w-4 h-4 text-gray-600 group-hover:text-gray-900" />
+                </button>
+                <button className="w-9 h-9 flex items-center justify-center hover:bg-white rounded-lg transition-all duration-200 group">
+                  <X className="w-4 h-4 text-gray-600 group-hover:text-gray-900" />
+                </button>
+              </div>
+              
+              {/* Text Editor - Full width */}
+              <div className="flex-1 px-8 py-6">
+                <textarea
+                  value={researchContent}
+                  onChange={(e) => setResearchContent(e.target.value)}
+                  onContextMenu={handleContextMenu}
+                  placeholder="Begin your research paper with clarity and purpose. Let your ideas flow naturally..."
+                  className="w-full h-full border-0 bg-transparent text-gray-900 resize-none focus:outline-none text-base leading-relaxed placeholder-gray-400 transition-all duration-200"
                 />
-                <div className="flex items-center gap-2 text-xs text-gray-500">
-                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
-                  <span>Auto-saved</span>
-                </div>
               </div>
-
-              {/* Center: AI Shortcuts */}
-              <div className="flex items-center gap-1">
-                <button className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors">
-                  <Sparkles className="w-3 h-3 inline mr-1" />
-                  AI Cite
-                </button>
-                <button className="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors">
-                  <Brain className="w-3 h-3 inline mr-1" />
-                  AI Edit
-                </button>
-                <button className="px-2 py-1 text-xs font-medium bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors">
-                  <MessageSquare className="w-3 h-3 inline mr-1" />
-                  Comment
-                </button>
-              </div>
-
-              {/* Right: Quick Actions */}
-              <div className="flex items-center gap-1">
-                <button className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors">
-                  <Download className="w-3 h-3 inline mr-1" />
-                  Export
-                </button>
-                <button className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors">
-                  <Eye className="w-3 h-3 inline mr-1" />
-                  Preview
-                </button>
-              </div>
-            </div>
-
-            {/* AI-Powered Editor Layout */}
-            <div className="flex-1 flex">
-              {/* Main Editor Area */}
-              <div className="flex-1 flex flex-col">
-                {/* AI Status Bar */}
-                <div className="px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 border-b border-gray-100">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                      <span className="text-xs text-gray-600">AI Assistant Ready</span>
-                    </div>
-                    <div className="flex items-center gap-4 text-xs text-gray-500">
-                      <span>Words: 0</span>
-                      <span>Citations: 0</span>
-                      <span>Comments: 0</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* LaTeX Editor with AI Integration */}
-                <div className="flex-1 flex">
-                  {/* Line Numbers */}
-                  <div className="w-8 bg-gray-50 border-r border-gray-100 text-right text-xs text-gray-400 font-mono py-4">
-                    <div className="space-y-3">
-                      {Array.from({ length: 15 }, (_, i) => (
-                        <div key={i} className="h-5 leading-5">
-                          {i + 1}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Editor */}
-                  <div className="flex-1 p-4">
-                    <textarea
-                      ref={editorRef}
-                      value={researchContent}
-                      onChange={(e) => setResearchContent(e.target.value)}
-                      onFocus={() => setIsEditorFocused(true)}
-                      onBlur={() => setIsEditorFocused(false)}
-                      onContextMenu={handleContextMenu}
-                      placeholder="% AI-Powered LaTeX Editor
-% Type '//' for AI suggestions, '@' for citations, '#' for comments
-
-\documentclass{article}
-\usepackage[utf8]{inputenc}
-\usepackage{amsmath}
-\usepackage{natbib}
-
-\title{Your Research Paper}
-\author{Your Name}
-\date{\today}
-
-\begin{document}
-
-\maketitle
-
-\begin{abstract}
-% Type //abstract to get AI-generated abstract suggestions
-Your abstract goes here...
-\end{abstract}
-
-\section{Introduction}
-% Type @ to insert citations from your uploaded papers
-% Type # to add comments for collaboration
-Begin your research paper here...
-
-\end{document}"
-                      className="w-full h-full border-0 bg-transparent text-gray-900 resize-none focus:outline-none text-sm font-mono leading-relaxed placeholder-gray-400 transition-all duration-200"
-                      style={{ 
-                        fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
-                        lineHeight: '1.6'
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* AI Assistant Sidebar */}
-              <div className="w-72 bg-gray-50 border-l border-gray-200 flex flex-col">
-                {/* AI Assistant Header */}
-                <div className="p-3 border-b border-gray-200 bg-gradient-to-r from-blue-500 to-purple-600">
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 bg-white/20 rounded-lg flex items-center justify-center">
-                      <Brain className="w-3 h-3 text-white" />
-                    </div>
-                    <span className="text-sm font-semibold text-white">AI Research Assistant</span>
-                  </div>
-                </div>
-
-                {/* AI Quick Actions */}
-                <div className="p-3 border-b border-gray-200">
-                  <h4 className="text-xs font-semibold text-gray-700 mb-2">Quick AI Actions</h4>
-                  <div className="space-y-1">
-                    <button className="w-full px-2 py-1.5 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors text-left">
-                      <Sparkles className="w-3 h-3 inline mr-1" />
-                      Auto-cite from files
-                    </button>
-                    <button className="w-full px-2 py-1.5 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors text-left">
-                      <Edit3 className="w-3 h-3 inline mr-1" />
-                      Improve writing
-                    </button>
-                    <button className="w-full px-2 py-1.5 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors text-left">
-                      <Target className="w-3 h-3 inline mr-1" />
-                      Generate outline
-                    </button>
-                    <button className="w-full px-2 py-1.5 text-xs bg-orange-100 text-orange-700 rounded hover:bg-orange-200 transition-colors text-left">
-                      <CheckCircle className="w-3 h-3 inline mr-1" />
-                      Check grammar
-                    </button>
-                  </div>
-                </div>
-
-                {/* Auto-Citations Panel */}
-                <div className="p-3 border-b border-gray-200">
-                  <h4 className="text-xs font-semibold text-gray-700 mb-2">Auto-Citations</h4>
-                  <div className="space-y-1">
-                    <div className="text-xs text-gray-600 bg-white p-2 rounded border">
-                      <div className="font-medium">Smith et al. (2023)</div>
-                      <div className="text-gray-500">Ready to insert</div>
-                    </div>
-                    <div className="text-xs text-gray-600 bg-white p-2 rounded border">
-                      <div className="font-medium">Johnson & Lee (2022)</div>
-                      <div className="text-gray-500">Ready to insert</div>
-                    </div>
-                    <button className="w-full px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded hover:bg-gray-200 transition-colors">
-                      + Add from files
-                    </button>
-                  </div>
-                </div>
-
-                {/* Comments Panel */}
-                <div className="p-3 border-b border-gray-200">
-                  <h4 className="text-xs font-semibold text-gray-700 mb-2">Comments</h4>
-                  <div className="space-y-1">
-                    <div className="text-xs text-gray-600 bg-yellow-50 p-2 rounded border border-yellow-200">
-                      <div className="font-medium">Line 15</div>
-                      <div className="text-gray-500">"Consider adding more detail here"</div>
-                    </div>
-                    <button className="w-full px-2 py-1 text-xs bg-yellow-100 text-yellow-700 rounded hover:bg-yellow-200 transition-colors">
-                      + Add comment
-                    </button>
-                  </div>
-                </div>
-
-                {/* Edit History */}
-                <div className="p-3 border-b border-gray-200">
-                  <h4 className="text-xs font-semibold text-gray-700 mb-2">Edit History</h4>
-                  <div className="space-y-1">
-                    <div className="text-xs text-gray-600">
-                      <div className="font-medium">2 min ago</div>
-                      <div className="text-gray-500">AI improved introduction</div>
-                    </div>
-                    <div className="text-xs text-gray-600">
-                      <div className="font-medium">5 min ago</div>
-                      <div className="text-gray-500">Added citations</div>
-                    </div>
-                    <button className="w-full px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded hover:bg-gray-200 transition-colors">
-                      View full history
-                    </button>
-                  </div>
-                </div>
-
-                {/* File Access */}
-                <div className="p-3">
-                  <h4 className="text-xs font-semibold text-gray-700 mb-2">File Access</h4>
-                  <div className="space-y-1">
-                    <div className="text-xs text-gray-600 bg-white p-2 rounded border">
-                      <div className="font-medium">research_paper.pdf</div>
-                      <div className="text-gray-500">Ready for AI analysis</div>
-                    </div>
-                    <div className="text-xs text-gray-600 bg-white p-2 rounded border">
-                      <div className="font-medium">data_analysis.xlsx</div>
-                      <div className="text-gray-500">Ready for AI analysis</div>
-                    </div>
-                    <button className="w-full px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors">
-                      + Upload files
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         );
       
@@ -462,61 +598,185 @@ Begin your research paper here...
             <div className="w-full">
               <div className="flex items-center justify-between mb-8">
                 <h2 className="text-2xl font-bold text-gray-900">Literature Review</h2>
-                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-all duration-300 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 flex items-center gap-2">
+                <button 
+                  onClick={() => setShowAddPaperModal(true)}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-all duration-300 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 flex items-center gap-2"
+                >
                   <Plus className="w-4 h-4" />
                   Add Paper
                 </button>
               </div>
 
-              <div className="grid gap-6">
-                <div className="bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-xl p-6 shadow-sm">
+              {/* Google Scholar Search Section */}
+              <div className="mb-8">
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/50 rounded-xl p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                      <Search className="w-5 h-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">Search Google Scholar</h3>
+                      <p className="text-sm text-gray-600">Find and import academic papers directly</p>
+                    </div>
+                  </div>
+                  
+                  {/* Search Input */}
+                  <div className="flex gap-3 mb-4">
+                    <input
+                      type="text"
+                      value={scholarQuery}
+                      onChange={(e) => setScholarQuery(e.target.value)}
+                      placeholder="Search for papers on Google Scholar..."
+                      className="flex-1 px-4 py-3 border border-gray-200/50 rounded-xl bg-white/80 backdrop-blur-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-transparent text-base placeholder-gray-400 transition-all duration-200"
+                      onKeyPress={(e) => e.key === 'Enter' && handleScholarSearch()}
+                    />
+                    <button
+                      onClick={handleScholarSearch}
+                      disabled={!scholarQuery.trim() || isSearching}
+                      className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 font-semibold shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                    >
+                      {isSearching ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                          Searching...
+                        </>
+                      ) : (
+                        <>
+                          <Search className="w-4 h-4" />
+                          Search
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  {/* Search Results */}
+                  {scholarResults.length > 0 && (
+                    <div className="space-y-3 max-h-80 overflow-y-auto">
+                      <h4 className="text-sm font-semibold text-gray-700">Search Results</h4>
+                      {scholarResults.map((result) => (
+                        <div key={result.id} className="bg-white/80 border border-gray-200/50 rounded-xl p-4">
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">Smith et al. (2023) - "Advances in Research Methodology"</h3>
-                      <p className="text-gray-600 mb-3">This study presents innovative approaches to qualitative research design, particularly focusing on ethnographic methods in digital environments.</p>
-                      <div className="flex items-center gap-4 text-sm text-gray-500">
-                        <span>Journal of Research Methods</span>
+                              <h5 className="font-medium text-gray-900 mb-1">{result.title}</h5>
+                              <p className="text-sm text-gray-600 mb-2">{result.authors} ({result.year})</p>
+                              <p className="text-sm text-gray-500 mb-2">{result.journal}</p>
+                              <div className="flex items-center gap-4 text-xs text-gray-500">
+                                <span>Citations: {result.citations}</span>
                                 <span>•</span>
-                        <span>Citations: 45</span>
-                        <span>•</span>
-                        <span>Impact Factor: 3.2</span>
+                                <span>Impact Factor: {result.impactFactor}</span>
                               </div>
                             </div>
                             <div className="flex items-center gap-2 ml-4">
-                      <button className="w-8 h-8 flex items-center justify-center text-blue-600 hover:bg-blue-50/80 rounded-lg transition-all duration-200">
-                        <Bookmark className="w-4 h-4" />
+                              <button
+                                onClick={() => importPaperFromScholar(result)}
+                                className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700 transition-all duration-200"
+                              >
+                                Add to Library
                               </button>
-                      <button className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-50/80 rounded-lg transition-all duration-200">
-                        <Pencil className="w-4 h-4" />
+                              <button
+                                onClick={() => openScholarInNewTab(result.url)}
+                                className="px-3 py-1.5 bg-gray-200 text-gray-700 rounded-lg text-xs font-medium hover:bg-gray-300 transition-all duration-200"
+                              >
+                                View
                               </button>
                             </div>
                           </div>
                         </div>
-                
-                <div className="bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-xl p-6 shadow-sm">
+                      ))}
+                    </div>
+                  )}
+
+                  {/* No Results */}
+                  {scholarQuery && !isSearching && scholarResults.length === 0 && (
+                    <div className="text-center py-8">
+                      <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <Search className="w-6 h-6 text-gray-400" />
+                      </div>
+                      <p className="text-gray-500">No results found. Try a different search term.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+        
+              <div className="grid gap-6">
+                {papers.map((paper) => (
+                  <div key={paper.id} className="bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-xl p-6 shadow-sm">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">Johnson & Lee (2022) - "Digital Transformation in Academia"</h3>
-                      <p className="text-gray-600 mb-3">A comprehensive analysis of how digital technologies are reshaping academic research practices and collaboration patterns.</p>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">{paper.title}</h3>
+                        <p className="text-gray-600 mb-3">{paper.description}</p>
                         <div className="flex items-center gap-4 text-sm text-gray-500">
-                        <span>Digital Research Quarterly</span>
+                          <span>{paper.journal}</span>
                           <span>•</span>
-                        <span>Citations: 32</span>
+                          <span>Citations: {paper.citations}</span>
                           <span>•</span>
-                        <span>Impact Factor: 2.8</span>
+                          <span>Impact Factor: {paper.impactFactor}</span>
+                          <span>•</span>
+                          <span>{paper.year}</span>
                         </div>
+                        <div className="mt-2 text-sm text-gray-500">
+                          <span className="font-medium">Authors:</span> {paper.authors}
+                        </div>
+                        {paper.pdfFile && (
+                          <div className="mt-2 flex items-center gap-2">
+                            <FileText className="w-4 h-4 text-green-600" />
+                            <span className="text-sm text-green-600 font-medium">PDF attached</span>
+                          </div>
+                        )}
                       </div>
                       <div className="flex items-center gap-2 ml-4">
                         <button className="w-8 h-8 flex items-center justify-center text-blue-600 hover:bg-blue-50/80 rounded-lg transition-all duration-200">
                           <Bookmark className="w-4 h-4" />
                         </button>
-                      <button className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-50/80 rounded-lg transition-all duration-200">
+                        <button 
+                          onClick={() => {
+                            const newTitle = prompt('Edit paper title:', paper.title);
+                            const newAuthors = prompt('Edit authors:', paper.authors);
+                            const newDescription = prompt('Edit description:', paper.description);
+                            if (newTitle !== null && newAuthors !== null && newDescription !== null) {
+                              handleEditPaper(paper.id, {
+                                title: newTitle,
+                                authors: newAuthors,
+                                description: newDescription
+                              });
+                            }
+                          }}
+                          className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-50/80 rounded-lg transition-all duration-200"
+                        >
                           <Pencil className="w-4 h-4" />
+                        </button>
+                        <button 
+                          onClick={() => {
+                            if (window.confirm(`Are you sure you want to delete "${paper.title}"?`)) {
+                              handleDeletePaper(paper.id);
+                            }
+                          }}
+                          className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-red-600 hover:bg-red-50/80 rounded-lg transition-all duration-200"
+                        >
+                          <X className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
                   </div>
+                ))}
+                
+                {papers.length === 0 && (
+                  <div className="text-center py-12">
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <BookOpen className="w-8 h-8 text-gray-400" />
                     </div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No papers yet</h3>
+                    <p className="text-gray-500 mb-4">Start building your literature review by adding research papers</p>
+                    <button 
+                      onClick={() => setShowAddPaperModal(true)}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-all duration-300 flex items-center gap-2 mx-auto"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Add First Paper
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         );
@@ -806,6 +1066,17 @@ Begin your research paper here...
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
+                  <button 
+                    onClick={toggleAiSidebar}
+                    className={`px-3 py-2 rounded-lg text-xs font-medium transition-all duration-300 flex items-center gap-2 ${
+                      isAiSidebarCollapsed 
+                        ? 'bg-gradient-to-r from-emerald-50 to-cyan-50 border border-emerald-200/50 text-emerald-700 hover:from-emerald-100 hover:to-cyan-100' 
+                        : 'bg-gradient-to-r from-emerald-600 to-cyan-500 text-white shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/30'
+                    }`}
+                  >
+                    <Brain className="w-3 h-3" />
+                    {isAiSidebarCollapsed ? 'Show AI' : 'Hide AI'}
+                  </button>
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                   <span className="text-xs text-gray-500">1 words</span>
                   <button 
@@ -830,7 +1101,10 @@ Begin your research paper here...
             <div className="flex items-center justify-between">
               {/* Action buttons with premium feel */}
               <div className="flex items-center gap-3">
-                <button className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-all duration-300 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30">
+                <button 
+                  onClick={() => setShowExportModal(true)}
+                  className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-all duration-300 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30"
+                >
                   <Save className="w-4 h-4" />
                   Save
                 </button>
@@ -899,12 +1173,15 @@ Begin your research paper here...
           {renderTabContent()}
         </div>
 
-        {/* Right AI Sidebar - Eden Design Excellence */}
+        {/* Right AI Sidebar - Enhanced Chat Interface */}
         <div 
-          className="bg-gradient-to-br from-slate-50 to-slate-100/80 backdrop-blur-xl border-l border-slate-200/60 flex flex-col shadow-xl shadow-slate-900/10 relative group flex-shrink-0"
-          style={{ width: `${aiSidebarWidth}px` }}
+          className={`bg-gradient-to-br from-slate-50 to-slate-100/80 backdrop-blur-xl border-l border-slate-200/60 flex flex-col shadow-xl shadow-slate-900/10 relative group flex-shrink-0 transition-all duration-300 ${
+            isAiSidebarCollapsed ? 'w-0 overflow-hidden' : ''
+          }`}
+          style={{ width: isAiSidebarCollapsed ? '0px' : `${aiSidebarWidth}px` }}
         >
           {/* Resize Handle */}
+          {!isAiSidebarCollapsed && (
             <div 
               className={`absolute left-0 top-0 bottom-0 w-1 transition-all duration-200 z-10 ${
                 isResizingAi 
@@ -914,13 +1191,13 @@ Begin your research paper here...
               onMouseDown={handleAiResizeStart}
               style={{ cursor: 'col-resize' }}
             ></div>
+          )}
           
-          {/* Header - Eden Branded */}
+          {/* Header - Enhanced with Controls */}
           <div className="p-6 border-b border-slate-200/50 bg-white/60 backdrop-blur-sm">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/25 relative overflow-hidden">
-                  {/* Eden Logo Design */}
                   <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/20 to-cyan-400/20"></div>
                   <div className="relative z-10 w-6 h-6 bg-white rounded-lg flex items-center justify-center">
                     <div className="w-3 h-3 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-sm"></div>
@@ -934,12 +1211,20 @@ Begin your research paper here...
                   </div>
                 </div>
               </div>
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={minimizeAiSidebar}
+                  className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100/80 rounded-xl transition-all duration-200"
+                >
+                  <ChevronDown className="w-4 h-4" />
+                </button>
                 <button className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100/80 rounded-xl transition-all duration-200">
                   <Settings className="w-4 h-4" />
                 </button>
+              </div>
             </div>
             
-            {/* AI Status - Eden Styled */}
+            {/* AI Status - Enhanced */}
             <div className="bg-gradient-to-r from-emerald-50/80 to-cyan-50/80 rounded-xl p-3 border border-emerald-100/50 backdrop-blur-sm">
               <div className="flex items-center gap-2">
                 <div className="w-6 h-6 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-lg flex items-center justify-center">
@@ -950,50 +1235,73 @@ Begin your research paper here...
             </div>
           </div>
           
-          {/* AI Tools - Eden Refined */}
-          <div className="flex-1 p-6 space-y-4">
-            <button className="group w-full p-4 bg-gradient-to-r from-emerald-600 to-cyan-500 text-white rounded-2xl hover:from-emerald-700 hover:to-cyan-600 transition-all duration-300 text-left shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/30 transform hover:scale-[1.02]">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-8 h-8 bg-white/20 rounded-xl flex items-center justify-center">
-                  <Zap className="w-4 h-4" />
+          {/* AI Chat Interface */}
+          <div className="flex-1 flex flex-col">
+            {/* Chat History */}
+            <div className="flex-1 p-4 overflow-y-auto space-y-4">
+              {aiChatHistory.length === 0 ? (
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 bg-gradient-to-br from-emerald-100 to-cyan-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Brain className="w-8 h-8 text-emerald-600" />
                   </div>
-                <span className="font-semibold">Analyze & Enhance</span>
-              </div>
-              <p className="text-sm text-emerald-100 leading-relaxed">Eden-powered analysis for clarity and academic excellence</p>
+                  <h3 className="text-lg font-semibold text-slate-900 mb-2">Start a conversation</h3>
+                  <p className="text-sm text-slate-600 mb-4">Ask me anything about your research or writing</p>
+                  <div className="flex flex-wrap gap-2 justify-center">
+                    <button className="px-3 py-1.5 text-xs text-slate-600 bg-white/80 border border-slate-200/50 rounded-lg hover:bg-white hover:border-slate-300 transition-all duration-200">
+                      Improve clarity
                     </button>
-            
-            <button className="group w-full p-4 bg-white/80 backdrop-blur-sm border border-slate-200/50 rounded-2xl hover:border-slate-300 hover:bg-white hover:shadow-lg transition-all duration-300 text-left">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-8 h-8 bg-emerald-100 rounded-xl flex items-center justify-center group-hover:bg-emerald-200 transition-colors duration-200">
-                  <Target className="w-4 h-4 text-emerald-600" />
+                    <button className="px-3 py-1.5 text-xs text-slate-600 bg-white/80 border border-slate-200/50 rounded-lg hover:bg-white hover:border-slate-300 transition-all duration-200">
+                      Add citations
+                    </button>
+                    <button className="px-3 py-1.5 text-xs text-slate-600 bg-white/80 border border-slate-200/50 rounded-lg hover:bg-white hover:border-slate-300 transition-all duration-200">
+                      Research ideas
+                    </button>
                   </div>
-                <span className="font-semibold text-slate-900">Research Insights</span>
                 </div>
-              <p className="text-sm text-slate-600 leading-relaxed">Discover research gaps and unexplored opportunities</p>
-            </button>
-            
-            <button className="group w-full p-4 bg-white/80 backdrop-blur-sm border border-slate-200/50 rounded-2xl hover:border-slate-300 hover:bg-white hover:shadow-lg transition-all duration-300 text-left">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-8 h-8 bg-cyan-100 rounded-xl flex items-center justify-center group-hover:bg-cyan-200 transition-colors duration-200">
-                  <Lightbulb className="w-4 h-4 text-cyan-600" />
+              ) : (
+                aiChatHistory.map((message) => (
+                  <div key={message.id} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`max-w-[80%] p-3 rounded-2xl ${
+                      message.type === 'user' 
+                        ? 'bg-gradient-to-r from-emerald-500 to-cyan-500 text-white' 
+                        : 'bg-white/80 border border-slate-200/50 text-slate-900'
+                    }`}>
+                      <p className="text-sm leading-relaxed">{message.content}</p>
+                      <p className={`text-xs mt-1 ${
+                        message.type === 'user' ? 'text-emerald-100' : 'text-slate-500'
+                      }`}>
+                        {message.timestamp}
+                      </p>
                     </div>
-                <span className="font-semibold text-slate-900">Generate Ideas</span>
                   </div>
-              <p className="text-sm text-slate-600 leading-relaxed">Explore new research directions and creative approaches</p>
-                </button>
-            
-            <button className="group w-full p-4 bg-white/80 backdrop-blur-sm border border-slate-200/50 rounded-2xl hover:border-slate-300 hover:bg-white hover:shadow-lg transition-all duration-300 text-left">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-8 h-8 bg-teal-100 rounded-xl flex items-center justify-center group-hover:bg-teal-200 transition-colors duration-200">
-                  <TrendingUp className="w-4 h-4 text-teal-600" />
-              </div>
-                <span className="font-semibold text-slate-900">Citation Mastery</span>
+                ))
+              )}
             </div>
-              <p className="text-sm text-slate-600 leading-relaxed">Optimize citations and reference management</p>
-            </button>
+            
+            {/* Quick Actions */}
+            <div className="p-4 border-t border-slate-200/50 bg-white/40 backdrop-blur-sm">
+              <div className="flex flex-wrap gap-2 mb-3">
+                <button className="px-3 py-1.5 text-xs text-slate-600 bg-white/80 border border-slate-200/50 rounded-lg hover:bg-white hover:border-slate-300 transition-all duration-200">
+                  <Zap className="w-3 h-3 inline mr-1" />
+                  Analyze
+                </button>
+                <button className="px-3 py-1.5 text-xs text-slate-600 bg-white/80 border border-slate-200/50 rounded-lg hover:bg-white hover:border-slate-300 transition-all duration-200">
+                  <Target className="w-3 h-3 inline mr-1" />
+                  Research
+                </button>
+                <button className="px-3 py-1.5 text-xs text-slate-600 bg-white/80 border border-slate-200/50 rounded-lg hover:bg-white hover:border-slate-300 transition-all duration-200">
+                  <Lightbulb className="w-3 h-3 inline mr-1" />
+                  Ideas
+                </button>
+                <button className="px-3 py-1.5 text-xs text-slate-600 bg-white/80 border border-slate-200/50 rounded-lg hover:bg-white hover:border-slate-300 transition-all duration-200">
+                  <TrendingUp className="w-3 h-3 inline mr-1" />
+                  Citations
+                </button>
+              </div>
+            </div>
           </div>
           
-          {/* AI Input - Eden Refined */}
+          {/* AI Input - Enhanced Chat Input */}
           <div className="p-6 border-t border-slate-200/50 bg-white/40 backdrop-blur-sm">
             <div className="relative">
               <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
@@ -1003,23 +1311,39 @@ Begin your research paper here...
               </div>
               <input
                 type="text"
+                value={currentAiMessage}
+                onChange={(e) => setCurrentAiMessage(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleAiMessageSend()}
                 placeholder="Ask Eden for research insights..."
                 className="w-full pl-12 pr-16 py-4 border border-slate-200/50 rounded-2xl bg-white/80 backdrop-blur-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-transparent text-sm shadow-sm placeholder-slate-400 transition-all duration-200"
               />
-              <button className="absolute right-3 top-1/2 transform -translate-y-1/2 w-10 h-10 bg-gradient-to-r from-emerald-600 to-cyan-500 text-white rounded-xl hover:from-emerald-700 hover:to-cyan-600 transition-all duration-300 flex items-center justify-center shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/30">
+              <button 
+                onClick={handleAiMessageSend}
+                disabled={!currentAiMessage.trim()}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 w-10 h-10 bg-gradient-to-r from-emerald-600 to-cyan-500 text-white rounded-xl hover:from-emerald-700 hover:to-cyan-600 transition-all duration-300 flex items-center justify-center shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 <Send className="w-4 h-4" />
               </button>
             </div>
             
-            {/* Quick Prompts - Eden Styled */}
+            {/* Quick Prompts - Enhanced */}
             <div className="mt-4 flex flex-wrap gap-2">
-              <button className="px-3 py-1.5 text-xs text-slate-600 bg-white/80 border border-slate-200/50 rounded-lg hover:bg-white hover:border-slate-300 transition-all duration-200">
+              <button 
+                onClick={() => setCurrentAiMessage("Improve the clarity of my writing")}
+                className="px-3 py-1.5 text-xs text-slate-600 bg-white/80 border border-slate-200/50 rounded-lg hover:bg-white hover:border-slate-300 transition-all duration-200"
+              >
                 Improve clarity
               </button>
-              <button className="px-3 py-1.5 text-xs text-slate-600 bg-white/80 border border-slate-200/50 rounded-lg hover:bg-white hover:border-slate-300 transition-all duration-200">
+              <button 
+                onClick={() => setCurrentAiMessage("Help me expand on these ideas")}
+                className="px-3 py-1.5 text-xs text-slate-600 bg-white/80 border border-slate-200/50 rounded-lg hover:bg-white hover:border-slate-300 transition-all duration-200"
+              >
                 Expand ideas
               </button>
-              <button className="px-3 py-1.5 text-xs text-slate-600 bg-white/80 border border-slate-200/50 rounded-lg hover:bg-white hover:border-slate-300 transition-all duration-200">
+              <button 
+                onClick={() => setCurrentAiMessage("Check the logic and flow of my argument")}
+                className="px-3 py-1.5 text-xs text-slate-600 bg-white/80 border border-slate-200/50 rounded-lg hover:bg-white hover:border-slate-300 transition-all duration-200"
+              >
                 Check logic
               </button>
             </div>
@@ -1200,7 +1524,10 @@ Begin your research paper here...
                     <div className="w-2 h-2 bg-green-400 rounded-full"></div>
                     Auto-save ON
                   </button>
-                  <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-all duration-300 flex items-center gap-2">
+                  <button 
+                    onClick={() => setShowExportModal(true)}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-all duration-300 flex items-center gap-2"
+                  >
                     <Save className="w-4 h-4" />
                     Save Notes
                   </button>
@@ -1407,6 +1734,392 @@ Begin your research paper here...
       >
         <BookOpen className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
       </button>
+
+      {/* Export Modal - Eden Design */}
+      {showExportModal && (
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-xl flex items-center justify-center z-50 p-4">
+          <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl shadow-black/10 max-w-2xl w-full max-h-[85vh] overflow-hidden border border-white/20">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-8 border-b border-gray-100/50">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/25">
+                  <Download className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-900 tracking-tight">Export Document</h2>
+                  <p className="text-gray-500 mt-1">Choose your preferred format</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setShowExportModal(false)}
+                className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100/80 rounded-2xl transition-all duration-300"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-8 space-y-6">
+              {/* Export Options Grid */}
+              <div className="grid grid-cols-2 gap-4">
+                {/* PDF Export */}
+                <button
+                  onClick={() => handleExport('pdf')}
+                  className="group p-6 text-left rounded-2xl border border-gray-200/50 hover:border-blue-300 hover:bg-blue-50/50 hover:shadow-lg transition-all duration-300 hover:scale-[1.02]"
+                >
+                  <div className="flex items-center gap-4 mb-3">
+                    <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center group-hover:bg-red-200 transition-colors duration-200">
+                      <File className="w-6 h-6 text-red-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900 text-lg">PDF Document</h3>
+                      <p className="text-sm text-gray-500">Portable Document Format</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-600 leading-relaxed">Export as a professional PDF document with proper formatting</p>
+                </button>
+
+                {/* DOCX Export */}
+                <button
+                  onClick={() => handleExport('docx')}
+                  className="group p-6 text-left rounded-2xl border border-gray-200/50 hover:border-blue-300 hover:bg-blue-50/50 hover:shadow-lg transition-all duration-300 hover:scale-[1.02]"
+                >
+                  <div className="flex items-center gap-4 mb-3">
+                    <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center group-hover:bg-blue-200 transition-colors duration-200">
+                      <FileText className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900 text-lg">Word Document</h3>
+                      <p className="text-sm text-gray-500">Microsoft Word Format</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-600 leading-relaxed">Export as a Word document for easy editing and collaboration</p>
+                </button>
+
+                {/* TXT Export */}
+                <button
+                  onClick={() => handleExport('txt')}
+                  className="group p-6 text-left rounded-2xl border border-gray-200/50 hover:border-blue-300 hover:bg-blue-50/50 hover:shadow-lg transition-all duration-300 hover:scale-[1.02]"
+                >
+                  <div className="flex items-center gap-4 mb-3">
+                    <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center group-hover:bg-gray-200 transition-colors duration-200">
+                      <FileText className="w-6 h-6 text-gray-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900 text-lg">Plain Text</h3>
+                      <p className="text-sm text-gray-500">Simple text file</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-600 leading-relaxed">Export as a plain text file for maximum compatibility</p>
+                </button>
+
+                {/* Markdown Export */}
+                <button
+                  onClick={() => handleExport('md')}
+                  className="group p-6 text-left rounded-2xl border border-gray-200/50 hover:border-blue-300 hover:bg-blue-50/50 hover:shadow-lg transition-all duration-300 hover:scale-[1.02]"
+                >
+                  <div className="flex items-center gap-4 mb-3">
+                    <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center group-hover:bg-purple-200 transition-colors duration-200">
+                      <Code className="w-6 h-6 text-purple-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900 text-lg">Markdown</h3>
+                      <p className="text-sm text-gray-500">Markdown format</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-600 leading-relaxed">Export as Markdown for web publishing and documentation</p>
+                </button>
+              </div>
+
+              {/* Document Info */}
+              <div className="bg-gray-50/80 rounded-xl p-4 border border-gray-200/50">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <FileText className="w-4 h-4 text-blue-600" />
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium text-gray-700">Document Preview</span>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {researchContent ? `${researchContent.length} characters` : 'No content to export'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Modal Footer */}
+            <div className="flex items-center justify-between p-8 border-t border-gray-100/50 bg-gray-50/30">
+              <div className="flex items-center gap-3">
+                <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                <span className="text-sm text-gray-600">
+                  Format: <span className="font-semibold text-gray-900">{selectedFormat}</span>
+                </span>
+              </div>
+              <div className="flex gap-4">
+                <button
+                  onClick={() => setShowExportModal(false)}
+                  className="px-6 py-3 text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 font-medium"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Paper Modal - Eden Design */}
+      {showAddPaperModal && (
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-xl flex items-center justify-center z-50 p-4">
+          <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl shadow-black/10 max-w-4xl w-full max-h-[90vh] overflow-hidden border border-white/20">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-8 border-b border-gray-100/50">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/25">
+                  <BookOpen className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-900 tracking-tight">Add Research Paper</h2>
+                  <p className="text-gray-500 mt-1">Add a new paper to your literature review</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => {
+                  setShowAddPaperModal(false);
+                  setNewPaper({
+                    title: '',
+                    authors: '',
+                    year: '',
+                    journal: '',
+                    description: '',
+                    citations: '',
+                    impactFactor: ''
+                  });
+                  setUploadedFile(null);
+                }}
+                className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100/80 rounded-2xl transition-all duration-300"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-8 space-y-6 max-h-[60vh] overflow-y-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Paper Title */}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">Paper Title *</label>
+                  <input
+                    type="text"
+                    value={newPaper.title}
+                    onChange={(e) => handlePaperInputChange('title', e.target.value)}
+                    placeholder="e.g., Advances in Research Methodology"
+                    className="w-full px-4 py-3 border border-gray-200/50 rounded-xl bg-white/80 backdrop-blur-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-transparent text-base placeholder-gray-400 transition-all duration-200"
+                    autoFocus
+                  />
+                </div>
+
+                {/* Authors */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">Authors *</label>
+                  <input
+                    type="text"
+                    value={newPaper.authors}
+                    onChange={(e) => handlePaperInputChange('authors', e.target.value)}
+                    placeholder="e.g., Smith, J., Johnson, A., & Brown, M."
+                    className="w-full px-4 py-3 border border-gray-200/50 rounded-xl bg-white/80 backdrop-blur-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-transparent text-base placeholder-gray-400 transition-all duration-200"
+                  />
+                </div>
+
+                {/* Year */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">Publication Year</label>
+                  <input
+                    type="number"
+                    value={newPaper.year}
+                    onChange={(e) => handlePaperInputChange('year', e.target.value)}
+                    placeholder="2023"
+                    min="1900"
+                    max={new Date().getFullYear() + 1}
+                    className="w-full px-4 py-3 border border-gray-200/50 rounded-xl bg-white/80 backdrop-blur-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-transparent text-base placeholder-gray-400 transition-all duration-200"
+                  />
+                </div>
+
+                {/* Journal */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">Journal/Publication</label>
+                  <input
+                    type="text"
+                    value={newPaper.journal}
+                    onChange={(e) => handlePaperInputChange('journal', e.target.value)}
+                    placeholder="e.g., Journal of Research Methods"
+                    className="w-full px-4 py-3 border border-gray-200/50 rounded-xl bg-white/80 backdrop-blur-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-transparent text-base placeholder-gray-400 transition-all duration-200"
+                  />
+                </div>
+
+                {/* Citations */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">Citation Count</label>
+                  <input
+                    type="number"
+                    value={newPaper.citations}
+                    onChange={(e) => handlePaperInputChange('citations', e.target.value)}
+                    placeholder="45"
+                    min="0"
+                    className="w-full px-4 py-3 border border-gray-200/50 rounded-xl bg-white/80 backdrop-blur-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-transparent text-base placeholder-gray-400 transition-all duration-200"
+                  />
+                </div>
+
+                {/* Impact Factor */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">Impact Factor</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={newPaper.impactFactor}
+                    onChange={(e) => handlePaperInputChange('impactFactor', e.target.value)}
+                    placeholder="3.2"
+                    min="0"
+                    className="w-full px-4 py-3 border border-gray-200/50 rounded-xl bg-white/80 backdrop-blur-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-transparent text-base placeholder-gray-400 transition-all duration-200"
+                  />
+                </div>
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">Description/Abstract</label>
+                <textarea
+                  value={newPaper.description}
+                  onChange={(e) => handlePaperInputChange('description', e.target.value)}
+                  placeholder="Brief description of the paper's content, methodology, and findings..."
+                  rows={4}
+                  className="w-full px-4 py-3 border border-gray-200/50 rounded-xl bg-white/80 backdrop-blur-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-transparent text-base placeholder-gray-400 transition-all duration-200 resize-none"
+                />
+              </div>
+
+              {/* PDF Upload Section */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">PDF Document (Optional)</label>
+                
+                {!uploadedFile ? (
+                  <div
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 ${
+                      isDragOver 
+                        ? 'border-blue-400 bg-blue-50/50' 
+                        : 'border-gray-300 hover:border-blue-400 hover:bg-blue-50/30'
+                    }`}
+                  >
+                    <div className="flex flex-col items-center gap-4">
+                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
+                        <FileText className="w-8 h-8 text-gray-400" />
+                      </div>
+                      <div>
+                        <p className="text-lg font-medium text-gray-700 mb-2">
+                          Drop your PDF here, or <span className="text-blue-600 hover:text-blue-700 cursor-pointer">browse</span>
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          Supports PDF files up to 10MB
+                        </p>
+                      </div>
+                      <input
+                        type="file"
+                        accept=".pdf"
+                        onChange={handleFileInputChange}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-green-50/80 border border-green-200/50 rounded-xl p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                          <FileText className="w-5 h-5 text-green-600" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-green-800">{uploadedFile.name}</p>
+                          <p className="text-sm text-green-600">
+                            {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={removeUploadedFile}
+                        className="w-8 h-8 flex items-center justify-center text-green-600 hover:text-red-600 hover:bg-red-50/80 rounded-lg transition-all duration-200"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Paper Preview */}
+              {(newPaper.title || newPaper.authors) && (
+                <div className="bg-blue-50/80 rounded-xl p-4 border border-blue-100/50">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <BookOpen className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <span className="text-sm font-medium text-blue-700">Paper Preview</span>
+                  </div>
+                  <div className="text-sm text-blue-600">
+                    <p className="font-medium">{newPaper.title || 'Untitled Paper'}</p>
+                    <p className="text-blue-500">{newPaper.authors || 'Unknown Authors'} ({newPaper.year || new Date().getFullYear()})</p>
+                    <p className="text-blue-500">{newPaper.journal || 'Unknown Journal'}</p>
+                    {uploadedFile && (
+                      <div className="flex items-center gap-2 mt-2">
+                        <FileText className="w-4 h-4 text-green-600" />
+                        <span className="text-green-600 font-medium">PDF attached: {uploadedFile.name}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            {/* Modal Footer */}
+            <div className="flex items-center justify-between p-8 border-t border-gray-100/50 bg-gray-50/30">
+              <div className="flex items-center gap-3">
+                <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                <span className="text-sm text-gray-600">
+                  Total Papers: <span className="font-semibold text-gray-900">{papers.length}</span>
+                </span>
+              </div>
+              <div className="flex gap-4">
+                <button
+                  onClick={() => {
+                    setShowAddPaperModal(false);
+                    setNewPaper({
+                      title: '',
+                      authors: '',
+                      year: '',
+                      journal: '',
+                      description: '',
+                      citations: '',
+                      impactFactor: ''
+                    });
+                    setUploadedFile(null);
+                  }}
+                  className="px-6 py-3 text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAddPaper}
+                  disabled={!newPaper.title.trim() || !newPaper.authors.trim()}
+                  className="px-8 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 font-semibold shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-lg disabled:hover:shadow-blue-500/25"
+                >
+                  Add Paper
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

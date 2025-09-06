@@ -165,73 +165,83 @@ const ResearchMode = () => {
       case 'Writing':
         return (
           <div className="flex-1 flex flex-col bg-white">
-            {/* LaTeX-style Toolbar */}
-            <div className="flex items-center justify-between px-6 py-3 border-b border-gray-200 bg-gray-50/80 backdrop-blur-sm">
+            {/* AI-Powered Minimalist Toolbar */}
+            <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200 bg-white/95 backdrop-blur-sm">
               {/* Left: Document Info */}
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
                 <input
                   type="text"
-                  placeholder="Untitled Document"
+                  placeholder="Research Paper Title"
                   className="text-lg font-semibold bg-transparent border-0 focus:outline-none text-gray-900 placeholder-gray-400 min-w-[200px]"
                 />
-                <div className="flex items-center gap-2 text-sm text-gray-500">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  <span>Auto-saved {lastSaved}</span>
+                <div className="flex items-center gap-2 text-xs text-gray-500">
+                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
+                  <span>Auto-saved</span>
                 </div>
               </div>
 
-              {/* Center: LaTeX Commands */}
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1 bg-white rounded-lg p-1 shadow-sm border border-gray-200">
-                  <button className="px-3 py-1.5 text-xs font-mono bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors">
-                    \section
-                  </button>
-                  <button className="px-3 py-1.5 text-xs font-mono bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors">
-                    \subsection
-                  </button>
-                  <button className="px-3 py-1.5 text-xs font-mono bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors">
-                    \textbf
-                  </button>
-                  <button className="px-3 py-1.5 text-xs font-mono bg-orange-100 text-orange-700 rounded hover:bg-orange-200 transition-colors">
-                    \textit
-                  </button>
-                </div>
-              </div>
-
-              {/* Right: LaTeX Tools */}
-              <div className="flex items-center gap-2">
-                <button className="px-3 py-1.5 text-xs font-medium bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors">
-                  <Download className="w-3 h-3 inline mr-1" />
-                  Export PDF
+              {/* Center: AI Shortcuts */}
+              <div className="flex items-center gap-1">
+                <button className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors">
+                  <Sparkles className="w-3 h-3 inline mr-1" />
+                  AI Cite
                 </button>
-                <button className="px-3 py-1.5 text-xs font-medium bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors">
+                <button className="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors">
+                  <Brain className="w-3 h-3 inline mr-1" />
+                  AI Edit
+                </button>
+                <button className="px-2 py-1 text-xs font-medium bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors">
+                  <MessageSquare className="w-3 h-3 inline mr-1" />
+                  Comment
+                </button>
+              </div>
+
+              {/* Right: Quick Actions */}
+              <div className="flex items-center gap-1">
+                <button className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors">
+                  <Download className="w-3 h-3 inline mr-1" />
+                  Export
+                </button>
+                <button className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors">
                   <Eye className="w-3 h-3 inline mr-1" />
                   Preview
-                </button>
-                <button className="px-3 py-1.5 text-xs font-medium bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors">
-                  <Save className="w-3 h-3 inline mr-1" />
-                  Compile
                 </button>
               </div>
             </div>
 
-            {/* LaTeX Editor Area */}
+            {/* AI-Powered Editor Layout */}
             <div className="flex-1 flex">
-              {/* Left: Line Numbers & Editor */}
-              <div className="flex-1 flex">
-                {/* Line Numbers */}
-                <div className="w-12 bg-gray-100 border-r border-gray-200 text-right text-xs text-gray-500 font-mono py-4">
-                  <div className="space-y-4">
-                    {Array.from({ length: 20 }, (_, i) => (
-                      <div key={i} className="h-6 leading-6">
-                        {i + 1}
-                      </div>
-                    ))}
+              {/* Main Editor Area */}
+              <div className="flex-1 flex flex-col">
+                {/* AI Status Bar */}
+                <div className="px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 border-b border-gray-100">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                      <span className="text-xs text-gray-600">AI Assistant Ready</span>
+                    </div>
+                    <div className="flex items-center gap-4 text-xs text-gray-500">
+                      <span>Words: 0</span>
+                      <span>Citations: 0</span>
+                      <span>Comments: 0</span>
+                    </div>
                   </div>
                 </div>
 
-                {/* LaTeX Editor */}
-                <div className="flex-1 flex flex-col">
+                {/* LaTeX Editor with AI Integration */}
+                <div className="flex-1 flex">
+                  {/* Line Numbers */}
+                  <div className="w-8 bg-gray-50 border-r border-gray-100 text-right text-xs text-gray-400 font-mono py-4">
+                    <div className="space-y-3">
+                      {Array.from({ length: 15 }, (_, i) => (
+                        <div key={i} className="h-5 leading-5">
+                          {i + 1}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Editor */}
                   <div className="flex-1 p-4">
                     <textarea
                       ref={editorRef}
@@ -240,12 +250,13 @@ const ResearchMode = () => {
                       onFocus={() => setIsEditorFocused(true)}
                       onBlur={() => setIsEditorFocused(false)}
                       onContextMenu={handleContextMenu}
-                      placeholder="% LaTeX Document
+                      placeholder="% AI-Powered LaTeX Editor
+% Type '//' for AI suggestions, '@' for citations, '#' for comments
+
 \documentclass{article}
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
-\usepackage{amsfonts}
-\usepackage{amssymb}
+\usepackage{natbib}
 
 \title{Your Research Paper}
 \author{Your Name}
@@ -256,10 +267,13 @@ const ResearchMode = () => {
 \maketitle
 
 \begin{abstract}
+% Type //abstract to get AI-generated abstract suggestions
 Your abstract goes here...
 \end{abstract}
 
 \section{Introduction}
+% Type @ to insert citations from your uploaded papers
+% Type # to add comments for collaboration
 Begin your research paper here...
 
 \end{document}"
@@ -273,113 +287,110 @@ Begin your research paper here...
                 </div>
               </div>
 
-              {/* Right: LaTeX Sidebar */}
-              <div className="w-80 bg-gray-50 border-l border-gray-200 flex flex-col">
-                {/* LaTeX Commands Panel */}
-                <div className="p-4 border-b border-gray-200">
-                  <h3 className="text-sm font-semibold text-gray-900 mb-3">LaTeX Commands</h3>
-                  <div className="space-y-2">
-                    <div className="grid grid-cols-2 gap-2">
-                      <button className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors font-mono">
-                        \section
-                </button>
-                      <button className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors font-mono">
-                        \subsection
-                </button>
-                      <button className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors font-mono">
-                        \textbf
-                </button>
-                      <button className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors font-mono">
-                        \textit
-                </button>
-                      <button className="px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors font-mono">
-                        \begin
-                </button>
-                      <button className="px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors font-mono">
-                        \end
-                </button>
-                      <button className="px-2 py-1 text-xs bg-orange-100 text-orange-700 rounded hover:bg-orange-200 transition-colors font-mono">
-                        \cite
-                </button>
-                      <button className="px-2 py-1 text-xs bg-orange-100 text-orange-700 rounded hover:bg-orange-200 transition-colors font-mono">
-                        \ref
-                </button>
+              {/* AI Assistant Sidebar */}
+              <div className="w-72 bg-gray-50 border-l border-gray-200 flex flex-col">
+                {/* AI Assistant Header */}
+                <div className="p-3 border-b border-gray-200 bg-gradient-to-r from-blue-500 to-purple-600">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 bg-white/20 rounded-lg flex items-center justify-center">
+                      <Brain className="w-3 h-3 text-white" />
                     </div>
+                    <span className="text-sm font-semibold text-white">AI Research Assistant</span>
                   </div>
                 </div>
 
-                {/* Math Panel */}
-                <div className="p-4 border-b border-gray-200">
-                  <h3 className="text-sm font-semibold text-gray-900 mb-3">Math Commands</h3>
-                  <div className="space-y-2">
-                    <div className="grid grid-cols-2 gap-2">
-                      <button className="px-2 py-1 text-xs bg-yellow-100 text-yellow-700 rounded hover:bg-yellow-200 transition-colors font-mono">
-                        \frac
-                </button>
-                      <button className="px-2 py-1 text-xs bg-yellow-100 text-yellow-700 rounded hover:bg-yellow-200 transition-colors font-mono">
-                        \sum
-                </button>
-                      <button className="px-2 py-1 text-xs bg-yellow-100 text-yellow-700 rounded hover:bg-yellow-200 transition-colors font-mono">
-                        \int
-                </button>
-                      <button className="px-2 py-1 text-xs bg-yellow-100 text-yellow-700 rounded hover:bg-yellow-200 transition-colors font-mono">
-                        \sqrt
-                </button>
-                    </div>
+                {/* AI Quick Actions */}
+                <div className="p-3 border-b border-gray-200">
+                  <h4 className="text-xs font-semibold text-gray-700 mb-2">Quick AI Actions</h4>
+                  <div className="space-y-1">
+                    <button className="w-full px-2 py-1.5 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors text-left">
+                      <Sparkles className="w-3 h-3 inline mr-1" />
+                      Auto-cite from files
+                    </button>
+                    <button className="w-full px-2 py-1.5 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors text-left">
+                      <Edit3 className="w-3 h-3 inline mr-1" />
+                      Improve writing
+                    </button>
+                    <button className="w-full px-2 py-1.5 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors text-left">
+                      <Target className="w-3 h-3 inline mr-1" />
+                      Generate outline
+                    </button>
+                    <button className="w-full px-2 py-1.5 text-xs bg-orange-100 text-orange-700 rounded hover:bg-orange-200 transition-colors text-left">
+                      <CheckCircle className="w-3 h-3 inline mr-1" />
+                      Check grammar
+                    </button>
                   </div>
                 </div>
 
-                {/* Document Structure */}
-                <div className="p-4 border-b border-gray-200">
-                  <h3 className="text-sm font-semibold text-gray-900 mb-3">Document Structure</h3>
-                  <div className="space-y-1 text-xs">
-                    <div className="flex items-center gap-2 text-gray-600">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      <span>Title</span>
+                {/* Auto-Citations Panel */}
+                <div className="p-3 border-b border-gray-200">
+                  <h4 className="text-xs font-semibold text-gray-700 mb-2">Auto-Citations</h4>
+                  <div className="space-y-1">
+                    <div className="text-xs text-gray-600 bg-white p-2 rounded border">
+                      <div className="font-medium">Smith et al. (2023)</div>
+                      <div className="text-gray-500">Ready to insert</div>
                     </div>
-                    <div className="flex items-center gap-2 text-gray-600">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <span>Abstract</span>
+                    <div className="text-xs text-gray-600 bg-white p-2 rounded border">
+                      <div className="font-medium">Johnson & Lee (2022)</div>
+                      <div className="text-gray-500">Ready to insert</div>
                     </div>
-                    <div className="flex items-center gap-2 text-gray-600">
-                      <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                      <span>Introduction</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-600">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                      <span>Methods</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-600">
-                      <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                      <span>Results</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-600">
-                      <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
-                      <span>Conclusion</span>
-                    </div>
+                    <button className="w-full px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded hover:bg-gray-200 transition-colors">
+                      + Add from files
+                    </button>
                   </div>
                 </div>
 
-                {/* Compilation Status */}
-                <div className="p-4">
-                  <h3 className="text-sm font-semibold text-gray-900 mb-3">Compilation</h3>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-xs">
-                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                      <span className="text-green-700">Ready to compile</span>
+                {/* Comments Panel */}
+                <div className="p-3 border-b border-gray-200">
+                  <h4 className="text-xs font-semibold text-gray-700 mb-2">Comments</h4>
+                  <div className="space-y-1">
+                    <div className="text-xs text-gray-600 bg-yellow-50 p-2 rounded border border-yellow-200">
+                      <div className="font-medium">Line 15</div>
+                      <div className="text-gray-500">"Consider adding more detail here"</div>
                     </div>
-                    <button className="w-full px-3 py-2 text-xs font-medium bg-green-600 text-white rounded hover:bg-green-700 transition-colors">
-                      <Save className="w-3 h-3 inline mr-1" />
-                      Compile LaTeX
-                </button>
-                    <button className="w-full px-3 py-2 text-xs font-medium bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
-                      <Eye className="w-3 h-3 inline mr-1" />
-                      Preview PDF
-                </button>
-              </div>
+                    <button className="w-full px-2 py-1 text-xs bg-yellow-100 text-yellow-700 rounded hover:bg-yellow-200 transition-colors">
+                      + Add comment
+                    </button>
+                  </div>
+                </div>
+
+                {/* Edit History */}
+                <div className="p-3 border-b border-gray-200">
+                  <h4 className="text-xs font-semibold text-gray-700 mb-2">Edit History</h4>
+                  <div className="space-y-1">
+                    <div className="text-xs text-gray-600">
+                      <div className="font-medium">2 min ago</div>
+                      <div className="text-gray-500">AI improved introduction</div>
+                    </div>
+                    <div className="text-xs text-gray-600">
+                      <div className="font-medium">5 min ago</div>
+                      <div className="text-gray-500">Added citations</div>
+                    </div>
+                    <button className="w-full px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded hover:bg-gray-200 transition-colors">
+                      View full history
+                    </button>
+                  </div>
+                </div>
+
+                {/* File Access */}
+                <div className="p-3">
+                  <h4 className="text-xs font-semibold text-gray-700 mb-2">File Access</h4>
+                  <div className="space-y-1">
+                    <div className="text-xs text-gray-600 bg-white p-2 rounded border">
+                      <div className="font-medium">research_paper.pdf</div>
+                      <div className="text-gray-500">Ready for AI analysis</div>
+                    </div>
+                    <div className="text-xs text-gray-600 bg-white p-2 rounded border">
+                      <div className="font-medium">data_analysis.xlsx</div>
+                      <div className="text-gray-500">Ready for AI analysis</div>
+                    </div>
+                    <button className="w-full px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors">
+                      + Upload files
+                    </button>
+                  </div>
                 </div>
               </div>
-              </div>
+            </div>
           </div>
         );
       

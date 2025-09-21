@@ -144,57 +144,57 @@ export default function SmartSearchModal({ open, onClose }) {
       id: 'conversations', 
       name: 'Conversations', 
       icon: <MessageCircle className="w-6 h-6 text-white" />,
-      bgGradient: 'from-[#4CAF50] to-[#2196F3]'
+      bgGradient: 'from-blue-500 to-blue-600'
     },
     { 
       id: 'documents', 
       name: 'Documents', 
       icon: <File className="w-6 h-6 text-white" />,
-      bgGradient: 'from-[#2196F3] to-[#03A9F4]'
+      bgGradient: 'from-gray-600 to-gray-700'
     },
     { 
       id: 'projects', 
       name: 'Projects', 
       icon: <FolderOpen className="w-6 h-6 text-white" />,
-      bgGradient: 'from-[#673AB7] to-[#9C27B0]'
+      bgGradient: 'from-slate-600 to-slate-700'
     },
     { 
       id: 'memory', 
       name: 'Memory', 
       icon: <Brain className="w-6 h-6 text-white" />,
-      bgGradient: 'from-[#FF5722] to-[#FF9800]'
+      bgGradient: 'from-indigo-600 to-indigo-700'
     }
   ];
 
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-[8vh]" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="bg-black/80 backdrop-blur-xl w-full max-w-[680px] mx-4 rounded-3xl overflow-hidden shadow-2xl border border-white/10">
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-[8vh] bg-black/20 backdrop-blur-md" onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl w-full max-w-[600px] mx-4 rounded-[24px] overflow-hidden shadow-2xl border border-white/20 dark:border-gray-700/50">
         {/* Header */}
-        <div className="flex items-center justify-between px-8 py-6 border-b border-white/10">
+        <div className="flex items-center justify-between px-8 py-6 border-b border-white/20 dark:border-gray-700/50">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-[#4CAF50] to-[#2196F3] rounded-2xl flex items-center justify-center shadow-lg">
-              <Search size={24} className="text-white" />
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 rounded-[16px] flex items-center justify-center shadow-lg shadow-blue-500/25">
+              <Search size={20} className="text-white" />
             </div>
             <div>
-              <h2 className="text-2xl font-light text-white/90 mb-1">Smart Search</h2>
-              <p className="text-sm text-gray-400">Search across your entire workspace</p>
+              <h2 className="text-2xl font-light text-gray-900 dark:text-white/95 mb-1 tracking-tight">Smart Search</h2>
+              <p className="text-sm text-gray-600 dark:text-gray-300/80 font-light">Search across your workspace</p>
             </div>
           </div>
           <button 
             onClick={onClose}
-            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 transition-all duration-200 group"
+            className="w-11 h-11 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 group"
             aria-label="Close"
           >
-            <X size={20} className="text-gray-400 group-hover:text-white transition-colors" />
+            <X size={22} className="text-gray-500 dark:text-gray-300 group-hover:text-gray-700 dark:group-hover:text-white transition-colors duration-200" />
           </button>
         </div>
 
         {/* Search Input */}
         <div className="px-8 py-6">
           <div className="relative">
-            <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400/80" size={22} />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" size={20} />
             <input
               ref={inputRef}
               type="text"
@@ -202,12 +202,12 @@ export default function SmartSearchModal({ open, onClose }) {
               onChange={e => setSearchQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               placeholder="Search conversations, files, projects..."
-              className="w-full pl-14 pr-5 py-4 bg-white/95 backdrop-blur-sm border-2 border-[#4CAF50] rounded-2xl focus:outline-none focus:border-[#4CAF50] focus:ring-4 focus:ring-[#4CAF50]/20 text-gray-900 placeholder-gray-500 text-lg transition-all duration-300 shadow-lg"
+              className="w-full pl-12 pr-6 py-4 bg-white/60 dark:bg-gray-700/60 backdrop-blur-xl border border-white/30 dark:border-gray-600/50 rounded-[16px] focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 text-lg font-light transition-all duration-300 shadow-lg"
             />
             {semanticSearch && (
-              <div className="absolute right-5 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                <span className="text-sm text-blue-600 font-medium">AI</span>
+              <div className="absolute right-6 top-1/2 -translate-y-1/2 flex items-center gap-3">
+                <div className="w-2.5 h-2.5 bg-blue-500 rounded-full animate-pulse shadow-sm"></div>
+                <span className="text-sm text-blue-600 font-medium tracking-wide">AI</span>
               </div>
             )}
           </div>
@@ -216,38 +216,38 @@ export default function SmartSearchModal({ open, onClose }) {
         {!showResults ? (
           <>
             {/* Central Branding */}
-            <div className="flex flex-col items-center justify-center py-12">
-              <div className="w-20 h-20 bg-gradient-to-br from-[#4CAF50] via-[#2196F3] to-[#9C27B0] rounded-3xl flex items-center justify-center mb-6 shadow-2xl">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 16L12 14" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-                  <path d="M12 8L12 10" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-                  <path d="M16 12L14 12" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-                  <path d="M8 12L10 12" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-                  <path d="M15 15L13.5 13.5" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-                  <path d="M9 9L10.5 10.5" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-                  <path d="M15 9L13.5 10.5" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-                  <path d="M9 15L10.5 13.5" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+            <div className="flex flex-col items-center justify-center py-8">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 rounded-[18px] flex items-center justify-center mb-6 shadow-xl shadow-blue-500/30">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 16L12 14" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+                  <path d="M12 8L12 10" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+                  <path d="M16 12L14 12" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+                  <path d="M8 12L10 12" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+                  <path d="M15 15L13.5 13.5" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+                  <path d="M9 9L10.5 10.5" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+                  <path d="M15 9L13.5 10.5" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+                  <path d="M9 15L10.5 13.5" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
                 </svg>
               </div>
-              <h3 className="text-2xl font-light text-white mb-3">Discover Everything</h3>
-              <p className="text-gray-400 text-center max-w-md">Search across conversations, documents, projects, and memory with intelligent AI-powered results</p>
+              <h3 className="text-2xl font-light text-gray-900 dark:text-white/95 mb-3 tracking-tight">Discover Everything</h3>
+              <p className="text-gray-600 dark:text-gray-300/80 text-center max-w-md text-base font-light leading-relaxed">Search across conversations, documents, projects, and memory with intelligent AI-powered results</p>
             </div>
 
             {/* Category Grid */}
-            <div className="grid grid-cols-2 gap-6 px-8 pb-8">
+            <div className="grid grid-cols-2 gap-4 px-6 pb-8">
               {categories.map((category) => (
                 <button
                   key={category.id}
                   onClick={() => handleCategorySelect(category.id)}
-                  className={`group relative bg-white/95 backdrop-blur-sm rounded-2xl p-6 flex flex-col items-center transition-all duration-300 hover:scale-105 hover:shadow-2xl ${
-                    selectedCategory === category.id ? 'ring-2 ring-[#4CAF50]/50 shadow-xl scale-105' : 'hover:bg-white'
+                  className={`group relative bg-white/60 dark:bg-gray-700/60 backdrop-blur-xl rounded-[16px] p-6 flex flex-col items-center transition-all duration-300 hover:scale-[1.02] hover:shadow-xl ${
+                    selectedCategory === category.id ? 'ring-2 ring-blue-500/40 shadow-lg scale-[1.02]' : 'hover:bg-white/80 dark:hover:bg-gray-600/70'
                   }`}
                 >
-                  <div className={`w-16 h-16 bg-gradient-to-br ${category.bgGradient} rounded-2xl flex items-center justify-center mb-4 shadow-lg group-hover:shadow-xl transition-all duration-300`}>
+                  <div className={`w-14 h-14 bg-gradient-to-br ${category.bgGradient} rounded-[14px] flex items-center justify-center mb-4 shadow-lg group-hover:shadow-xl transition-all duration-300`}>
                     {category.icon}
                   </div>
-                  <span className="text-gray-900 font-semibold text-lg mb-2">{category.name}</span>
-                  <span className="text-gray-500 text-sm text-center">
+                  <span className="text-gray-900 dark:text-white font-medium text-lg mb-2 tracking-tight">{category.name}</span>
+                  <span className="text-gray-600 dark:text-gray-300 text-sm text-center font-light leading-relaxed">
                     {category.id === 'conversations' && 'Chat history & conversations'}
                     {category.id === 'documents' && 'Files, PDFs & documents'}
                     {category.id === 'projects' && 'Active & archived projects'}
@@ -259,20 +259,20 @@ export default function SmartSearchModal({ open, onClose }) {
 
             {/* Quick Actions */}
             <div className="text-center pb-8">
-              <div className="flex items-center justify-center gap-6 text-sm text-gray-400">
-                <span className="flex items-center gap-2">
-                  <kbd className="px-2 py-1 bg-gray-800 text-gray-300 rounded text-xs">⌘K</kbd>
-                  Quick search
+              <div className="flex items-center justify-center gap-6 text-sm text-gray-600 dark:text-gray-300/70 font-light">
+                <span className="flex items-center gap-3">
+                  <kbd className="px-3 py-1.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg text-sm font-mono tracking-wide">⌘K</kbd>
+                  <span>Quick search</span>
                 </span>
-                <span>•</span>
-                <span className="flex items-center gap-2">
-                  <kbd className="px-2 py-1 bg-gray-800 text-gray-300 rounded text-xs">↑↓</kbd>
-                  Navigate
+                <span className="text-gray-400 dark:text-gray-500">•</span>
+                <span className="flex items-center gap-3">
+                  <kbd className="px-3 py-1.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg text-sm font-mono tracking-wide">↑↓</kbd>
+                  <span>Navigate</span>
                 </span>
-                <span>•</span>
-                <span className="flex items-center gap-2">
-                  <kbd className="px-2 py-1 bg-gray-800 text-gray-300 rounded text-xs">Tab</kbd>
-                  Categories
+                <span className="text-gray-400 dark:text-gray-500">•</span>
+                <span className="flex items-center gap-3">
+                  <kbd className="px-3 py-1.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg text-sm font-mono tracking-wide">Tab</kbd>
+                  <span>Categories</span>
                 </span>
               </div>
             </div>
@@ -280,58 +280,58 @@ export default function SmartSearchModal({ open, onClose }) {
         ) : (
           <>
             {/* Results Header */}
-            <div className="flex items-center justify-between mb-6 px-8">
+            <div className="flex items-center justify-between mb-6 px-6">
               <div>
-                <h3 className="text-xl font-semibold text-white mb-1">Search Results</h3>
-                <p className="text-gray-400 text-sm">Found {searchResults.length} results for "{searchQuery}"</p>
+                <h3 className="text-xl font-light text-gray-900 dark:text-white/95 mb-1 tracking-tight">Search Results</h3>
+                <p className="text-gray-600 dark:text-gray-300/80 text-sm font-light">Found {searchResults.length} results for "{searchQuery}"</p>
               </div>
               <button
                 onClick={resetSearch}
-                className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all duration-200 text-sm font-medium hover:scale-105"
+                className="px-6 py-3 bg-white/60 dark:bg-gray-700/60 hover:bg-white/80 dark:hover:bg-gray-600/70 text-gray-700 dark:text-gray-200 rounded-[12px] transition-all duration-300 text-sm font-medium hover:scale-105 backdrop-blur-sm"
               >
                 New Search
               </button>
             </div>
 
             {/* Results */}
-            <div className="space-y-4 max-h-96 overflow-y-auto px-8 pb-8">
+            <div className="space-y-4 max-h-80 overflow-y-auto px-6 pb-8">
               {isSearching ? (
                 <div className="text-center py-12">
-                  <div className="w-16 h-16 bg-gradient-to-br from-[#4CAF50] to-[#2196F3] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 rounded-[16px] flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-500/25">
                     <div className="w-8 h-8 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
                   </div>
-                  <h4 className="text-lg font-medium text-white mb-2">Searching...</h4>
-                  <p className="text-gray-400 text-sm">Looking through your content with AI</p>
+                  <h4 className="text-lg font-light text-gray-900 dark:text-white/95 mb-2 tracking-tight">Searching...</h4>
+                  <p className="text-gray-600 dark:text-gray-300/80 text-sm font-light">Looking through your content with AI</p>
                 </div>
               ) : searchResults.length === 0 && searchQuery ? (
                 <div className="text-center py-12">
-                  <div className="w-16 h-16 bg-gray-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <Search size={28} className="text-gray-400" />
+                  <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700/60 rounded-[16px] flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
+                    <Search size={24} className="text-gray-500 dark:text-gray-400" />
                   </div>
-                  <h4 className="text-lg font-medium text-white mb-2">No Results Found</h4>
-                  <p className="text-gray-400 text-sm">Try adjusting your search query or filters</p>
+                  <h4 className="text-lg font-light text-gray-900 dark:text-white/95 mb-2 tracking-tight">No Results Found</h4>
+                  <p className="text-gray-600 dark:text-gray-300/80 text-sm font-light">Try adjusting your search query or filters</p>
                 </div>
               ) : (
                 searchResults.map((result, i) => (
                   <div
                     key={i}
                     ref={el => resultRefs.current[i] = el}
-                    className={`p-6 rounded-2xl border cursor-pointer transition-all duration-300 hover:scale-[1.02] ${
+                    className={`p-6 rounded-[16px] border cursor-pointer transition-all duration-300 hover:scale-[1.01] ${
                       i === activeResultIdx 
-                        ? 'ring-2 ring-[#4CAF50] bg-white/10 border-[#4CAF50]/30 shadow-xl' 
-                        : 'border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20'
+                        ? 'ring-2 ring-blue-500/40 bg-blue-50/80 dark:bg-blue-900/20 border-blue-500/30 shadow-lg backdrop-blur-sm' 
+                        : 'border-white/30 dark:border-gray-700/50 bg-white/60 dark:bg-gray-700/60 hover:bg-white/80 dark:hover:bg-gray-600/70 hover:border-white/50 dark:hover:border-gray-600/70 backdrop-blur-sm'
                     }`}
                     onClick={() => handleResultClick(result, i)}
                   >
                     <div className="flex items-center gap-3 mb-3">
-                      <span className={`px-3 py-1.5 bg-gradient-to-r from-[#4CAF50] to-[#2196F3] text-white text-xs font-medium rounded-full shadow-sm`}>
+                      <span className={`px-3 py-1.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs font-medium rounded-[10px] shadow-sm`}>
                         {result.type}
                       </span>
                       {result.location && (
-                        <span className="text-gray-400 text-xs">in {result.location}</span>
+                        <span className="text-gray-600 dark:text-gray-300/80 text-xs font-light">in {result.location}</span>
                       )}
                     </div>
-                    <div className="text-white/90 leading-relaxed text-sm">
+                    <div className="text-gray-900 dark:text-white/90 leading-relaxed text-sm font-light">
                       {highlightQuery(
                         result.snippet,
                         searchQuery,
@@ -347,11 +347,11 @@ export default function SmartSearchModal({ open, onClose }) {
         )}
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-8 py-4 bg-white/5 border-t border-white/10">
-          <div className="text-sm text-gray-400">
+        <div className="flex items-center justify-between px-6 py-4 bg-white/40 dark:bg-gray-700/40 border-t border-white/20 dark:border-gray-700/50 backdrop-blur-sm">
+          <div className="text-sm text-gray-600 dark:text-gray-300/70 font-light">
             {showResults ? `${searchResults.length} results` : 'Ready to search'}
           </div>
-          <div className="text-sm text-gray-400">
+          <div className="text-sm text-gray-600 dark:text-gray-300/70 font-light">
             {showResults ? '↑↓ navigate, Enter select' : '↑↓ navigate categories'}
           </div>
         </div>

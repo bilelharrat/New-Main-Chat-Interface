@@ -2,11 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import unique font for AI responses */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* AI Response Font */
+.ai-response-text {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 400;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
+}
+
 :root {
   /* Professional Apple-inspired color palette - Enterprise-focused */
-  --accent: 210 100% 50%; /* Apple Blue #007AFF */
+  --accent: 210 60% 45%; /* Matte Blue #6B8DB3 */
   --accent-secondary: 262 64% 62%; /* Apple Purple #5856D6 */
-  --accent-accent: 199 94% 67%; /* Light Blue #5AC8FA */
+  --accent-accent: 199 94% 67%; /* Matte Baby Blue #7BB3D9 */
   --accent-success: 142 76% 60%; /* Apple Green #34C759 */
   --accent-warning: 38 100% 65%; /* Apple Orange #FF9500 */
   --accent-danger: 0 84% 60%; /* Apple Red #FF3B30 */
@@ -18,7 +29,7 @@
   --card-foreground: 0 0% 0%;
   --popover: 0 0% 100%;
   --popover-foreground: 0 0% 0%;
-  --primary: 210 100% 50%; /* Apple Blue as primary */
+  --primary: 210 60% 45%; /* Matte Blue as primary */
   --primary-foreground: 0 0% 100%;
   --secondary: 240 5% 96%; /* Very light gray #F2F2F7 */
   --secondary-foreground: 240 5% 26%; /* Dark gray #3C3C43 */
@@ -29,7 +40,7 @@
   --destructive-foreground: 0 0% 100%;
   --border: 240 5% 84%; /* Light gray #C7C7CC */
   --input: 240 5% 84%;
-  --ring: 210 100% 50%; /* Apple Blue ring */
+  --ring: 210 60% 45%; /* Matte Blue ring */
   --radius: 0.75rem;
 }
 
@@ -37,7 +48,7 @@
   /* Dark mode - Professional Apple-inspired dark theme */
   --accent: 210 100% 60%; /* Brighter Apple Blue for dark mode */
   --accent-secondary: 262 64% 72%; /* Brighter Apple Purple */
-  --accent-accent: 199 94% 77%; /* Brighter Light Blue */
+  --accent-accent: 199 94% 77%; /* Brighter Matte Baby Blue */
   --accent-success: 142 76% 70%; /* Brighter Apple Green */
   --accent-warning: 38 100% 75%; /* Brighter Apple Orange */
   --accent-danger: 0 84% 70%; /* Brighter Apple Red */
@@ -48,7 +59,7 @@
   --card-foreground: 0 0% 100%;
   --popover: 240 5% 18%;
   --popover-foreground: 0 0% 100%;
-  --primary: 210 100% 60%; /* Apple Blue as primary */
+  --primary: 210 60% 55%; /* Matte Blue as primary */
   --primary-foreground: 0 0% 0%;
   --secondary: 240 5% 11%; /* Darker gray #1C1C1E */
   --secondary-foreground: 0 0% 100%;
@@ -59,7 +70,7 @@
   --destructive-foreground: 0 0% 0%;
   --border: 240 5% 22%; /* Darker border #38383A */
   --input: 240 5% 22%;
-  --ring: 210 100% 60%; /* Apple Blue ring */
+  --ring: 210 60% 55%; /* Matte Blue ring */
 }
 
 * {
@@ -429,17 +440,37 @@ a {
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: #6b7280;
+  background: linear-gradient(to bottom, #9333ea, #ec4899);
   border-radius: 5px;
+  transition: all 0.3s ease;
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
+  background: linear-gradient(to bottom, #a855f7, #f472b6);
+  box-shadow: 0 0 10px rgba(147, 51, 234, 0.5);
+  transform: scale(1.1);
 }
 
 /* Apple-inspired light mode scrollbar */
 ::-webkit-scrollbar {
   width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(229, 231, 235, 0.3);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #9333ea, #ec4899);
+  border-radius: 5px;
+  transition: all 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, #a855f7, #f472b6);
+  box-shadow: 0 0 10px rgba(147, 51, 234, 0.5);
+  transform: scale(1.1);
 }
 
 /* ===== ENHANCED VISUAL HIERARCHY & SPACING SYSTEM ===== */
@@ -552,15 +583,15 @@ a {
 
 /* Professional Apple-inspired button styles */
 .btn-primary {
-  background: #007AFF;
+  background: #6B8DB3;
   border-radius: 0.75rem;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .btn-primary:hover {
-  background: #0056CC;
+  background: #5A7A9A;
   transform: translateY(-1px);
-  box-shadow: 0 8px 20px rgba(0, 122, 255, 0.25);
+  box-shadow: 0 8px 20px rgba(107, 141, 179, 0.25);
 }
 
 .btn-secondary {
@@ -613,7 +644,7 @@ a {
 }
 
 .message-bubble.user {
-  background: #87CEFA;
+  background: #7BB3D9;
   color: white;
 }
 
@@ -648,12 +679,12 @@ a {
 /* True smooth gradient transition animation for the E logo */
 @keyframes rainbow {
   0% { 
-    background: linear-gradient(135deg, #007AFF 0%, #5AC8FA 25%, #34C759 50%, #FF9500 75%, #FF2D92 100%);
+    background: linear-gradient(135deg, #007AFF 0%, #7BB3D9 25%, #34C759 50%, #FF9500 75%, #FF2D92 100%);
     background-size: 400% 400%;
     background-position: 0% 50%;
   }
   25% { 
-    background: linear-gradient(135deg, #5AC8FA 0%, #34C759 25%, #FF9500 50%, #FF2D92 75%, #AF52DE 100%);
+    background: linear-gradient(135deg, #7BB3D9 0%, #34C759 25%, #FF9500 50%, #FF2D92 75%, #AF52DE 100%);
     background-size: 400% 400%;
     background-position: 25% 50%;
   }
@@ -668,7 +699,7 @@ a {
     background-position: 75% 50%;
   }
   100% { 
-    background: linear-gradient(135deg, #007AFF 0%, #5AC8FA 25%, #34C759 50%, #FF9500 75%, #FF2D92 100%);
+    background: linear-gradient(135deg, #007AFF 0%, #7BB3D9 25%, #34C759 50%, #FF9500 75%, #FF2D92 100%);
     background-size: 400% 400%;
     background-position: 100% 50%;
   }
@@ -681,7 +712,7 @@ a {
 /* Animated E logo with smooth gradient transition */
 .animated-e-logo {
   animation: rainbow 4s ease-in-out infinite;
-  background: linear-gradient(135deg, #007AFF 0%, #5AC8FA 25%, #34C759 50%, #FF9500 75%, #FF2D92 100%);
+  background: linear-gradient(135deg, #007AFF 0%, #7BB3D9 25%, #34C759 50%, #FF9500 75%, #FF2D92 100%);
   background-size: 400% 400%;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 122, 255, 0.2);
@@ -1405,7 +1436,7 @@ a {
   left: -2px;
   right: -2px;
   bottom: -2px;
-  background: linear-gradient(45deg, #007AFF, #5856D6, #34C759);
+  background: linear-gradient(45deg, #6B8DB3, #5856D6, #34C759);
   border-radius: inherit;
   z-index: -1;
   opacity: 0;
@@ -1477,7 +1508,7 @@ a {
 
 /* Button variants with enhanced interactions */
 .btn-primary-enhanced {
-  background: linear-gradient(135deg, #007AFF, #5856D6);
+  background: linear-gradient(135deg, #6B8DB3, #5856D6);
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
@@ -1488,9 +1519,9 @@ a {
 }
 
 .btn-primary-enhanced:hover {
-  background: linear-gradient(135deg, #0056CC, #4A4AC4);
+  background: linear-gradient(135deg, #5A7A9A, #4A4AC4);
   transform: translateY(-2px);
-  box-shadow: 0 20px 40px rgba(0, 122, 255, 0.3);
+  box-shadow: 0 20px 40px rgba(107, 141, 179, 0.3);
 }
 
 .btn-success-enhanced {
@@ -1548,7 +1579,7 @@ a {
 /* Enhanced link interactions */
 .link-enhanced {
   position: relative;
-  color: #007AFF;
+  color: #6B8DB3;
   text-decoration: none;
   transition: all 0.3s ease;
 }
@@ -1560,7 +1591,7 @@ a {
   left: 0;
   width: 0;
   height: 2px;
-  background: linear-gradient(135deg, #007AFF, #5856D6);
+  background: linear-gradient(135deg, #6B8DB3, #5856D6);
   transition: width 0.3s ease;
 }
 
@@ -1587,8 +1618,8 @@ a {
 }
 
 .checkbox-enhanced:checked {
-  background: #007AFF;
-  border-color: #007AFF;
+  background: #6B8DB3;
+  border-color: #6B8DB3;
   transform: scale(1.1);
 }
 
@@ -1604,7 +1635,7 @@ a {
 }
 
 .checkbox-enhanced:hover {
-  border-color: #007AFF;
+  border-color: #6B8DB3;
   transform: scale(1.05);
 }
 
@@ -1632,7 +1663,7 @@ a {
 }
 
 .toggle-enhanced:checked {
-  background: #007AFF;
+  background: #6B8DB3;
 }
 
 .toggle-enhanced:checked::before {
@@ -1831,6 +1862,57 @@ a {
 ::-moz-selection {
   background: rgba(0, 122, 255, 0.2);
   color: inherit;
+}
+
+/* Baby blue text selection for chat messages - Perplexity style */
+.ai-response-text::selection,
+.ai-response-text ::selection {
+  background: #87CEEB !important; /* Baby blue */
+  color: #000000 !important;
+}
+
+.ai-response-text::-moz-selection,
+.ai-response-text ::-moz-selection {
+  background: #87CEEB !important; /* Baby blue */
+  color: #000000 !important;
+}
+
+/* Also apply to user messages for consistency */
+.message-bubble::selection,
+.message-bubble ::selection {
+  background: #87CEEB !important; /* Baby blue */
+  color: #000000 !important;
+}
+
+.message-bubble::-moz-selection,
+.message-bubble ::-moz-selection {
+  background: #87CEEB !important; /* Baby blue */
+  color: #000000 !important;
+}
+
+/* Dark mode text selection - slightly darker baby blue for better contrast */
+.dark .ai-response-text::selection,
+.dark .ai-response-text ::selection {
+  background: #5DADE2 !important; /* Slightly darker baby blue for dark mode */
+  color: #000000 !important;
+}
+
+.dark .ai-response-text::-moz-selection,
+.dark .ai-response-text ::-moz-selection {
+  background: #5DADE2 !important; /* Slightly darker baby blue for dark mode */
+  color: #000000 !important;
+}
+
+.dark .message-bubble::selection,
+.dark .message-bubble ::selection {
+  background: #5DADE2 !important; /* Slightly darker baby blue for dark mode */
+  color: #000000 !important;
+}
+
+.dark .message-bubble::-moz-selection,
+.dark .message-bubble ::-moz-selection {
+  background: #5DADE2 !important; /* Slightly darker baby blue for dark mode */
+  color: #000000 !important;
 }
 
 /* Improved text rendering */

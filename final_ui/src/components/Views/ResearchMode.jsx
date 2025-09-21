@@ -10,31 +10,586 @@ import {
   RotateCcw, RotateCw, ZoomIn, ZoomOut, Maximize2, Minimize2, Grid, Columns, Rows
 } from 'lucide-react';
 
+// Data Entry Form Component
+const DataEntryForm = ({ type, item, onSave, onCancel }) => {
+  const [formData, setFormData] = useState({
+    // Researcher fields
+    name: '',
+    email: '',
+    institution: '',
+    role: '',
+    expertise: '',
+    bio: '',
+    
+    // Paper fields
+    title: '',
+    authors: '',
+    journal: '',
+    year: '',
+    doi: '',
+    abstract: '',
+    keywords: '',
+    url: '',
+    
+    // Data Point fields
+    name: '',
+    type: 'quantitative',
+    value: '',
+    unit: '',
+    description: '',
+    source: '',
+    date: '',
+    notes: '',
+    
+    // Methodology fields
+    name: '',
+    type: '',
+    description: '',
+    steps: '',
+    tools: '',
+    limitations: '',
+    
+    // Finding fields
+    title: '',
+    description: '',
+    significance: '',
+    evidence: '',
+    implications: '',
+    
+    // Citation fields
+    title: '',
+    authors: '',
+    year: '',
+    journal: '',
+    volume: '',
+    pages: '',
+    doi: '',
+    url: '',
+    type: 'journal'
+  });
+
+  useEffect(() => {
+    if (item) {
+      setFormData({ ...formData, ...item });
+    }
+  }, [item]);
+
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSave(formData);
+  };
+
+  const renderFormFields = () => {
+    switch (type) {
+      case 'researchers':
+        return (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Name *</label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Institution</label>
+                <input
+                  type="text"
+                  value={formData.institution}
+                  onChange={(e) => handleInputChange('institution', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
+                <select
+                  value={formData.role}
+                  onChange={(e) => handleInputChange('role', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Select role</option>
+                  <option value="Principal Investigator">Principal Investigator</option>
+                  <option value="Co-Investigator">Co-Investigator</option>
+                  <option value="Research Assistant">Research Assistant</option>
+                  <option value="Collaborator">Collaborator</option>
+                  <option value="Consultant">Consultant</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Expertise</label>
+              <input
+                type="text"
+                value={formData.expertise}
+                onChange={(e) => handleInputChange('expertise', e.target.value)}
+                placeholder="e.g., Machine Learning, Data Analysis, Statistics"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Bio</label>
+              <textarea
+                value={formData.bio}
+                onChange={(e) => handleInputChange('bio', e.target.value)}
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Brief biography and research interests..."
+              />
+            </div>
+          </div>
+        );
+
+      case 'papers':
+        return (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Title *</label>
+              <input
+                type="text"
+                value={formData.title}
+                onChange={(e) => handleInputChange('title', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Authors</label>
+                <input
+                  type="text"
+                  value={formData.authors}
+                  onChange={(e) => handleInputChange('authors', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Year</label>
+                <input
+                  type="number"
+                  value={formData.year}
+                  onChange={(e) => handleInputChange('year', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Journal</label>
+                <input
+                  type="text"
+                  value={formData.journal}
+                  onChange={(e) => handleInputChange('journal', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">DOI</label>
+                <input
+                  type="text"
+                  value={formData.doi}
+                  onChange={(e) => handleInputChange('doi', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Abstract</label>
+              <textarea
+                value={formData.abstract}
+                onChange={(e) => handleInputChange('abstract', e.target.value)}
+                rows={4}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Paper abstract..."
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Keywords</label>
+              <input
+                type="text"
+                value={formData.keywords}
+                onChange={(e) => handleInputChange('keywords', e.target.value)}
+                placeholder="Separate keywords with commas"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+        );
+
+      case 'dataPoints':
+        return (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Name *</label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Type</label>
+                <select
+                  value={formData.type}
+                  onChange={(e) => handleInputChange('type', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="quantitative">Quantitative</option>
+                  <option value="qualitative">Qualitative</option>
+                  <option value="mixed">Mixed Methods</option>
+                </select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Value</label>
+                <input
+                  type="text"
+                  value={formData.value}
+                  onChange={(e) => handleInputChange('value', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Unit</label>
+                <input
+                  type="text"
+                  value={formData.unit}
+                  onChange={(e) => handleInputChange('unit', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+              <textarea
+                value={formData.description}
+                onChange={(e) => handleInputChange('description', e.target.value)}
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Describe this data point..."
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Source</label>
+                <input
+                  type="text"
+                  value={formData.source}
+                  onChange={(e) => handleInputChange('source', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
+                <input
+                  type="date"
+                  value={formData.date}
+                  onChange={(e) => handleInputChange('date', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'methodologies':
+        return (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Name *</label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Type</label>
+                <select
+                  value={formData.type}
+                  onChange={(e) => handleInputChange('type', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Select type</option>
+                  <option value="experimental">Experimental</option>
+                  <option value="observational">Observational</option>
+                  <option value="survey">Survey</option>
+                  <option value="case-study">Case Study</option>
+                  <option value="meta-analysis">Meta-Analysis</option>
+                  <option value="systematic-review">Systematic Review</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+              <textarea
+                value={formData.description}
+                onChange={(e) => handleInputChange('description', e.target.value)}
+                rows={4}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Describe the methodology..."
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Steps</label>
+              <textarea
+                value={formData.steps}
+                onChange={(e) => handleInputChange('steps', e.target.value)}
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Step-by-step process..."
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Tools & Technologies</label>
+              <input
+                type="text"
+                value={formData.tools}
+                onChange={(e) => handleInputChange('tools', e.target.value)}
+                placeholder="e.g., Python, R, SPSS, Excel"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Limitations</label>
+              <textarea
+                value={formData.limitations}
+                onChange={(e) => handleInputChange('limitations', e.target.value)}
+                rows={2}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Known limitations and constraints..."
+              />
+            </div>
+          </div>
+        );
+
+      case 'findings':
+        return (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Title *</label>
+              <input
+                type="text"
+                value={formData.title}
+                onChange={(e) => handleInputChange('title', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+              <textarea
+                value={formData.description}
+                onChange={(e) => handleInputChange('description', e.target.value)}
+                rows={4}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Describe the finding..."
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Significance</label>
+              <textarea
+                value={formData.significance}
+                onChange={(e) => handleInputChange('significance', e.target.value)}
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Why is this finding significant?"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Evidence</label>
+              <textarea
+                value={formData.evidence}
+                onChange={(e) => handleInputChange('evidence', e.target.value)}
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="What evidence supports this finding?"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Implications</label>
+              <textarea
+                value={formData.implications}
+                onChange={(e) => handleInputChange('implications', e.target.value)}
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="What are the implications of this finding?"
+              />
+            </div>
+          </div>
+        );
+
+      case 'citations':
+        return (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Title *</label>
+              <input
+                type="text"
+                value={formData.title}
+                onChange={(e) => handleInputChange('title', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Authors</label>
+                <input
+                  type="text"
+                  value={formData.authors}
+                  onChange={(e) => handleInputChange('authors', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Year</label>
+                <input
+                  type="number"
+                  value={formData.year}
+                  onChange={(e) => handleInputChange('year', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Journal/Publisher</label>
+                <input
+                  type="text"
+                  value={formData.journal}
+                  onChange={(e) => handleInputChange('journal', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Type</label>
+                <select
+                  value={formData.type}
+                  onChange={(e) => handleInputChange('type', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="journal">Journal Article</option>
+                  <option value="book">Book</option>
+                  <option value="conference">Conference Paper</option>
+                  <option value="thesis">Thesis</option>
+                  <option value="report">Report</option>
+                  <option value="website">Website</option>
+                </select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Volume</label>
+                <input
+                  type="text"
+                  value={formData.volume}
+                  onChange={(e) => handleInputChange('volume', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Pages</label>
+                <input
+                  type="text"
+                  value={formData.pages}
+                  onChange={(e) => handleInputChange('pages', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">DOI</label>
+                <input
+                  type="text"
+                  value={formData.doi}
+                  onChange={(e) => handleInputChange('doi', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">URL</label>
+                <input
+                  type="url"
+                  value={formData.url}
+                  onChange={(e) => handleInputChange('url', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+          </div>
+        );
+
+      default:
+        return <div>Unknown data type</div>;
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {renderFormFields()}
+      
+      <div className="flex items-center gap-3 pt-6 border-t border-gray-200">
+        <button
+          type="submit"
+          className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+        >
+          {item ? 'Update' : 'Save'}
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
+  );
+};
+
 const ResearchMode = () => {
   console.log('ResearchMode component initialized');
   const [notes, setNotes] = useState('');
   const [researchContent, setResearchContent] = useState('');
   const [selectedFormat, setSelectedFormat] = useState('Chicago');
   const [viewMode, setViewMode] = useState('Hide'); // Default to Hide mode - no sidebar
-  const [activeTab, setActiveTab] = useState('Writing');
-  const [showFormatModal, setShowFormatModal] = useState(false);
-  const [customFormat, setCustomFormat] = useState('');
-  const [showContextMenu, setShowContextMenu] = useState(false);
-  const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
-  const [showNotesModal, setShowNotesModal] = useState(false);
-  const [notesContent, setNotesContent] = useState('');
-  const [wordCount, setWordCount] = useState(0);
-  const [charCount, setCharCount] = useState(0);
-
-  const [lastSaved, setLastSaved] = useState('12:22:45 PM');
-  const [aiSidebarWidth, setAiSidebarWidth] = useState(320);
-  const [isResizingAi, setIsResizingAi] = useState(false);
-  const [isAiSidebarCollapsed, setIsAiSidebarCollapsed] = useState(false);
-  const [isAiSidebarMinimized, setIsAiSidebarMinimized] = useState(false);
-  const [aiChatHistory, setAiChatHistory] = useState([]);
-  const [currentAiMessage, setCurrentAiMessage] = useState('');
-  const [showExportModal, setShowExportModal] = useState(false);
-  const [outlineSections, setOutlineSections] = useState([
+  const [activeTab, setActiveTab] = useState('Data');
+  
+  // Research Project Management
+  const [researchProjects, setResearchProjects] = useState([
+    {
+      id: 'default',
+      name: 'Research Project 1',
+      notes: '',
+      researchContent: '',
+      outlineSections: [
     {
       id: 1,
       title: 'Introduction',
@@ -52,11 +607,68 @@ const ResearchMode = () => {
       title: 'Methodology',
       description: 'Research design, data collection, analysis methods',
       order: 3
+        },
+        {
+          id: 4,
+          title: 'Results',
+          description: 'Findings, data analysis, key discoveries',
+          order: 4
+        },
+        {
+          id: 5,
+          title: 'Discussion',
+          description: 'Interpretation, implications, limitations',
+          order: 5
+        },
+        {
+          id: 6,
+          title: 'Conclusion',
+          description: 'Summary, contributions, future research',
+          order: 6
+        }
+      ],
+      literatureSources: [],
+      timelineEvents: [],
+      analysisData: [],
+      researchData: {
+        researchers: [],
+        papers: [],
+        dataPoints: [],
+        methodologies: [],
+        findings: [],
+        citations: []
+      }
     }
   ]);
+  const [activeProjectId, setActiveProjectId] = useState('default');
+  const [showNewProjectModal, setShowNewProjectModal] = useState(false);
+  const [newProjectName, setNewProjectName] = useState('');
+  
+  // Data management modals
+  const [showDataModal, setShowDataModal] = useState(false);
+  const [dataModalType, setDataModalType] = useState(''); // 'researcher', 'paper', 'dataPoint', etc.
+  const [editingDataItem, setEditingDataItem] = useState(null);
+  const [showFormatModal, setShowFormatModal] = useState(false);
+  const [customFormat, setCustomFormat] = useState('');
+  const [showContextMenu, setShowContextMenu] = useState(false);
+  const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
+  const [showNotesModal, setShowNotesModal] = useState(false);
+  const [notesContent, setNotesContent] = useState('');
+  const [wordCount, setWordCount] = useState(0);
+  const [charCount, setCharCount] = useState(0);
+
+  const [lastSaved, setLastSaved] = useState('12:22:45 PM');
+  const [aiSidebarWidth, setAiSidebarWidth] = useState(320);
+  const [isResizingAi, setIsResizingAi] = useState(false);
+  const [isAiSidebarCollapsed, setIsAiSidebarCollapsed] = useState(false);
+  const [isAiSidebarMinimized, setIsAiSidebarMinimized] = useState(false);
+  const [aiChatHistory, setAiChatHistory] = useState([]);
+  const [currentAiMessage, setCurrentAiMessage] = useState('');
+  const [showExportModal, setShowExportModal] = useState(false);
   const [showAddSectionModal, setShowAddSectionModal] = useState(false);
   const [newSectionTitle, setNewSectionTitle] = useState('');
   const [newSectionDescription, setNewSectionDescription] = useState('');
+  const [outlineSections, setOutlineSections] = useState([]);
   const [papers, setPapers] = useState([
     {
       id: 1,
@@ -184,6 +796,156 @@ const ResearchMode = () => {
     setIsResizingAi(false);
     document.body.style.cursor = '';
     document.body.style.userSelect = '';
+  };
+
+  // Helper functions for project management
+  const getCurrentProject = () => {
+    return researchProjects.find(project => project.id === activeProjectId) || researchProjects[0];
+  };
+
+  const updateCurrentProject = (updates) => {
+    setResearchProjects(prev => prev.map(project => 
+      project.id === activeProjectId ? { ...project, ...updates } : project
+    ));
+  };
+
+  const createNewProject = () => {
+    if (!newProjectName.trim()) return;
+    
+    const newProject = {
+      id: `project_${Date.now()}`,
+      name: newProjectName.trim(),
+      notes: '',
+      researchContent: '',
+      outlineSections: [
+        {
+          id: 1,
+          title: 'Introduction',
+          description: 'Background, problem statement, research questions',
+          order: 1
+        },
+        {
+          id: 2,
+          title: 'Literature Review',
+          description: 'Existing research, theoretical framework',
+          order: 2
+        },
+        {
+          id: 3,
+          title: 'Methodology',
+          description: 'Research design, data collection, analysis methods',
+          order: 3
+        },
+        {
+          id: 4,
+          title: 'Results',
+          description: 'Findings, data analysis, key discoveries',
+          order: 4
+        },
+        {
+          id: 5,
+          title: 'Discussion',
+          description: 'Interpretation, implications, limitations',
+          order: 5
+        },
+        {
+          id: 6,
+          title: 'Conclusion',
+          description: 'Summary, contributions, future research',
+          order: 6
+        }
+      ],
+      literatureSources: [],
+      timelineEvents: [],
+      analysisData: [],
+      researchData: {
+        researchers: [],
+        papers: [],
+        dataPoints: [],
+        methodologies: [],
+        findings: [],
+        citations: []
+      }
+    };
+    
+    setResearchProjects(prev => [...prev, newProject]);
+    setActiveProjectId(newProject.id);
+    setNewProjectName('');
+    setShowNewProjectModal(false);
+  };
+
+  const switchProject = (projectId) => {
+    setActiveProjectId(projectId);
+  };
+
+  const deleteProject = (projectId) => {
+    if (researchProjects.length <= 1) return; // Don't delete the last project
+    
+    setResearchProjects(prev => prev.filter(project => project.id !== projectId));
+    
+    // Switch to the first remaining project if we deleted the active one
+    if (activeProjectId === projectId) {
+      const remainingProjects = researchProjects.filter(project => project.id !== projectId);
+      setActiveProjectId(remainingProjects[0].id);
+    }
+  };
+
+  // Import content to current project
+  const importToCurrentProject = (content) => {
+    const currentProject = getCurrentProject();
+    updateCurrentProject({
+      researchContent: currentProject.researchContent + (currentProject.researchContent ? '\n\n' : '') + content
+    });
+  };
+
+  // Data management functions
+  const addDataItem = (type, data) => {
+    const currentProject = getCurrentProject();
+    const newItem = {
+      id: `data_${Date.now()}`,
+      ...data,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    
+    updateCurrentProject({
+      researchData: {
+        ...currentProject.researchData,
+        [type]: [...currentProject.researchData[type], newItem]
+      }
+    });
+  };
+
+  const updateDataItem = (type, id, updates) => {
+    const currentProject = getCurrentProject();
+    const updatedItems = currentProject.researchData[type].map(item =>
+      item.id === id ? { ...item, ...updates, updatedAt: new Date().toISOString() } : item
+    );
+    
+    updateCurrentProject({
+      researchData: {
+        ...currentProject.researchData,
+        [type]: updatedItems
+      }
+    });
+  };
+
+  const deleteDataItem = (type, id) => {
+    const currentProject = getCurrentProject();
+    const filteredItems = currentProject.researchData[type].filter(item => item.id !== id);
+    
+    updateCurrentProject({
+      researchData: {
+        ...currentProject.researchData,
+        [type]: filteredItems
+      }
+    });
+  };
+
+  const openDataModal = (type, item = null) => {
+    setDataModalType(type);
+    setEditingDataItem(item);
+    setShowDataModal(true);
   };
 
   useEffect(() => {
@@ -810,21 +1572,15 @@ const ResearchMode = () => {
     switch (activeTab) {
       case 'Writing':
         return (
-          <div className="flex-1 flex flex-col">
-                         {/* Comprehensive Google Docs-like Toolbar - Compact */}
-             <div className="flex items-center gap-1 p-2 border-b border-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-10">
+          <div className="flex-1 flex flex-col h-full">
+            {/* Minimal Toolbar - Apple Style */}
+            <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200/30 bg-white/95 backdrop-blur-sm">
               {/* Document Title */}
-              <div className="flex items-center gap-3 mr-6">
                 <input 
                   type="text" 
                   placeholder="Untitled Document" 
-                  className="text-lg font-semibold bg-transparent border-0 focus:outline-none text-gray-900 placeholder-gray-400 min-w-[200px]"
+                className="text-lg font-semibold bg-transparent border-0 focus:outline-none text-gray-900 placeholder-gray-400 min-w-[200px] focus:bg-gray-50 rounded px-2 py-1"
                 />
-                <div className="flex items-center gap-2 text-sm text-gray-500">
-                  <span>•</span>
-                  <span>Last saved {lastSaved}</span>
-                </div>
-              </div>
 
               <div className="flex-1 flex items-center gap-1">
                 {/* Format Dropdown */}
@@ -1080,7 +1836,7 @@ const ResearchMode = () => {
                 <button 
                   onClick={toggleTrackChanges}
                   className={`w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100 transition-all duration-200 ${
-                    showTrackChanges ? 'bg-green-100 text-green-700' : 'text-gray-600'
+                    showTrackChanges ? 'bg-[#2196F3]/10 text-[#2196F3]' : 'text-gray-600'
                   }`}
                   title="Track Changes"
                 >
@@ -1100,7 +1856,7 @@ const ResearchMode = () => {
                 <button 
                   onClick={() => setShowFocusMode(!showFocusMode)}
                   className={`w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100 transition-all duration-200 ${
-                    showFocusMode ? 'bg-purple-100 text-purple-700' : 'text-gray-600'
+                    showFocusMode ? 'bg-[#10b981]/10 text-[#10b981]' : 'text-gray-600'
                   }`}
                   title="Focus Mode"
                 >
@@ -1258,8 +2014,8 @@ const ResearchMode = () => {
                             lineHeight: '1.6'
                           }}
                           suppressContentEditableWarning={true}
-                        />
-                      </div>
+                />
+              </div>
 
                       {/* Advanced Status Bar - Academic Features */}
                       <div className="h-12 border-t border-gray-200 flex items-center justify-between px-6 text-sm text-gray-500 bg-gray-50/50">
@@ -1288,7 +2044,7 @@ const ResearchMode = () => {
                           )}
                           {footnotes.length > 0 && (
                             <div className="flex items-center gap-2">
-                              <span className="font-medium text-purple-600">{footnotes.length}</span>
+                              <span className="font-medium text-[#10b981]">{footnotes.length}</span>
                               <span className="text-gray-500">footnotes</span>
                             </div>
                           )}
@@ -1307,7 +2063,7 @@ const ResearchMode = () => {
                           <div className="flex items-center gap-2">
                             <span className="text-gray-500">Last saved:</span>
                             <span className="font-medium text-gray-700">{lastSaved}</span>
-                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                            <div className="w-2 h-2 bg-[#2196F3] rounded-full"></div>
                           </div>
                         </div>
                       </div>
@@ -1356,7 +2112,7 @@ const ResearchMode = () => {
                     <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
                   </button>
                 </div>
-              </div>
+            </div>
           </div>
         );
       
@@ -1435,7 +2191,7 @@ const ResearchMode = () => {
                   <Plus className="w-4 h-4" />
                   Add Paper
                 </button>
-              </div>
+        </div>
 
               {/* Google Scholar Search Section */}
               <div className="mb-8">
@@ -1526,38 +2282,38 @@ const ResearchMode = () => {
                     </div>
                   )}
                 </div>
-              </div>
+        </div>
         
               <div className="grid gap-6">
                 {papers.map((paper) => (
                   <div key={paper.id} className="bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-xl p-6 shadow-sm">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
                         <h3 className="text-lg font-semibold text-gray-900 mb-2">{paper.title}</h3>
                         <p className="text-gray-600 mb-3">{paper.description}</p>
-                        <div className="flex items-center gap-4 text-sm text-gray-500">
+                      <div className="flex items-center gap-4 text-sm text-gray-500">
                           <span>{paper.journal}</span>
-                          <span>•</span>
+                        <span>•</span>
                           <span>Citations: {paper.citations}</span>
-                          <span>•</span>
+                        <span>•</span>
                           <span>Impact Factor: {paper.impactFactor}</span>
                           <span>•</span>
                           <span>{paper.year}</span>
-                        </div>
+                      </div>
                         <div className="mt-2 text-sm text-gray-500">
                           <span className="font-medium">Authors:</span> {paper.authors}
                         </div>
                         {paper.pdfFile && (
                           <div className="mt-2 flex items-center gap-2">
-                            <FileText className="w-4 h-4 text-green-600" />
-                            <span className="text-sm text-green-600 font-medium">PDF attached</span>
+                            <FileText className="w-4 h-4 text-[#2196F3]" />
+                            <span className="text-sm text-[#2196F3] font-medium">PDF attached</span>
                           </div>
                         )}
-                      </div>
-                      <div className="flex items-center gap-2 ml-4">
-                        <button className="w-8 h-8 flex items-center justify-center text-blue-600 hover:bg-blue-50/80 rounded-lg transition-all duration-200">
-                          <Bookmark className="w-4 h-4" />
-                        </button>
+                    </div>
+                    <div className="flex items-center gap-2 ml-4">
+                      <button className="w-8 h-8 flex items-center justify-center text-blue-600 hover:bg-blue-50/80 rounded-lg transition-all duration-200">
+                        <Bookmark className="w-4 h-4" />
+          </button>
                         <button 
                           onClick={() => {
                             const newTitle = prompt('Edit paper title:', paper.title);
@@ -1573,8 +2329,8 @@ const ResearchMode = () => {
                           }}
                           className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-50/80 rounded-lg transition-all duration-200"
                         >
-                          <Pencil className="w-4 h-4" />
-                        </button>
+                        <Pencil className="w-4 h-4" />
+          </button>
                         <button 
                           onClick={() => {
                             if (window.confirm(`Are you sure you want to delete "${paper.title}"?`)) {
@@ -1584,10 +2340,10 @@ const ResearchMode = () => {
                           className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-red-600 hover:bg-red-50/80 rounded-lg transition-all duration-200"
                         >
                           <X className="w-4 h-4" />
-                        </button>
-                      </div>
+          </button>
                     </div>
                   </div>
+                </div>
                 ))}
                 
                 {papers.length === 0 && (
@@ -1606,6 +2362,496 @@ const ResearchMode = () => {
                     </button>
                   </div>
                 )}
+              </div>
+            </div>
+          </div>
+        );
+      
+      case 'Data':
+        console.log('Rendering Data tab');
+        return (
+          <div className="flex-1 flex flex-col h-full">
+            {/* Data Management Header */}
+            <div className="px-6 py-4 border-b border-gray-200/30 bg-white/95 backdrop-blur-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-900">Research Data Repository</h2>
+                  <p className="text-sm text-gray-600 mt-1">Centralized data management for your research project</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                    <Plus className="w-4 h-4 inline mr-2" />
+                    Add Data
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Data Sections */}
+            <div className="flex-1 overflow-y-auto">
+              <div className="p-6 space-y-8">
+                
+                {/* Researchers Section */}
+                <div className="bg-white rounded-xl border border-gray-200/50 shadow-sm">
+                  <div className="px-6 py-4 border-b border-gray-200/50">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                          <Users className="w-4 h-4 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-900">Researchers</h3>
+                          <p className="text-sm text-gray-600">Research team and collaborators</p>
+                        </div>
+                      </div>
+                      <button 
+                        onClick={() => openDataModal('researchers')}
+                        className="px-3 py-1.5 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
+                      >
+                        <Plus className="w-4 h-4 inline mr-1" />
+                        Add Researcher
+                      </button>
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    {getCurrentProject().researchData.researchers.length === 0 ? (
+                      <div className="text-center py-12 text-gray-500">
+                        <Users className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                        <p className="text-lg font-medium mb-2">No researchers added yet</p>
+                        <p className="text-sm">Start by adding research team members and collaborators</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {getCurrentProject().researchData.researchers.map((researcher) => (
+                          <div key={researcher.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                                <h4 className="font-semibold text-gray-900">{researcher.name}</h4>
+                                <p className="text-sm text-gray-600">{researcher.role} • {researcher.institution}</p>
+                                {researcher.expertise && (
+                                  <p className="text-sm text-blue-600 mt-1">{researcher.expertise}</p>
+                                )}
+                                {researcher.bio && (
+                                  <p className="text-sm text-gray-700 mt-2">{researcher.bio}</p>
+                                )}
+                      </div>
+                              <div className="flex items-center gap-2 ml-4">
+                                <button
+                                  onClick={() => openDataModal('researchers', researcher)}
+                                  className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                >
+                                  <Pencil className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => deleteDataItem('researchers', researcher.id)}
+                                  className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Papers Section */}
+                <div className="bg-white rounded-xl border border-gray-200/50 shadow-sm">
+                  <div className="px-6 py-4 border-b border-gray-200/50">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-gradient-to-br from-[#2196F3] to-[#2196F3] rounded-lg flex items-center justify-center">
+                          <FileText className="w-4 h-4 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-900">Research Papers</h3>
+                          <p className="text-sm text-gray-600">Academic papers and publications</p>
+                        </div>
+                      </div>
+                      <button 
+                        onClick={() => openDataModal('papers')}
+                        className="px-3 py-1.5 text-sm font-medium text-[#2196F3] hover:text-[#2196F3] hover:bg-[#2196F3]/5 rounded-lg transition-colors"
+                      >
+                        <Plus className="w-4 h-4 inline mr-1" />
+                        Add Paper
+                      </button>
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    {getCurrentProject().researchData.papers.length === 0 ? (
+                      <div className="text-center py-12 text-gray-500">
+                        <FileText className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                        <p className="text-lg font-medium mb-2">No papers added yet</p>
+                        <p className="text-sm">Add research papers, publications, and academic sources</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {getCurrentProject().researchData.papers.map((paper) => (
+                          <div key={paper.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <h4 className="font-semibold text-gray-900">{paper.title}</h4>
+                                <p className="text-sm text-gray-600">{paper.authors} • {paper.year}</p>
+                                {paper.journal && (
+                                  <p className="text-sm text-[#2196F3] mt-1">{paper.journal}</p>
+                                )}
+                                {paper.abstract && (
+                                  <p className="text-sm text-gray-700 mt-2 line-clamp-2">{paper.abstract}</p>
+                                )}
+                                {paper.keywords && (
+                                  <div className="flex flex-wrap gap-1 mt-2">
+                                    {paper.keywords.split(',').map((keyword, index) => (
+                                      <span key={index} className="px-2 py-1 bg-[#2196F3]/10 text-[#2196F3] text-xs rounded-full">
+                                        {keyword.trim()}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+                    </div>
+                    <div className="flex items-center gap-2 ml-4">
+                                <button
+                                  onClick={() => openDataModal('papers', paper)}
+                                  className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-[#2196F3] hover:bg-[#2196F3]/5 rounded-lg transition-colors"
+                                >
+                                  <Pencil className="w-4 h-4" />
+          </button>
+                                <button
+                                  onClick={() => deleteDataItem('papers', paper.id)}
+                                  className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Data Points Section */}
+                <div className="bg-white rounded-xl border border-gray-200/50 shadow-sm">
+                  <div className="px-6 py-4 border-b border-gray-200/50">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-gradient-to-br from-[#2196F3] to-[#2196F3] rounded-lg flex items-center justify-center">
+                          <BarChart3 className="w-4 h-4 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-900">Data Points</h3>
+                          <p className="text-sm text-gray-600">Quantitative and qualitative data</p>
+                        </div>
+                      </div>
+                      <button 
+                        onClick={() => openDataModal('dataPoints')}
+                        className="px-3 py-1.5 text-sm font-medium text-[#10b981] hover:text-[#10b981] hover:bg-[#10b981]/10 rounded-lg transition-colors"
+                      >
+                        <Plus className="w-4 h-4 inline mr-1" />
+                        Add Data Point
+                      </button>
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    {getCurrentProject().researchData.dataPoints.length === 0 ? (
+                      <div className="text-center py-12 text-gray-500">
+                        <BarChart3 className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                        <p className="text-lg font-medium mb-2">No data points added yet</p>
+                        <p className="text-sm">Add quantitative data, measurements, and research findings</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {getCurrentProject().researchData.dataPoints.map((dataPoint) => (
+                          <div key={dataPoint.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <h4 className="font-semibold text-gray-900">{dataPoint.name}</h4>
+                                  <span className={`px-2 py-1 text-xs rounded-full ${
+                                    dataPoint.type === 'quantitative' ? 'bg-[#10b981]/10 text-[#10b981]' :
+                                    dataPoint.type === 'qualitative' ? 'bg-blue-100 text-blue-700' :
+                                    'bg-[#2196F3]/10 text-[#2196F3]'
+                                  }`}>
+                                    {dataPoint.type}
+                                  </span>
+                                </div>
+                                {dataPoint.value && (
+                                  <p className="text-lg font-semibold text-gray-900">
+                                    {dataPoint.value} {dataPoint.unit && <span className="text-sm text-gray-600">{dataPoint.unit}</span>}
+                                  </p>
+                                )}
+                                {dataPoint.description && (
+                                  <p className="text-sm text-gray-700 mt-2">{dataPoint.description}</p>
+                                )}
+                                <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                                  {dataPoint.source && <span>Source: {dataPoint.source}</span>}
+                                  {dataPoint.date && <span>Date: {dataPoint.date}</span>}
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2 ml-4">
+                                <button
+                                  onClick={() => openDataModal('dataPoints', dataPoint)}
+                                  className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-[#10b981] hover:bg-[#10b981]/10 rounded-lg transition-colors"
+                                >
+                        <Pencil className="w-4 h-4" />
+          </button>
+                                <button
+                                  onClick={() => deleteDataItem('dataPoints', dataPoint.id)}
+                                  className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                >
+                                  <X className="w-4 h-4" />
+          </button>
+                    </div>
+                  </div>
+                </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Methodologies Section */}
+                <div className="bg-white rounded-xl border border-gray-200/50 shadow-sm">
+                  <div className="px-6 py-4 border-b border-gray-200/50">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
+                          <Search className="w-4 h-4 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-900">Methodologies</h3>
+                          <p className="text-sm text-gray-600">Research methods and approaches</p>
+                        </div>
+                      </div>
+                      <button 
+                        onClick={() => openDataModal('methodologies')}
+                        className="px-3 py-1.5 text-sm font-medium text-orange-600 hover:text-orange-700 hover:bg-orange-50 rounded-lg transition-colors"
+                      >
+                        <Plus className="w-4 h-4 inline mr-1" />
+                        Add Methodology
+                      </button>
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    {getCurrentProject().researchData.methodologies.length === 0 ? (
+                      <div className="text-center py-12 text-gray-500">
+                        <Search className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                        <p className="text-lg font-medium mb-2">No methodologies added yet</p>
+                        <p className="text-sm">Document research methods, data collection approaches, and analysis techniques</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {getCurrentProject().researchData.methodologies.map((methodology) => (
+                          <div key={methodology.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <h4 className="font-semibold text-gray-900">{methodology.name}</h4>
+                                  {methodology.type && (
+                                    <span className="px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full">
+                                      {methodology.type}
+                                    </span>
+                                  )}
+                                </div>
+                                {methodology.description && (
+                                  <p className="text-sm text-gray-700 mb-2">{methodology.description}</p>
+                                )}
+                                {methodology.tools && (
+                                  <p className="text-sm text-orange-600 mb-2">Tools: {methodology.tools}</p>
+                                )}
+                                {methodology.limitations && (
+                                  <p className="text-sm text-gray-600 italic">Limitations: {methodology.limitations}</p>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-2 ml-4">
+                                <button
+                                  onClick={() => openDataModal('methodologies', methodology)}
+                                  className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
+                                >
+                                  <Pencil className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => deleteDataItem('methodologies', methodology.id)}
+                                  className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Findings Section */}
+                <div className="bg-white rounded-xl border border-gray-200/50 shadow-sm">
+                  <div className="px-6 py-4 border-b border-gray-200/50">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                          <BookOpen className="w-4 h-4 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-900">Key Findings</h3>
+                          <p className="text-sm text-gray-600">Research discoveries and insights</p>
+                        </div>
+                      </div>
+                      <button 
+                        onClick={() => openDataModal('findings')}
+                        className="px-3 py-1.5 text-sm font-medium text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg transition-colors"
+                      >
+                        <Plus className="w-4 h-4 inline mr-1" />
+                        Add Finding
+                      </button>
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    {getCurrentProject().researchData.findings.length === 0 ? (
+                      <div className="text-center py-12 text-gray-500">
+                        <BookOpen className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                        <p className="text-lg font-medium mb-2">No findings added yet</p>
+                        <p className="text-sm">Document key research discoveries, insights, and conclusions</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {getCurrentProject().researchData.findings.map((finding) => (
+                          <div key={finding.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <h4 className="font-semibold text-gray-900 mb-2">{finding.title}</h4>
+                                {finding.description && (
+                                  <p className="text-sm text-gray-700 mb-2">{finding.description}</p>
+                                )}
+                                {finding.significance && (
+                                  <div className="mb-2">
+                                    <p className="text-xs font-medium text-indigo-600 mb-1">Significance:</p>
+                                    <p className="text-sm text-gray-700">{finding.significance}</p>
+                                  </div>
+                                )}
+                                {finding.evidence && (
+                                  <div className="mb-2">
+                                    <p className="text-xs font-medium text-indigo-600 mb-1">Evidence:</p>
+                                    <p className="text-sm text-gray-700">{finding.evidence}</p>
+                                  </div>
+                                )}
+                                {finding.implications && (
+                                  <div>
+                                    <p className="text-xs font-medium text-indigo-600 mb-1">Implications:</p>
+                                    <p className="text-sm text-gray-700">{finding.implications}</p>
+                                  </div>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-2 ml-4">
+                                <button
+                                  onClick={() => openDataModal('findings', finding)}
+                                  className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                                >
+                                  <Pencil className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => deleteDataItem('findings', finding.id)}
+                                  className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Citations Section */}
+                <div className="bg-white rounded-xl border border-gray-200/50 shadow-sm">
+                  <div className="px-6 py-4 border-b border-gray-200/50">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-gradient-to-br from-[#2196F3] to-[#2196F3] rounded-lg flex items-center justify-center">
+                          <Link className="w-4 h-4 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-900">Citations & References</h3>
+                          <p className="text-sm text-gray-600">Bibliographic references and citations</p>
+                        </div>
+                      </div>
+                      <button 
+                        onClick={() => openDataModal('citations')}
+                        className="px-3 py-1.5 text-sm font-medium text-[#2196F3] hover:text-[#2196F3] hover:bg-[#2196F3]/5 rounded-lg transition-colors"
+                      >
+                        <Plus className="w-4 h-4 inline mr-1" />
+                        Add Citation
+                      </button>
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    {getCurrentProject().researchData.citations.length === 0 ? (
+                      <div className="text-center py-12 text-gray-500">
+                        <Link className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                        <p className="text-lg font-medium mb-2">No citations added yet</p>
+                        <p className="text-sm">Add bibliographic references, citations, and source materials</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {getCurrentProject().researchData.citations.map((citation) => (
+                          <div key={citation.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <h4 className="font-semibold text-gray-900">{citation.title}</h4>
+                                  <span className="px-2 py-1 bg-[#2196F3]/10 text-[#2196F3] text-xs rounded-full">
+                                    {citation.type}
+                                  </span>
+                                </div>
+                                <p className="text-sm text-gray-600 mb-2">{citation.authors} • {citation.year}</p>
+                                {citation.journal && (
+                                  <p className="text-sm text-[#2196F3] mb-2">{citation.journal}</p>
+                                )}
+                                {(citation.volume || citation.pages) && (
+                                  <p className="text-sm text-gray-600 mb-2">
+                                    {citation.volume && `Vol. ${citation.volume}`}
+                                    {citation.volume && citation.pages && ', '}
+                                    {citation.pages && `pp. ${citation.pages}`}
+                                  </p>
+                                )}
+                                {(citation.doi || citation.url) && (
+                                  <div className="flex items-center gap-4 text-xs text-gray-500">
+                                    {citation.doi && <span>DOI: {citation.doi}</span>}
+                                    {citation.url && (
+                                      <a href={citation.url} target="_blank" rel="noopener noreferrer" className="text-[#2196F3] hover:text-[#2196F3]">
+                                        View Source
+                                      </a>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-2 ml-4">
+                                <button
+                                  onClick={() => openDataModal('citations', citation)}
+                                  className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-[#2196F3] hover:bg-[#2196F3]/5 rounded-lg transition-colors"
+                                >
+                                  <Pencil className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => deleteDataItem('citations', citation.id)}
+                                  className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
               </div>
             </div>
           </div>
@@ -1636,7 +2882,7 @@ const ResearchMode = () => {
                       <div className="bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-xl p-6 shadow-sm">
                         <div className="flex items-center justify-between mb-3">
                           <h3 className="text-lg font-semibold text-gray-900">Research Proposal Submission</h3>
-                          <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">Completed</span>
+                          <span className="px-3 py-1 bg-[#2196F3]/10 text-[#2196F3] text-xs font-medium rounded-full">Completed</span>
                         </div>
                         <p className="text-gray-600 mb-3">Submit initial research proposal to committee for approval</p>
                         <div className="flex items-center gap-4 text-sm text-gray-500">
@@ -1645,7 +2891,7 @@ const ResearchMode = () => {
                             Due: March 15, 2024
                           </span>
                           <span className="flex items-center gap-1">
-                            <CheckCircle className="w-4 h-4 text-green-500" />
+                            <CheckCircle className="w-4 h-4 text-[#2196F3]" />
                             Completed
                           </span>
                         </div>
@@ -1654,7 +2900,7 @@ const ResearchMode = () => {
                   </div>
                   
                   <div className="relative flex items-start">
-                    <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-purple-500/25 z-10">
+                    <div className="w-12 h-12 bg-[#10b981] rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-[#2196F3]/25 z-10">
                       2
                     </div>
                     <div className="ml-6 flex-1">
@@ -1714,7 +2960,7 @@ const ResearchMode = () => {
             <div className="w-full">
               <div className="flex items-center justify-between mb-8">
                 <h2 className="text-2xl font-bold text-gray-900">Research Analysis</h2>
-                <button className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-lg text-sm font-medium hover:from-purple-700 hover:to-pink-600 transition-all duration-300 shadow-lg shadow-purple-500/25 hover:shadow-xl hover:shadow-purple-500/30 flex items-center gap-2">
+                <button className="px-4 py-2 bg-gradient-to-r from-[#2196F3] to-[#2196F3] text-white rounded-lg text-sm font-medium hover:from-[#2196F3] hover:to-[#2196F3] transition-all duration-300 shadow-lg shadow-[#2196F3]/25 hover:shadow-xl hover:shadow-[#2196F3]/30 flex items-center gap-2">
                   <BarChart3 className="w-4 h-4" />
                   Run Analysis
           </button>
@@ -1736,26 +2982,26 @@ const ResearchMode = () => {
                 
                 <div className="bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-xl p-6 shadow-sm">
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
-                      <Target className="w-5 h-5 text-green-600" />
+                    <div className="w-10 h-10 bg-[#2196F3]/10 rounded-xl flex items-center justify-center">
+                      <Target className="w-5 h-5 text-[#2196F3]" />
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900">Research Gaps</h3>
                   </div>
                   <p className="text-gray-600 mb-4">Identify potential research gaps and opportunities in your field of study.</p>
-                  <button className="w-full px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-all duration-300">
+                  <button className="w-full px-4 py-2 bg-[#2196F3] text-white rounded-lg text-sm font-medium hover:bg-[#2196F3] transition-all duration-300">
                     Find Gaps
           </button>
         </div>
         
                 <div className="bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-xl p-6 shadow-sm">
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
-                      <TrendingUp className="w-5 h-5 text-purple-600" />
+                    <div className="w-10 h-10 bg-[#10b981]/10 rounded-xl flex items-center justify-center">
+                      <TrendingUp className="w-5 h-5 text-[#10b981]" />
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900">Citation Analysis</h3>
                   </div>
                   <p className="text-gray-600 mb-4">Review and optimize your citation patterns and reference management.</p>
-                  <button className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 transition-all duration-300">
+                  <button className="w-full px-4 py-2 bg-[#10b981] text-white rounded-lg text-sm font-medium hover:bg-[#10b981] transition-all duration-300">
                     Analyze Citations
         </button>
       </div>
@@ -1877,7 +3123,7 @@ const ResearchMode = () => {
           <div className="flex items-center justify-between p-6 border-b border-gray-100/50">
             <div className="flex items-center gap-3">
               <h2 className="text-lg font-semibold text-gray-900 tracking-tight">Research Notes</h2>
-                            <span className="px-2.5 py-1 bg-green-100/80 text-green-700 text-xs font-medium rounded-full backdrop-blur-sm">Auto-save</span>
+                            <span className="px-2.5 py-1 bg-[#2196F3]/10/80 text-[#2196F3] text-xs font-medium rounded-full backdrop-blur-sm">Auto-save</span>
             </div>
             <button 
               onClick={() => setViewMode('Hide')}
@@ -1923,8 +3169,8 @@ const ResearchMode = () => {
           {/* Notes Content - Clean, focused writing area */}
           <div className="flex-1 p-6">
             <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
+              value={getCurrentProject().notes}
+              onChange={(e) => updateCurrentProject({ notes: e.target.value })}
               placeholder="Capture your research insights, ideas, and observations..."
               className="w-full h-full p-4 border border-gray-200/50 rounded-xl bg-white/80 backdrop-blur-sm text-gray-900 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent text-sm leading-relaxed placeholder-gray-400 transition-all duration-200"
             />
@@ -1932,147 +3178,89 @@ const ResearchMode = () => {
         </div>
 
         {/* Main Research Writing Panel - Apple Design Excellence */}
-        <div className="flex-1 bg-white/90 backdrop-blur-xl flex flex-col min-w-0">
-                     {/* Header - Ultra compact design */}
-           <div className="px-6 py-2 border-b border-gray-100/50 bg-white/80 backdrop-blur-sm">
+        <div className="flex-1 bg-white flex flex-col min-w-0">
+          {/* Ultra-Minimal Header - Steve Jobs Style */}
+          <div className="px-4 py-2 border-b border-gray-200/30 bg-white/95 backdrop-blur-sm">
             <div className="flex items-center justify-between">
-              {/* Left side - Compact icon and title */}
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/20">
-                  <Pencil className="w-4 h-4 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-xl font-semibold text-gray-900 tracking-tight">Research Writing</h1>
-                  <p className="text-gray-500 text-sm">Eden-powered academic writing assistant</p>
-                </div>
-              </div>
-              
-                            {/* Right side - Compact controls */}
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-gray-500">Notes:</span>
+              {/* Left - Project Tabs (Minimal) */}
                   <div className="flex items-center gap-1">
+                {researchProjects.map((project) => (
                     <button 
-                        className={`px-2 py-1 rounded text-xs font-medium transition-all duration-300 ${viewMode === 'Side' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-                        onClick={() => setViewMode('Side')}
-                    >
-                        Side
-                    </button>
-                    <button 
-                        className={`px-2 py-1 rounded text-xs font-medium transition-all duration-300 ${viewMode === 'Popup' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-                        onClick={() => setViewMode('Popup')}
-                    >
-                        Popup
-                    </button>
-                    <button 
-                        className={`px-2 py-1 rounded text-xs font-medium transition-all duration-300 ${viewMode === 'Hide' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-                        onClick={() => setViewMode('Hide')}
-                    >
-                      Hide
-                    </button>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button 
-                    onClick={toggleAiSidebar}
-                    className={`px-3 py-2 rounded-lg text-xs font-medium transition-all duration-300 flex items-center gap-2 ${
-                      isAiSidebarCollapsed 
-                        ? 'bg-gradient-to-r from-emerald-50 to-cyan-50 border border-emerald-200/50 text-emerald-700 hover:from-emerald-100 hover:to-cyan-100' 
-                        : 'bg-gradient-to-r from-emerald-600 to-cyan-500 text-white shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/30'
+                    key={project.id}
+                    onClick={() => switchProject(project.id)}
+                    className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ${
+                      activeProjectId === project.id
+                        ? 'bg-gray-900 text-white'
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                     }`}
                   >
-                    <Brain className="w-3 h-3" />
-                    {isAiSidebarCollapsed ? 'Show AI' : 'Hide AI'}
-                  </button>
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span className="text-xs text-gray-500">1 words</span>
+                    {project.name}
+                    {researchProjects.length > 1 && (
+                    <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteProject(project.id);
+                        }}
+                        className="ml-2 w-3 h-3 flex items-center justify-center text-gray-400 hover:text-white rounded-full hover:bg-gray-700 transition-all duration-200"
+                      >
+                        <X className="w-2 h-2" />
+                    </button>
+                    )}
+                    </button>
+                ))}
                   <button 
-                  onClick={() => setShowFormatModal(true)}
-                  className="group relative px-3 py-2 bg-white border border-gray-200 rounded-lg hover:border-gray-300 transition-all duration-300"
-                >
-                  <div className="flex items-center gap-2">
-                    <div className="w-5 h-5 bg-gradient-to-br from-green-500 to-emerald-600 rounded flex items-center justify-center">
-                      <Type className="w-3 h-3 text-white" />
-                    </div>
-                    <span className="text-sm font-medium text-gray-900">{selectedFormat}</span>
-                    <ChevronDown className="w-3 h-3 text-gray-500" />
-                  </div>
+                  onClick={() => setShowNewProjectModal(true)}
+                  className="ml-1 w-6 h-6 flex items-center justify-center text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-all duration-200"
+                    >
+                  <Plus className="w-3 h-3" />
                   </button>
-                </div>
+          </div>
+
+              {/* Right - Essential Controls Only */}
+                <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => setViewMode(viewMode === 'Side' ? 'Hide' : 'Side')}
+                  className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-all duration-200"
+                  title="Toggle Notes"
+                >
+                  <FileText className="w-4 h-4" />
+                </button>
+                <button 
+                    onClick={toggleAiSidebar}
+                  className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-all duration-200"
+                  title="Toggle AI Assistant"
+                >
+                  <Brain className="w-4 h-4" />
+                </button>
+                <button 
+                  onClick={() => setShowFormatModal(true)}
+                  className="px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-all duration-200"
+                >
+                  {selectedFormat}
+                </button>
               </div>
             </div>
           </div>
 
-                     {/* Top Bar - Ultra compact floating design */}
-           <div className="px-6 py-3 border-b border-gray-100/50 bg-white/60 backdrop-blur-sm">
-            <div className="flex items-center justify-between">
-              {/* Action buttons with premium feel */}
-              <div className="flex items-center gap-3">
+          {/* Minimal Tab Navigation */}
+          <div className="px-4 py-1 border-b border-gray-200/30 bg-gray-50/50">
+            <div className="flex items-center gap-1">
+              {['Writing', 'Outline', 'Literature', 'Data', 'Timeline', 'Analysis'].map((tab) => (
                 <button 
-                  onClick={() => setShowExportModal(true)}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-all duration-300 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30"
+                  key={tab}
+                  onClick={() => {
+                    console.log('Tab clicked:', tab);
+                    setActiveTab(tab);
+                  }}
+                  className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all duration-200 ${
+                    activeTab === tab
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+                  }`}
                 >
-                  <Save className="w-4 h-4" />
-                  Save
+                  {tab}
                 </button>
-                <button className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-lg text-sm font-medium hover:from-purple-700 hover:to-pink-600 transition-all duration-300 shadow-lg shadow-purple-500/25 hover:shadow-xl hover:shadow-purple-500/30">
-                  <BarChart3 className="w-4 h-4" />
-                  Analyze
-                </button>
-                <button 
-                  onClick={() => setShowFormatModal(true)}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-all duration-300 shadow-lg shadow-green-500/25 hover:shadow-xl hover:shadow-green-500/30"
-                >
-                  <Type className="w-4 h-4" />
-                  Format
-                </button>
-                <button 
-                  onClick={() => setShowNotesModal(true)}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-orange-600 text-white rounded-lg text-sm font-medium hover:bg-orange-700 transition-all duration-300 shadow-lg shadow-orange-500/25 hover:shadow-xl hover:shadow-orange-500/30"
-                >
-                  <BookOpen className="w-4 h-4" />
-                  Notes
-                </button>
-              </div>
-              
-              {/* Right Section - Navigation tabs with floating design */}
-              <div className="flex items-center bg-gray-100/80 backdrop-blur-sm rounded-xl p-1 shadow-sm">
-                <button 
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${activeTab === 'Writing' ? 'bg-white text-blue-600 shadow-sm border border-blue-200/50' : 'text-gray-700 hover:bg-white/50'}`}
-                  onClick={() => setActiveTab('Writing')}
-                >
-                  <Pencil className="w-4 h-4" />
-                  Writing
-                </button>
-                <button 
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${activeTab === 'Outline' ? 'bg-white text-blue-600 shadow-sm border border-blue-200/50' : 'text-gray-700 hover:bg-white/50'}`}
-                  onClick={() => setActiveTab('Outline')}
-                >
-                  <FileText className="w-4 h-4" />
-                  Outline
-                </button>
-                <button 
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${activeTab === 'Literature' ? 'bg-white text-blue-600 shadow-sm border border-blue-200/50' : 'text-gray-700 hover:bg-white/50'}`}
-                  onClick={() => setActiveTab('Literature')}
-                >
-                  <BookOpen className="w-4 h-4" />
-                  Literature
-                </button>
-                <button 
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${activeTab === 'Timeline' ? 'bg-white text-blue-600 shadow-sm border border-blue-200/50' : 'text-gray-700 hover:bg-white/50'}`}
-                  onClick={() => setActiveTab('Timeline')}
-                >
-                  <Clock className="w-4 h-4" />
-                  Timeline
-                </button>
-                <button 
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${activeTab === 'Analysis' ? 'bg-white text-blue-600 shadow-sm border border-blue-200/50' : 'text-gray-700 hover:bg-white/50'}`}
-                  onClick={() => setActiveTab('Analysis')}
-                >
-                  <BarChart3 className="w-4 h-4" />
-                  Analysis
-                </button>
-              </div>
+              ))}
             </div>
           </div>
 
@@ -2104,17 +3292,17 @@ const ResearchMode = () => {
           <div className="p-6 border-b border-slate-200/50 bg-white/60 backdrop-blur-sm">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/25 relative overflow-hidden">
+                <div className="w-10 h-10 bg-gradient-to-br from-[#2196F3] via-[#2196F3] to-[#2196F3] rounded-2xl flex items-center justify-center shadow-lg shadow-[#2196F3]/25 relative overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/20 to-cyan-400/20"></div>
                   <div className="relative z-10 w-6 h-6 bg-white rounded-lg flex items-center justify-center">
-                    <div className="w-3 h-3 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-sm"></div>
+                    <div className="w-3 h-3 bg-gradient-to-br from-[#2196F3] to-[#2196F3] rounded-sm"></div>
                   </div>
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-slate-900 tracking-tight">Eden AI</h3>
                   <div className="flex items-center gap-2 mt-1">
-                    <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                    <span className="text-xs text-emerald-600 font-medium">Intelligent Assistant</span>
+                    <div className="w-2 h-2 bg-[#2196F3] rounded-full animate-pulse"></div>
+                    <span className="text-xs text-[#2196F3] font-medium">Intelligent Assistant</span>
                   </div>
                 </div>
               </div>
@@ -2126,15 +3314,15 @@ const ResearchMode = () => {
                   <ChevronDown className="w-4 h-4" />
                 </button>
                 <button className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100/80 rounded-xl transition-all duration-200">
-                  <Settings className="w-4 h-4" />
-                </button>
+                <Settings className="w-4 h-4" />
+              </button>
               </div>
             </div>
             
             {/* AI Status - Enhanced */}
-            <div className="bg-gradient-to-r from-emerald-50/80 to-cyan-50/80 rounded-xl p-3 border border-emerald-100/50 backdrop-blur-sm">
+            <div className="bg-gradient-to-r from-[#2196F3]/5/80 to-[#2196F3]/5/80 rounded-xl p-3 border border-[#2196F3]/10/50 backdrop-blur-sm">
               <div className="flex items-center gap-2">
-                <div className="w-6 h-6 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-lg flex items-center justify-center">
+                <div className="w-6 h-6 bg-gradient-to-br from-[#2196F3] to-[#2196F3] rounded-lg flex items-center justify-center">
                   <Brain className="w-3 h-3 text-white" />
                 </div>
                 <span className="text-sm font-medium text-slate-700">Ready to enhance your research</span>
@@ -2148,39 +3336,39 @@ const ResearchMode = () => {
             <div className="flex-1 p-4 overflow-y-auto space-y-4">
               {aiChatHistory.length === 0 ? (
                 <div className="text-center py-8">
-                  <div className="w-16 h-16 bg-gradient-to-br from-emerald-100 to-cyan-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Brain className="w-8 h-8 text-emerald-600" />
-                  </div>
+                  <div className="w-16 h-16 bg-gradient-to-br from-[#2196F3]/10 to-[#2196F3]/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Brain className="w-8 h-8 text-[#2196F3]" />
+                </div>
                   <h3 className="text-lg font-semibold text-slate-900 mb-2">Start a conversation</h3>
                   <p className="text-sm text-slate-600 mb-4">Ask me anything about your research or writing</p>
                   <div className="flex flex-wrap gap-2 justify-center">
                     <button className="px-3 py-1.5 text-xs text-slate-600 bg-white/80 border border-slate-200/50 rounded-lg hover:bg-white hover:border-slate-300 transition-all duration-200">
                       Improve clarity
-                    </button>
+            </button>
                     <button className="px-3 py-1.5 text-xs text-slate-600 bg-white/80 border border-slate-200/50 rounded-lg hover:bg-white hover:border-slate-300 transition-all duration-200">
                       Add citations
                     </button>
                     <button className="px-3 py-1.5 text-xs text-slate-600 bg-white/80 border border-slate-200/50 rounded-lg hover:bg-white hover:border-slate-300 transition-all duration-200">
                       Research ideas
                     </button>
-                  </div>
                 </div>
+              </div>
               ) : (
                 aiChatHistory.map((message) => (
                   <div key={message.id} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
                     <div className={`max-w-[80%] p-3 rounded-2xl ${
                       message.type === 'user' 
-                        ? 'bg-gradient-to-r from-emerald-500 to-cyan-500 text-white' 
+                        ? 'bg-gradient-to-r from-[#2196F3] to-[#2196F3] text-white' 
                         : 'bg-white/80 border border-slate-200/50 text-slate-900'
                     }`}>
                       <p className="text-sm leading-relaxed">{message.content}</p>
                       <p className={`text-xs mt-1 ${
-                        message.type === 'user' ? 'text-emerald-100' : 'text-slate-500'
+                        message.type === 'user' ? 'text-[#2196F3]/10' : 'text-slate-500'
                       }`}>
                         {message.timestamp}
                       </p>
-                    </div>
-                  </div>
+                </div>
+              </div>
                 ))
               )}
             </div>
@@ -2204,15 +3392,15 @@ const ResearchMode = () => {
                   <TrendingUp className="w-3 h-3 inline mr-1" />
                   Citations
                 </button>
+                </div>
               </div>
-            </div>
           </div>
           
           {/* AI Input - Enhanced Chat Input */}
           <div className="p-6 border-t border-slate-200/50 bg-white/40 backdrop-blur-sm">
             <div className="relative">
               <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
-                <div className="w-6 h-6 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-lg flex items-center justify-center">
+                <div className="w-6 h-6 bg-gradient-to-br from-[#2196F3] to-[#2196F3] rounded-lg flex items-center justify-center">
                   <Brain className="w-3 h-3 text-white" />
                 </div>
               </div>
@@ -2222,12 +3410,12 @@ const ResearchMode = () => {
                 onChange={(e) => setCurrentAiMessage(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleAiMessageSend()}
                 placeholder="Ask Eden for research insights..."
-                className="w-full pl-12 pr-16 py-4 border border-slate-200/50 rounded-2xl bg-white/80 backdrop-blur-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-transparent text-sm shadow-sm placeholder-slate-400 transition-all duration-200"
+                className="w-full pl-12 pr-16 py-4 border border-slate-200/50 rounded-2xl bg-white/80 backdrop-blur-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2196F3]/30 focus:border-transparent text-sm shadow-sm placeholder-slate-400 transition-all duration-200"
               />
               <button 
                 onClick={handleAiMessageSend}
                 disabled={!currentAiMessage.trim()}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 w-10 h-10 bg-gradient-to-r from-emerald-600 to-cyan-500 text-white rounded-xl hover:from-emerald-700 hover:to-cyan-600 transition-all duration-300 flex items-center justify-center shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 w-10 h-10 bg-gradient-to-r from-[#2196F3] to-[#2196F3] text-white rounded-xl hover:from-[#2196F3] hover:to-[#2196F3] transition-all duration-300 flex items-center justify-center shadow-lg shadow-[#2196F3]/25 hover:shadow-xl hover:shadow-[#2196F3]/30 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Send className="w-4 h-4" />
               </button>
@@ -2299,9 +3487,9 @@ const ResearchMode = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-green-100 border border-green-200 rounded-lg">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-sm font-medium text-green-700">Auto-save ON</span>
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-[#2196F3]/10 border border-green-200 rounded-lg">
+                    <div className="w-2 h-2 bg-[#2196F3] rounded-full"></div>
+                    <span className="text-sm font-medium text-[#2196F3]">Auto-save ON</span>
                   </div>
                   <button 
                     onClick={() => setShowNotesModal(false)}
@@ -2310,8 +3498,8 @@ const ResearchMode = () => {
                     <X className="w-5 h-5" />
                   </button>
                 </div>
+              </div>
             </div>
-          </div>
 
             {/* Comprehensive Formatting Toolbar */}
             <div className="bg-white border-b border-gray-200/50 px-8 py-4">
@@ -2332,16 +3520,16 @@ const ResearchMode = () => {
                 <div className="flex items-center gap-1">
                   <button className="w-9 h-9 flex items-center justify-center text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200">
                     <Bold className="w-4 h-4" />
-                </button>
+                  </button>
                   <button className="w-9 h-9 flex items-center justify-center text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200">
                     <Italic className="w-4 h-4" />
-                </button>
+                  </button>
                   <button className="w-9 h-9 flex items-center justify-center text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200">
                     <Underline className="w-4 h-4" />
-                </button>
+                  </button>
                   <button className="w-9 h-9 flex items-center justify-center text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200">
                     <Strikethrough className="w-4 h-4" />
-                </button>
+                  </button>
                 </div>
 
                 <div className="w-px h-6 bg-gray-300"></div>
@@ -2350,16 +3538,16 @@ const ResearchMode = () => {
                 <div className="flex items-center gap-1">
                   <button className="w-9 h-9 flex items-center justify-center text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200">
                     <AlignLeft className="w-4 h-4" />
-                </button>
+                  </button>
                   <button className="w-9 h-9 flex items-center justify-center text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200">
                     <AlignCenter className="w-4 h-4" />
-                </button>
+                  </button>
                   <button className="w-9 h-9 flex items-center justify-center text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200">
                     <AlignRight className="w-4 h-4" />
-                </button>
+                  </button>
                   <button className="w-9 h-9 flex items-center justify-center text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200">
                     <AlignJustify className="w-4 h-4" />
-                </button>
+                  </button>
                 </div>
 
                 <div className="w-px h-6 bg-gray-300"></div>
@@ -2368,10 +3556,10 @@ const ResearchMode = () => {
                 <div className="flex items-center gap-1">
                   <button className="w-9 h-9 flex items-center justify-center text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200">
                     <Type className="w-4 h-4" />
-                </button>
+                  </button>
                   <button className="w-9 h-9 flex items-center justify-center text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200">
                     <Highlighter className="w-4 h-4" />
-                </button>
+                  </button>
                 </div>
 
                 <div className="w-px h-6 bg-gray-300"></div>
@@ -2380,10 +3568,10 @@ const ResearchMode = () => {
                 <div className="flex items-center gap-1">
                   <button className="w-9 h-9 flex items-center justify-center text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200">
                     <List className="w-4 h-4" />
-                </button>
+                  </button>
                   <button className="w-9 h-9 flex items-center justify-center text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200">
                     <ListOrdered className="w-4 h-4" />
-                </button>
+                  </button>
                 </div>
 
                 <div className="w-px h-6 bg-gray-300"></div>
@@ -2392,13 +3580,13 @@ const ResearchMode = () => {
                 <div className="flex items-center gap-1">
                   <button className="w-9 h-9 flex items-center justify-center text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200">
                     <Link className="w-4 h-4" />
-                </button>
+                  </button>
                   <button className="w-9 h-9 flex items-center justify-center text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200">
                     <Quote className="w-4 h-4" />
-                </button>
+                  </button>
                   <button className="w-9 h-9 flex items-center justify-center text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200">
                     <Code className="w-4 h-4" />
-                </button>
+                  </button>
                 </div>
 
                 <div className="w-px h-6 bg-gray-300"></div>
@@ -2409,10 +3597,10 @@ const ResearchMode = () => {
                 </button>
               </div>
             </div>
-            
+
             {/* Text Editor */}
             <div className="flex-1 px-8 py-6">
-            <textarea
+              <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Start writing your research notes... Capture ideas, insights, and track your research progress..."
@@ -2427,7 +3615,7 @@ const ResearchMode = () => {
                   <span>Last saved: {lastSaved}</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <button className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-all duration-300 flex items-center gap-2">
+                  <button className="px-4 py-2 bg-[#2196F3] text-white rounded-lg text-sm font-medium hover:bg-[#2196F3] transition-all duration-300 flex items-center gap-2">
                     <div className="w-2 h-2 bg-green-400 rounded-full"></div>
                     Auto-save ON
                   </button>
@@ -2452,7 +3640,7 @@ const ResearchMode = () => {
             {/* Modal Header - Elegant and minimal */}
             <div className="flex items-center justify-between p-8 border-b border-gray-100/50">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg shadow-green-500/25">
+                <div className="w-12 h-12 bg-gradient-to-br from-[#2196F3] to-[#2196F3] rounded-2xl flex items-center justify-center shadow-lg shadow-[#2196F3]/25">
                   <Type className="w-6 h-6 text-white" />
                 </div>
                 <div>
@@ -2480,22 +3668,22 @@ const ResearchMode = () => {
                       onClick={() => handleFormatChange(format.id)}
                       className={`group p-5 text-left rounded-2xl border transition-all duration-300 hover:scale-[1.02] ${
                         selectedFormat === format.id
-                          ? 'border-green-500 bg-green-50/80 text-green-700 shadow-lg shadow-green-500/20'
+                          ? 'border-[#2196F3] bg-[#2196F3]/5/80 text-[#2196F3] shadow-lg shadow-[#2196F3]/20'
                           : 'border-gray-200/50 hover:border-gray-300 hover:bg-gray-50/50 hover:shadow-md'
                       }`}
                     >
                       <div className="font-semibold text-base mb-1">{format.name}</div>
                       <div className="text-sm text-gray-500 leading-relaxed">{format.description}</div>
                       {selectedFormat === format.id && (
-                        <div className="mt-3 flex items-center gap-2 text-green-600">
+                        <div className="mt-3 flex items-center gap-2 text-[#2196F3]">
                           <CheckCircle className="w-4 h-4" />
                           <span className="text-sm font-medium">Active</span>
                         </div>
                       )}
                     </button>
                   ))}
-          </div>
-        </div>
+                </div>
+              </div>
 
               {/* Custom Format - Enhanced input */}
               <div>
@@ -2505,19 +3693,19 @@ const ResearchMode = () => {
                     value={customFormat}
                     onChange={(e) => setCustomFormat(e.target.value)}
                     placeholder="Describe your desired writing format (e.g., 'Write in APA style with academic tone, use active voice, include citations, maintain formal language...')"
-                    className="w-full h-28 p-5 border border-gray-200/50 rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-transparent text-sm leading-relaxed placeholder-gray-400 transition-all duration-200"
+                    className="w-full h-28 p-5 border border-gray-200/50 rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-[#2196F3]/50 focus:border-transparent text-sm leading-relaxed placeholder-gray-400 transition-all duration-200"
                   />
                   <div className="absolute bottom-4 right-4 text-xs text-gray-400">
                     {customFormat.length}/500
                   </div>
                 </div>
               </div>
-          </div>
-          
+            </div>
+
             {/* Modal Footer - Refined actions */}
             <div className="flex items-center justify-between p-8 border-t border-gray-100/50 bg-gray-50/30">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-[#2196F3] rounded-full"></div>
                 <span className="text-sm text-gray-600">
                   Current: <span className="font-semibold text-gray-900">{selectedFormat}</span>
                 </span>
@@ -2528,13 +3716,13 @@ const ResearchMode = () => {
                   className="px-6 py-3 text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 font-medium"
                 >
                   Cancel
-            </button>
+                </button>
                 <button
                   onClick={applyCustomFormat}
-                  className="px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-300 font-semibold shadow-lg shadow-green-500/25 hover:shadow-xl hover:shadow-green-500/30"
+                  className="px-8 py-3 bg-gradient-to-r from-[#2196F3] to-[#2196F3] text-white rounded-xl hover:from-[#2196F3] hover:to-[#2196F3] transition-all duration-300 font-semibold shadow-lg shadow-[#2196F3]/25 hover:shadow-xl hover:shadow-[#2196F3]/30"
                 >
                   Apply Format
-            </button>
+                </button>
               </div>
             </div>
           </div>
@@ -2565,9 +3753,9 @@ const ResearchMode = () => {
           {/* Improve Text */}
           <button 
             onClick={() => setShowContextMenu(false)}
-            className="w-full px-5 py-3 text-left text-sm text-gray-700 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 flex items-center gap-3 group transition-all duration-200"
+            className="w-full px-5 py-3 text-left text-sm text-gray-700 hover:bg-gradient-to-r hover:from-[#2196F3]/5 hover:to-[#2196F3]/5 flex items-center gap-3 group transition-all duration-200"
           >
-            <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center shadow-sm shadow-purple-500/20 group-hover:shadow-md group-hover:shadow-purple-500/30 transition-all duration-200">
+            <div className="w-8 h-8 bg-gradient-to-br from-[#2196F3] to-[#2196F3] rounded-xl flex items-center justify-center shadow-sm shadow-[#2196F3]/20 group-hover:shadow-md group-hover:shadow-[#2196F3]/30 transition-all duration-200">
               <SparklesIcon className="w-4 h-4 text-white" />
             </div>
             <div>
@@ -2579,9 +3767,9 @@ const ResearchMode = () => {
           {/* Rewrite Selection */}
           <button 
             onClick={() => setShowContextMenu(false)}
-            className="w-full px-5 py-3 text-left text-sm text-gray-700 hover:bg-gradient-to-r hover:from-green-50 hover:to-emerald-50 flex items-center gap-3 group transition-all duration-200"
+            className="w-full px-5 py-3 text-left text-sm text-gray-700 hover:bg-gradient-to-r hover:from-[#2196F3]/5 hover:to-[#2196F3]/5 flex items-center gap-3 group transition-all duration-200"
           >
-            <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-sm shadow-green-500/20 group-hover:shadow-md group-hover:shadow-green-500/30 transition-all duration-200">
+            <div className="w-8 h-8 bg-gradient-to-br from-[#2196F3] to-[#2196F3] rounded-xl flex items-center justify-center shadow-sm shadow-[#2196F3]/20 group-hover:shadow-md group-hover:shadow-[#2196F3]/30 transition-all duration-200">
               <Edit3 className="w-4 h-4 text-white" />
             </div>
             <div>
@@ -2726,8 +3914,8 @@ const ResearchMode = () => {
                   className="group p-6 text-left rounded-2xl border border-gray-200/50 hover:border-blue-300 hover:bg-blue-50/50 hover:shadow-lg transition-all duration-300 hover:scale-[1.02]"
                 >
                   <div className="flex items-center gap-4 mb-3">
-                    <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center group-hover:bg-purple-200 transition-colors duration-200">
-                      <Code className="w-6 h-6 text-purple-600" />
+                    <div className="w-12 h-12 bg-[#10b981]/10 rounded-xl flex items-center justify-center group-hover:bg-[#10b981]/20 transition-colors duration-200">
+                      <Code className="w-6 h-6 text-[#10b981]" />
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900 text-lg">Markdown</h3>
@@ -2940,22 +4128,22 @@ const ResearchMode = () => {
                     </div>
                   </div>
                 ) : (
-                  <div className="bg-green-50/80 border border-green-200/50 rounded-xl p-4">
+                  <div className="bg-[#2196F3]/5/80 border border-green-200/50 rounded-xl p-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                          <FileText className="w-5 h-5 text-green-600" />
+                        <div className="w-10 h-10 bg-[#2196F3]/10 rounded-lg flex items-center justify-center">
+                          <FileText className="w-5 h-5 text-[#2196F3]" />
                         </div>
                         <div>
                           <p className="font-medium text-green-800">{uploadedFile.name}</p>
-                          <p className="text-sm text-green-600">
+                          <p className="text-sm text-[#2196F3]">
                             {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
                           </p>
                         </div>
                       </div>
                       <button
                         onClick={removeUploadedFile}
-                        className="w-8 h-8 flex items-center justify-center text-green-600 hover:text-red-600 hover:bg-red-50/80 rounded-lg transition-all duration-200"
+                        className="w-8 h-8 flex items-center justify-center text-[#2196F3] hover:text-red-600 hover:bg-red-50/80 rounded-lg transition-all duration-200"
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -2979,8 +4167,8 @@ const ResearchMode = () => {
                     <p className="text-blue-500">{newPaper.journal || 'Unknown Journal'}</p>
                     {uploadedFile && (
                       <div className="flex items-center gap-2 mt-2">
-                        <FileText className="w-4 h-4 text-green-600" />
-                        <span className="text-green-600 font-medium">PDF attached: {uploadedFile.name}</span>
+                        <FileText className="w-4 h-4 text-[#2196F3]" />
+                        <span className="text-[#2196F3] font-medium">PDF attached: {uploadedFile.name}</span>
                       </div>
                     )}
                   </div>
@@ -3237,6 +4425,97 @@ const ResearchMode = () => {
                 <p className="text-xs text-gray-400 mt-1">Changes will appear here</p>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+        {/* New Project Modal */}
+        {showNewProjectModal && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md mx-4">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">Create New Research Project</h3>
+                <button
+                  onClick={() => setShowNewProjectModal(false)}
+                  className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Project Name
+                  </label>
+                  <input
+                    type="text"
+                    value={newProjectName}
+                    onChange={(e) => setNewProjectName(e.target.value)}
+                    placeholder="Enter project name..."
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    autoFocus
+                  />
+                </div>
+                
+                <div className="flex items-center gap-3 pt-4">
+                  <button
+                    onClick={createNewProject}
+                    disabled={!newProjectName.trim()}
+                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    Create Project
+                  </button>
+                  <button
+                    onClick={() => setShowNewProjectModal(false)}
+                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Data Entry Modal */}
+        {showDataModal && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-semibold text-gray-900">
+                  {editingDataItem ? 'Edit' : 'Add'} {dataModalType === 'researchers' ? 'Researcher' : 
+                   dataModalType === 'papers' ? 'Paper' :
+                   dataModalType === 'dataPoints' ? 'Data Point' :
+                   dataModalType === 'methodologies' ? 'Methodology' :
+                   dataModalType === 'findings' ? 'Finding' :
+                   dataModalType === 'citations' ? 'Citation' : 'Data'}
+                </h3>
+                <button
+                  onClick={() => setShowDataModal(false)}
+                  className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              
+              <DataEntryForm 
+                type={dataModalType}
+                item={editingDataItem}
+                onSave={(data) => {
+                  if (editingDataItem) {
+                    updateDataItem(dataModalType, editingDataItem.id, data);
+                  } else {
+                    addDataItem(dataModalType, data);
+                  }
+                  setShowDataModal(false);
+                  setEditingDataItem(null);
+                }}
+                onCancel={() => {
+                  setShowDataModal(false);
+                  setEditingDataItem(null);
+                }}
+              />
           </div>
         </div>
       )}

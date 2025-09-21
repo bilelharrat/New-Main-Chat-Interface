@@ -7,7 +7,7 @@ const presets = {
     description: "Perfect for deep research with notes and writing side-by-side",
     icon: BookOpen,
     theme: {
-      accentColor: "220 70% 50%", // Deep blue
+      accentColor: "210 100% 50%", // Apple Blue
       background: "light",
       panelLayout: "split",
       notesCollapsed: false,
@@ -16,7 +16,7 @@ const presets = {
       writeWidth: 350,
       showCodeExecution: false
     },
-    features: ["Split view for research", "Deep blue accent", "Notes & Write open", "Focus on content gathering"],
+    features: ["Split view for research", "Apple Blue accent", "Notes & Write open", "Focus on content gathering"],
     workflow: "Ideal for academic research, literature reviews, and comprehensive note-taking"
   },
   essay: {
@@ -24,7 +24,7 @@ const presets = {
     description: "Focused writing with reference notes easily accessible",
     icon: FileText,
     theme: {
-      accentColor: "160 70% 45%", // Forest green
+      accentColor: "142 76% 45%", // Refined Apple Green
       background: "light", 
       panelLayout: "right",
       notesCollapsed: true,
@@ -33,7 +33,7 @@ const presets = {
       writeWidth: 600,
       showCodeExecution: false
     },
-    features: ["Large writing area", "Forest green accent", "Notes collapsed", "Distraction-free writing"],
+    features: ["Large writing area", "Apple Green accent", "Notes collapsed", "Distraction-free writing"],
     workflow: "Perfect for essay writing, long-form content, and structured writing projects"
   },
   creative: {
@@ -41,7 +41,7 @@ const presets = {
     description: "Inspiration-focused with vibrant colors and open workspace",
     icon: Lightbulb,
     theme: {
-      accentColor: "280 70% 60%", // Purple
+      accentColor: "210 100% 50%", // Apple Blue
       background: "dark",
       panelLayout: "split",
       notesCollapsed: false,
@@ -50,7 +50,7 @@ const presets = {
       writeWidth: 400,
       showCodeExecution: false
     },
-    features: ["Dark theme", "Purple accent", "Open workspace", "Creative inspiration"],
+    features: ["Dark theme", "Apple Blue accent", "Open workspace", "Creative inspiration"],
     workflow: "Great for brainstorming, creative writing, and artistic projects"
   },
   coding: {
@@ -58,7 +58,7 @@ const presets = {
     description: "Developer environment with integrated code execution",
     icon: Code,
     theme: {
-      accentColor: "0 70% 50%", // Red
+      accentColor: "0 84% 50%", // Apple Red
       background: "dark",
       panelLayout: "split",
       notesCollapsed: true,
@@ -67,7 +67,7 @@ const presets = {
       writeWidth: 200,
       showCodeExecution: true
     },
-    features: ["Dark theme", "Red accent", "Code execution", "Compact layout", "Maximized chat"],
+    features: ["Dark theme", "Apple Red accent", "Code execution", "Compact layout", "Maximized chat"],
     workflow: "Optimized for programming, debugging, and technical discussions"
   },
   minimal: {
@@ -75,7 +75,7 @@ const presets = {
     description: "Clean, distraction-free interface for focused conversations",
     icon: Monitor,
     theme: {
-      accentColor: "200 15% 45%", // Muted blue-gray
+      accentColor: "210 100% 50%", // Apple Blue
       background: "light",
       panelLayout: "right",
       notesCollapsed: true,
@@ -84,7 +84,7 @@ const presets = {
       writeWidth: 200,
       showCodeExecution: false
     },
-    features: ["Muted colors", "Collapsed panels", "Clean interface", "Chat focus"],
+    features: ["Apple Blue accent", "Collapsed panels", "Clean interface", "Chat focus"],
     workflow: "Ideal for focused conversations, quick questions, and minimal distractions"
   },
   night: {
@@ -92,7 +92,7 @@ const presets = {
     description: "Easy on the eyes for late-night work sessions",
     icon: Moon,
     theme: {
-      accentColor: "45 70% 55%", // Warm amber
+      accentColor: "38 100% 50%", // Apple Orange
       background: "dark",
       panelLayout: "split",
       notesCollapsed: false,
@@ -101,7 +101,7 @@ const presets = {
       writeWidth: 350,
       showCodeExecution: false
     },
-    features: ["Dark theme", "Warm amber accent", "Balanced layout", "Eye-friendly"],
+    features: ["Dark theme", "Apple Orange accent", "Balanced layout", "Eye-friendly"],
     workflow: "Perfect for late-night work, reduced eye strain, and comfortable long sessions"
   }
 };

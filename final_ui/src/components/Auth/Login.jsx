@@ -84,7 +84,7 @@ const Login = ({ onLogin, onClose }) => {
         {/* Modal Container */}
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
           {/* Header with Gradient Background */}
-          <div className="relative bg-gradient-to-r from-green-500 to-blue-500 p-8 text-center">
+          <div className="relative bg-gradient-to-r from-blue-500 to-purple-600 p-8 text-center">
             {/* Close Button */}
             <button 
               onClick={onClose}
@@ -100,7 +100,7 @@ const Login = ({ onLogin, onClose }) => {
             
             {/* Title and Subtitle */}
             <h1 className="text-white text-2xl font-bold mb-2">Eden AI</h1>
-            <p className="text-white text-sm opacity-90">Your intelligent AI assistant</p>
+            <p className="text-white text-sm opacity-90">Intelligence, Verified</p>
           </div>
 
           {/* Content Section */}
@@ -195,7 +195,7 @@ const Login = ({ onLogin, onClose }) => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-gradient-to-r from-green-500 to-blue-500 text-white font-medium py-3.5 px-4 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-6"
+                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium py-3.5 px-4 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-6"
               >
                 {isLoading ? (
                   <div className="flex items-center">

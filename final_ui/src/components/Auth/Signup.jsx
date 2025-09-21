@@ -103,7 +103,7 @@ const Signup = ({ onSignup, onClose }) => {
         {/* Modal Container */}
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
           {/* Header with Gradient Background */}
-          <div className="relative bg-gradient-to-r from-green-500 to-blue-500 p-8 text-center">
+          <div className="relative bg-gradient-to-r from-[#2196F3] to-blue-500 p-8 text-center">
             {/* Close Button */}
             <button 
               onClick={onClose}
@@ -283,7 +283,7 @@ const Signup = ({ onSignup, onClose }) => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-gradient-to-r from-green-500 to-blue-500 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-6"
+                  className="w-full bg-gradient-to-r from-[#2196F3] to-blue-500 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-6"
                 >
                   {isLoading ? (
                     <div className="flex items-center">
@@ -343,7 +343,7 @@ const Signup = ({ onSignup, onClose }) => {
                 {/* Submit Button */}
                 <button
                   type="button"
-                  className="w-full bg-gradient-to-r from-green-500 to-blue-500 text-white font-medium py-3.5 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 mt-6"
+                  className="w-full bg-gradient-to-r from-[#2196F3] to-blue-500 text-white font-medium py-3.5 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 mt-6"
                 >
                   Sign In
                   <ArrowRight size={18} />
@@ -355,7 +355,7 @@ const Signup = ({ onSignup, onClose }) => {
                     Don't have an account?{' '}
                     <button
                       onClick={() => setActiveTab('signup')}
-                      className="text-green-500 hover:text-green-600 font-medium transition-colors"
+                      className="text-[#2196F3] hover:text-green-600 font-medium transition-colors"
                     >
                       Sign up
                     </button>

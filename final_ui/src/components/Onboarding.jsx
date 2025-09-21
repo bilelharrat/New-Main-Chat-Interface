@@ -217,7 +217,7 @@ export default function Onboarding({ isOpen, onClose, onComplete }) {
               className="w-full bg-accent text-white font-semibold py-3 px-4 rounded-lg hover:bg-accent/90 transition-all duration-200 flex items-center justify-center gap-2 group"
             >
               {currentStepData.action}
-              <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-1" />
+              <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-1" style={{ color: '#4285F4' }} />
             </button>
           </div>
 

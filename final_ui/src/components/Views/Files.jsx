@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   Plus, 
   Search, 
@@ -18,6 +19,8 @@ import {
   Grid, 
   List,
   Folder,
+  FolderOpen,
+  Edit,
   MoreVertical,
   Star,
   Clock,
@@ -38,9 +41,33 @@ export default function Files() {
   const [activeFilter, setActiveFilter] = useState('all');
   const [sortBy, setSortBy] = useState('date');
   const [isDragging, setIsDragging] = useState(false);
+  const [draggedFile, setDraggedFile] = useState(null);
+  const [dragOverFolder, setDragOverFolder] = useState(null);
   const [openMoreMenu, setOpenMoreMenu] = useState(null);
   const [showShareModal, setShowShareModal] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
+  const [currentFileId, setCurrentFileId] = useState(null);
+  const [showCreateFolderModal, setShowCreateFolderModal] = useState(false);
+  const [newFolderName, setNewFolderName] = useState('');
+  const [showAddToFolderModal, setShowAddToFolderModal] = useState(false);
+  const [fileToMove, setFileToMove] = useState(null);
+  const [currentFolder, setCurrentFolder] = useState(null);
+  const [folderHistory, setFolderHistory] = useState([]);
+  const [folders, setFolders] = useState([
+    {
+      id: 1,
+      name: 'Documents',
+      createdAt: new Date('2024-07-01'),
+      files: []
+    },
+    {
+      id: 2,
+      name: 'Images',
+      createdAt: new Date('2024-07-02'),
+      files: []
+    }
+  ]);
   const [uploadedFiles, setUploadedFiles] = useState([
     {
       id: 1,
@@ -114,6 +141,173 @@ export default function Files() {
   const fileInputRef = useRef(null);
   const dropZoneRef = useRef(null);
 
+  // Dropdown component that renders in a portal
+  const DropdownMenu = () => {
+    if (!openMoreMenu || !currentFileId) return null;
+
+    const file = uploadedFiles.find(f => f.id === currentFileId);
+    const folder = folders.find(f => f.id === currentFileId);
+    
+    if (!file && !folder) return null;
+
+    return createPortal(
+      <div 
+        className="fixed w-48 rounded-2xl z-[9999]" 
+        style={{
+          top: `${dropdownPosition.top}px`,
+          left: `${dropdownPosition.left}px`,
+          background: darkMode 
+            ? 'rgba(0, 0, 0, 0.3)' 
+            : 'rgba(255, 255, 255, 0.25)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          border: darkMode 
+            ? '1px solid rgba(255, 255, 255, 0.1)' 
+            : '1px solid rgba(255, 255, 255, 0.3)',
+          boxShadow: darkMode 
+            ? '0 8px 32px 0 rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1)' 
+            : '0 8px 32px 0 rgba(31, 38, 135, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.4)'
+        }}
+      >
+        <div className="py-2">
+          {file ? (
+            // File actions
+            <>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDownloadFile(file.id);
+                  setOpenMoreMenu(null);
+                }}
+                className={`w-full px-4 py-3 text-left text-sm ${darkMode ? 'text-white' : 'text-gray-800'} hover:bg-white/20 transition-all duration-200 flex items-center gap-3 rounded-lg mx-1`}
+                style={{
+                  backdropFilter: 'blur(10px)',
+                  WebkitBackdropFilter: 'blur(10px)'
+                }}
+              >
+                <Download className={`w-4 h-4 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`} />
+                Download
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleShareFile(file.id);
+                  setOpenMoreMenu(null);
+                }}
+                className={`w-full px-4 py-3 text-left text-sm ${darkMode ? 'text-white' : 'text-gray-800'} hover:bg-white/20 transition-all duration-200 flex items-center gap-3 rounded-lg mx-1`}
+                style={{
+                  backdropFilter: 'blur(10px)',
+                  WebkitBackdropFilter: 'blur(10px)'
+                }}
+              >
+                <Share2 className={`w-4 h-4 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`} />
+                Share
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleFavorite(file.id);
+                  setOpenMoreMenu(null);
+                }}
+                className={`w-full px-4 py-3 text-left text-sm ${darkMode ? 'text-white' : 'text-gray-800'} hover:bg-white/20 transition-all duration-200 flex items-center gap-3 rounded-lg mx-1`}
+                style={{
+                  backdropFilter: 'blur(10px)',
+                  WebkitBackdropFilter: 'blur(10px)'
+                }}
+              >
+                <Star className={`w-4 h-4 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`} />
+                {file.favorite ? 'Remove from Favorites' : 'Add to Favorites'}
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setFileToMove(file.id);
+                  setShowAddToFolderModal(true);
+                  setOpenMoreMenu(null);
+                }}
+                className={`w-full px-4 py-3 text-left text-sm ${darkMode ? 'text-white' : 'text-gray-800'} hover:bg-white/20 transition-all duration-200 flex items-center gap-3 rounded-lg mx-1`}
+                style={{
+                  backdropFilter: 'blur(10px)',
+                  WebkitBackdropFilter: 'blur(10px)'
+                }}
+              >
+                <Folder className={`w-4 h-4 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`} />
+                Move to Folder
+              </button>
+              <div className={`border-t ${darkMode ? 'border-white/10' : 'border-white/20'} my-2 mx-2`}></div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteFile(file.id);
+                  setOpenMoreMenu(null);
+                }}
+                className={`w-full px-4 py-3 text-left text-sm text-red-600 hover:bg-red-50/30 transition-all duration-200 flex items-center gap-3 rounded-lg mx-1`}
+                style={{
+                  backdropFilter: 'blur(10px)',
+                  WebkitBackdropFilter: 'blur(10px)'
+                }}
+              >
+                <Trash2 className="w-4 h-4 text-red-500" />
+                Delete
+              </button>
+            </>
+          ) : folder ? (
+            // Folder actions
+            <>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  openFolder(folder.id);
+                  setOpenMoreMenu(null);
+                }}
+                className={`w-full px-4 py-3 text-left text-sm ${darkMode ? 'text-white' : 'text-gray-800'} hover:bg-white/20 transition-all duration-200 flex items-center gap-3 rounded-lg mx-1`}
+                style={{
+                  backdropFilter: 'blur(10px)',
+                  WebkitBackdropFilter: 'blur(10px)'
+                }}
+              >
+                <FolderOpen className={`w-4 h-4 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`} />
+                Open Folder
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  // Rename folder (you can implement this functionality)
+                  setOpenMoreMenu(null);
+                }}
+                className={`w-full px-4 py-3 text-left text-sm ${darkMode ? 'text-white' : 'text-gray-800'} hover:bg-white/20 transition-all duration-200 flex items-center gap-3 rounded-lg mx-1`}
+                style={{
+                  backdropFilter: 'blur(10px)',
+                  WebkitBackdropFilter: 'blur(10px)'
+                }}
+              >
+                <Edit className={`w-4 h-4 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`} />
+                Rename
+              </button>
+              <div className={`border-t ${darkMode ? 'border-white/10' : 'border-white/20'} my-2 mx-2`}></div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  deleteFolder(folder.id);
+                  setOpenMoreMenu(null);
+                }}
+                className={`w-full px-4 py-3 text-left text-sm text-red-600 hover:bg-red-50/30 transition-all duration-200 flex items-center gap-3 rounded-lg mx-1`}
+                style={{
+                  backdropFilter: 'blur(10px)',
+                  WebkitBackdropFilter: 'blur(10px)'
+                }}
+              >
+                <Trash2 className="w-4 h-4 text-red-500" />
+                Delete Folder
+              </button>
+            </>
+          ) : null}
+        </div>
+      </div>,
+      document.body
+    );
+  };
+
   // File upload handler
   const handleFileUpload = (e) => {
     const files = Array.from(e.target.files);
@@ -149,6 +343,143 @@ export default function Files() {
     ));
   };
 
+  // Create new folder
+  const createFolder = () => {
+    if (newFolderName.trim()) {
+      const newFolder = {
+        id: Date.now(),
+        name: newFolderName.trim(),
+        createdAt: new Date(),
+        files: []
+      };
+      setFolders(prev => [...prev, newFolder]);
+      setNewFolderName('');
+      setShowCreateFolderModal(false);
+      setSuccessMessage('Folder created successfully');
+    setTimeout(() => setSuccessMessage(''), 3000);
+    }
+  };
+
+  // Move file to folder
+  const moveFileToFolder = (fileId, folderId) => {
+    const file = uploadedFiles.find(f => f.id === fileId);
+    if (file) {
+      // Remove from uploaded files
+      setUploadedFiles(prev => prev.filter(f => f.id !== fileId));
+      // Add to folder
+      setFolders(prev => prev.map(folder => 
+        folder.id === folderId 
+          ? { ...folder, files: [...folder.files, file] }
+          : folder
+      ));
+      setShowAddToFolderModal(false);
+      setFileToMove(null);
+      setSuccessMessage(`File moved to folder successfully`);
+      setTimeout(() => setSuccessMessage(''), 3000);
+    }
+  };
+
+  // Remove file from folder
+  const removeFileFromFolder = (fileId, folderId) => {
+    const folder = folders.find(f => f.id === folderId);
+    const file = folder?.files.find(f => f.id === fileId);
+    if (file) {
+      // Add back to uploaded files
+      setUploadedFiles(prev => [...prev, file]);
+      // Remove from folder
+      setFolders(prev => prev.map(f => 
+        f.id === folderId 
+          ? { ...f, files: f.files.filter(file => file.id !== fileId) }
+          : f
+      ));
+      setSuccessMessage('File removed from folder');
+      setTimeout(() => setSuccessMessage(''), 3000);
+    }
+  };
+
+  // Delete folder
+  const deleteFolder = (folderId) => {
+    const folder = folders.find(f => f.id === folderId);
+    if (folder) {
+      // Move all files back to uploaded files
+      setUploadedFiles(prev => [...prev, ...folder.files]);
+      // Remove folder
+      setFolders(prev => prev.filter(f => f.id !== folderId));
+      setSuccessMessage('Folder deleted successfully');
+      setTimeout(() => setSuccessMessage(''), 3000);
+    }
+  };
+
+  // Drag and drop handlers for files
+  const handleFileDragStart = (e, fileId) => {
+    setDraggedFile(fileId);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleFileDragEnd = (e) => {
+    setDraggedFile(null);
+    setDragOverFolder(null);
+  };
+
+  const handleFolderDragOver = (e, folderId) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverFolder(folderId);
+  };
+
+  const handleFolderDragLeave = (e) => {
+    setDragOverFolder(null);
+  };
+
+  const handleFolderDrop = (e, folderId) => {
+    e.preventDefault();
+    if (draggedFile) {
+      moveFileToFolder(draggedFile, folderId);
+    }
+    setDraggedFile(null);
+    setDragOverFolder(null);
+  };
+
+  // Folder navigation functions
+  const openFolder = (folderId) => {
+    const folder = folders.find(f => f.id === folderId);
+    if (folder) {
+      setCurrentFolder(folder);
+      setFolderHistory(prev => [...prev, folder]);
+      setSelectedFiles([]);
+    }
+  };
+
+  const goBackToParent = () => {
+    if (folderHistory.length > 0) {
+      const newHistory = [...folderHistory];
+      newHistory.pop();
+      setFolderHistory(newHistory);
+      
+      if (newHistory.length === 0) {
+        setCurrentFolder(null);
+      } else {
+        setCurrentFolder(newHistory[newHistory.length - 1]);
+      }
+      setSelectedFiles([]);
+    }
+  };
+
+  const goToRoot = () => {
+    setCurrentFolder(null);
+    setFolderHistory([]);
+    setSelectedFiles([]);
+  };
+
+  // Handle dot click for selection
+  const handleDotClick = (e, itemId) => {
+    e.stopPropagation();
+    const newSelected = selectedFiles.includes(itemId)
+      ? selectedFiles.filter(id => id !== itemId)
+      : [...selectedFiles, itemId];
+    setSelectedFiles(newSelected);
+  };
+
   // File action handlers
   const handleDownloadFile = (fileId) => {
     console.log('Downloading file:', fileId);
@@ -167,6 +498,18 @@ export default function Files() {
     setUploadedFiles(prev => prev.filter(f => f.id !== fileId));
     setSuccessMessage('File deleted successfully!');
     setTimeout(() => setSuccessMessage(""), 3000);
+  };
+
+  // Handle dropdown positioning
+  const handleMoreMenuClick = (fileId, event) => {
+    event.stopPropagation();
+    const rect = event.currentTarget.getBoundingClientRect();
+    setDropdownPosition({
+      top: rect.bottom + 8,
+      left: rect.right - 192
+    });
+    setCurrentFileId(fileId);
+    setOpenMoreMenu(openMoreMenu === fileId ? null : fileId);
   };
 
   // Close dropdown when clicking outside
@@ -200,17 +543,17 @@ export default function Files() {
 
   // Get file icon background color with enhanced gradients
   const getFileIconBg = (fileType) => {
-    if (fileType.startsWith('image/')) return 'from-blue-400 via-blue-500 to-blue-600';
-    if (fileType.startsWith('video/')) return 'from-purple-400 via-purple-500 to-purple-600';
-    if (fileType.startsWith('audio/')) return 'from-green-400 via-green-500 to-green-600';
-    if (fileType.includes('.zip') || fileType.includes('.rar')) return 'from-orange-400 via-orange-500 to-orange-600';
-    if (fileType.includes('code') || fileType.includes('script') || fileType.includes('csv')) return 'from-red-400 via-red-500 to-red-600';
-    if (fileType.includes('spreadsheet') || fileType.includes('excel')) return 'from-emerald-400 via-emerald-500 to-emerald-600';
-    if (fileType.includes('pdf')) return 'from-blue-500 via-blue-600 to-blue-700';
-    if (fileType.includes('word') || fileType.includes('doc')) return 'from-orange-500 via-orange-600 to-orange-700';
-    if (fileType.includes('sketch')) return 'from-orange-400 via-orange-500 to-orange-600';
-    if (fileType.includes('presentation')) return 'from-indigo-400 via-indigo-500 to-indigo-600';
-    return 'from-gray-400 via-gray-500 to-gray-600';
+    if (fileType.startsWith('image/')) return 'from-[#007AFF] to-[#5AC8FA]'; // Apple Blue for images
+    if (fileType.startsWith('video/')) return 'from-[#30D158] to-[#4CAF50]'; // Apple Green for videos
+    if (fileType.startsWith('audio/')) return 'from-[#007AFF] to-[#5AC8FA]'; // Apple Blue for audio
+    if (fileType.includes('.zip') || fileType.includes('.rar')) return 'from-[#FF9500] to-[#FFB340]'; // Apple Orange for archives
+    if (fileType.includes('code') || fileType.includes('script') || fileType.includes('csv')) return 'from-[#007AFF] to-[#5AC8FA]'; // Apple Blue for code
+    if (fileType.includes('spreadsheet') || fileType.includes('excel')) return 'from-[#30D158] to-[#4CAF50]'; // Apple Green for spreadsheets
+    if (fileType.includes('pdf')) return 'from-[#FF3B30] to-[#FF6961]'; // Apple Red for PDFs
+    if (fileType.includes('word') || fileType.includes('doc')) return 'from-[#007AFF] to-[#5AC8FA]'; // Apple Blue for documents
+    if (fileType.includes('sketch')) return 'from-[#FF9500] to-[#FFB340]'; // Apple Orange for design files
+    if (fileType.includes('presentation')) return 'from-[#30D158] to-[#4CAF50]'; // Apple Green for presentations
+    return 'from-gray-400 to-gray-600'; // Gray for unknown types
   };
 
   // Format file size
@@ -270,8 +613,11 @@ export default function Files() {
     }
   };
 
+  // Get files to display (either from current folder or all files)
+  const filesToDisplay = currentFolder ? currentFolder.files : uploadedFiles;
+
   // Filter and sort files
-  const filteredAndSortedFiles = uploadedFiles
+  const filteredAndSortedFiles = filesToDisplay
     .filter(file => {
       if (activeFilter === 'all') return true;
       if (activeFilter === 'favorites') return file.favorite;
@@ -287,6 +633,15 @@ export default function Files() {
       return 0;
     });
 
+  // Filter and sort folders (only show in root view)
+  const filteredAndSortedFolders = currentFolder ? [] : folders
+    .filter(folder => folder.name.toLowerCase().includes(search.toLowerCase()))
+    .sort((a, b) => {
+      if (sortBy === 'date') return b.createdAt - a.createdAt;
+      if (sortBy === 'name') return a.name.localeCompare(b.name);
+      return 0;
+    });
+
   return (
     <div className={`flex flex-col h-full w-full transition-all duration-500 ${
       darkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'
@@ -299,52 +654,214 @@ export default function Files() {
       }`}>
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-4">
+              {currentFolder && (
+                <button
+                  onClick={goBackToParent}
+                  className={`p-2 rounded-xl transition-colors ${
+                    darkMode 
+                      ? 'text-gray-400 hover:text-white hover:bg-gray-700' 
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
+                  title="Go back"
+                >
+                  <ChevronDown className="w-6 h-6 transform rotate-90" />
+                </button>
+              )}
             <div>
               <h1 className={`text-4xl font-light mb-2 ${
                 darkMode ? 'text-white' : 'text-gray-900'
               }`}>
-                Files
+                  {currentFolder ? currentFolder.name : 'Files'}
               </h1>
               <p className={`text-lg ${
                 darkMode ? 'text-gray-300' : 'text-gray-600'
               }`}>
-                Organize and access your documents with elegance
+                  {currentFolder 
+                    ? `Files in ${currentFolder.name} folder`
+                    : 'Organize and access your documents with elegance'
+                  }
               </p>
+              </div>
+      </div>
+
+            <div className="flex items-center gap-3">
+              {/* Selection Actions - Only show when items are selected */}
+              {selectedFiles.length > 0 && (
+                <>
+                  <div className={`flex items-center gap-2 px-4 py-2 rounded-xl ${
+                    darkMode ? 'bg-gray-700/50' : 'bg-gray-100/50'
+                  }`}>
+                    <span className={`text-sm font-medium ${
+                      darkMode ? 'text-white' : 'text-gray-900'
+                    }`}>
+                      {selectedFiles.length} selected
+                    </span>
+                    <button
+                      onClick={() => {
+                        setSelectedFiles([]);
+                      }}
+                      className={`text-xs ${
+                        darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'
+                      } transition-colors`}
+                    >
+                      Clear
+                    </button>
+                  </div>
+                  
+                  <button
+                    onClick={() => {
+                      console.log('Downloading selected files:', selectedFiles);
+                      setSuccessMessage(`${selectedFiles.length} file(s) downloaded successfully!`);
+                      setTimeout(() => setSuccessMessage(''), 3000);
+                    }}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all duration-300 ${
+                      darkMode 
+                        ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                        : 'bg-blue-600 hover:bg-blue-700 text-white'
+                    }`}
+                  >
+                    <Download className="w-4 h-4" />
+                    Download
+                  </button>
+                  
+                  <button
+                    onClick={() => {
+                      console.log('Sharing selected files:', selectedFiles);
+                      setSuccessMessage(`${selectedFiles.length} file(s) shared successfully!`);
+                      setTimeout(() => setSuccessMessage(''), 3000);
+                    }}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all duration-300 ${
+                      darkMode 
+                        ? 'bg-green-600 hover:bg-green-700 text-white' 
+                        : 'bg-green-600 hover:bg-green-700 text-white'
+                    }`}
+                  >
+                    <Share2 className="w-4 h-4" />
+                    Share
+                  </button>
+                  
+                  <button
+                    onClick={() => {
+                      const confirmed = window.confirm(`Are you sure you want to delete ${selectedFiles.length} item(s)?`);
+                      if (confirmed) {
+                        setUploadedFiles(prev => prev.filter(file => !selectedFiles.includes(file.id)));
+                        setFolders(prev => prev.map(folder => ({
+                          ...folder,
+                          files: folder.files.filter(file => !selectedFiles.includes(file.id))
+                        })));
+                        setSelectedFiles([]);
+                        setSuccessMessage(`${selectedFiles.length} item(s) deleted successfully!`);
+                        setTimeout(() => setSuccessMessage(''), 3000);
+                      }
+                    }}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all duration-300 ${
+                      darkMode 
+                        ? 'bg-red-600 hover:bg-red-700 text-white' 
+                        : 'bg-red-600 hover:bg-red-700 text-white'
+                    }`}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Delete
+                  </button>
+                </>
+              )}
+              
+              <button 
+                onClick={() => setShowCreateFolderModal(true)}
+                className={`group relative px-6 py-3 rounded-2xl font-medium transition-all duration-300 ${
+                  darkMode 
+                    ? 'bg-gray-700 hover:bg-gray-600 text-white shadow-lg hover:shadow-xl' 
+                    : 'bg-gray-200 hover:bg-gray-300 text-gray-800 shadow-lg hover:shadow-xl'
+                } transform hover:scale-105 active:scale-95`}
+              >
+                <Folder className="w-5 h-5 mr-2 inline" />
+                New Folder
+              </button>
+              <button 
+                onClick={() => setShowAddFileModal(true)}
+                className={`group relative px-6 py-3 rounded-2xl font-medium transition-all duration-300 ${
+                  darkMode 
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl' 
+                    : 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl'
+                } transform hover:scale-105 active:scale-95`}
+              >
+                <Plus className="w-5 h-5 mr-2 inline" />
+                Add Files
+              </button>
             </div>
-            
-            <button 
-              onClick={() => setShowAddFileModal(true)}
-              className={`group relative px-6 py-3 rounded-2xl font-medium transition-all duration-300 ${
-                darkMode 
-                  ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl' 
-                  : 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl'
-              } transform hover:scale-105 active:scale-95`}
-            >
-              <Plus className="w-5 h-5 mr-2 inline" />
-              Add Files
-            </button>
           </div>
+
+          {/* Breadcrumb Navigation */}
+          {currentFolder && (
+            <div className={`mb-6 p-4 rounded-xl ${
+              darkMode ? 'bg-gray-800/50' : 'bg-white/50'
+            } border ${
+              darkMode ? 'border-gray-700' : 'border-gray-200'
+            }`}>
+              <div className="flex items-center gap-2 text-sm">
+                <button
+                  onClick={goToRoot}
+                  className={`flex items-center gap-1 px-3 py-1 rounded-lg transition-colors ${
+                    darkMode 
+                      ? 'text-gray-400 hover:text-white hover:bg-gray-700' 
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
+                >
+                  <Folder className="w-4 h-4" />
+                  All Files
+                </button>
+                {folderHistory.map((folder, index) => (
+                  <React.Fragment key={folder.id}>
+                    <ChevronDown className={`w-4 h-4 transform rotate-90 ${
+                      darkMode ? 'text-gray-500' : 'text-gray-400'
+                    }`} />
+                    <button
+                      onClick={() => {
+                        const newHistory = folderHistory.slice(0, index + 1);
+                        setFolderHistory(newHistory);
+                        setCurrentFolder(folder);
+                        setSelectedFiles([]);
+                      }}
+                      className={`flex items-center gap-1 px-3 py-1 rounded-lg transition-colors ${
+                        index === folderHistory.length - 1
+                          ? darkMode 
+                            ? 'text-white bg-gray-700' 
+                            : 'text-gray-900 bg-gray-100'
+                          : darkMode 
+                            ? 'text-gray-400 hover:text-white hover:bg-gray-700' 
+                            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                      }`}
+                    >
+                      <Folder className="w-4 h-4" />
+                      {folder.name}
+                    </button>
+                  </React.Fragment>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Search and Filters */}
           <div className="flex items-center gap-4 flex-wrap">
             {/* Search */}
-            <div className="relative flex-1 max-w-md">
+        <div className="relative flex-1 max-w-md">
               <Search className={`absolute left-3 top-1/2 -translate-y-1/2 ${
                 darkMode ? 'text-gray-400' : 'text-gray-500'
               }`} size={20} />
-              <input
-                type="text"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                placeholder="Search files..."
+          <input
+            type="text"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search files..."
                 className={`w-full pl-10 pr-4 py-3 rounded-2xl border transition-all duration-300 ${
                   darkMode 
                     ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20' 
                     : 'bg-white border-gray-200 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20'
                 } focus:outline-none`}
-              />
-            </div>
-
+          />
+        </div>
+        
             {/* Filter Buttons */}
             <div className="flex items-center gap-2">
               {['all', 'favorites', 'recent', 'documents', 'images', 'spreadsheets'].map((filter) => (
@@ -360,7 +877,7 @@ export default function Files() {
                   }`}
                 >
                   {filter.charAt(0).toUpperCase() + filter.slice(1)}
-                </button>
+        </button>
               ))}
             </div>
 
@@ -372,8 +889,8 @@ export default function Files() {
                   : 'bg-white text-gray-600 hover:bg-gray-100'
               }`}>
                 Sort by {sortBy.charAt(0).toUpperCase() + sortBy.slice(1)}
-                <ChevronDown size={16} />
-              </button>
+          <ChevronDown size={16} />
+        </button>
             </div>
           </div>
         </div>
@@ -383,14 +900,14 @@ export default function Files() {
       <div className="flex-1 px-8 py-6">
         <div className="max-w-7xl mx-auto">
           {/* View Toggle */}
-          <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-8">
             <div className={`flex items-center rounded-xl p-1 ${
               darkMode ? 'bg-gray-800' : 'bg-white'
             } shadow-lg`}>
-              <button
-                onClick={() => setViewMode('grid')}
+          <button
+            onClick={() => setViewMode('grid')}
                 className={`p-3 rounded-lg transition-all duration-300 ${
-                  viewMode === 'grid'
+              viewMode === 'grid' 
                     ? 'bg-blue-600 text-white shadow-lg'
                     : darkMode
                       ? 'text-gray-400 hover:text-white hover:bg-gray-700'
@@ -398,11 +915,11 @@ export default function Files() {
                 }`}
               >
                 <Grid size={18} />
-              </button>
-              <button
-                onClick={() => setViewMode('list')}
+          </button>
+          <button
+            onClick={() => setViewMode('list')}
                 className={`p-3 rounded-lg transition-all duration-300 ${
-                  viewMode === 'list'
+              viewMode === 'list' 
                     ? 'bg-blue-600 text-white shadow-lg'
                     : darkMode
                       ? 'text-gray-400 hover:text-white hover:bg-gray-700'
@@ -410,42 +927,140 @@ export default function Files() {
                 }`}
               >
                 <List size={18} />
-              </button>
-            </div>
-
+          </button>
+        </div>
+        
             <div className={`text-sm ${
               darkMode ? 'text-gray-400' : 'text-gray-500'
             }`}>
-              {filteredAndSortedFiles.length} of {uploadedFiles.length} files
+              {filteredAndSortedFiles.length} of {filesToDisplay.length} files
+              {currentFolder && ` in "${currentFolder.name}"`}
             </div>
           </div>
 
           {/* Files Display */}
           {viewMode === 'grid' ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredAndSortedFiles.length === 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 overflow-visible">
+              {/* Folders */}
+              {filteredAndSortedFolders.map((folder) => (
+                <div
+                  key={folder.id}
+                  className={`group relative ${
+                    darkMode ? 'bg-gray-800/50' : 'bg-white'
+                  } rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer border ${
+                    selectedFiles.includes(folder.id)
+                      ? 'ring-2 ring-blue-500 shadow-blue-500/25'
+                      : dragOverFolder === folder.id
+                        ? 'ring-2 ring-green-500 shadow-green-500/25 scale-105'
+                        : darkMode
+                          ? 'border-gray-700 hover:border-gray-600'
+                          : 'border-gray-200 hover:border-gray-300'
+                  } overflow-visible aspect-[4/3]`}
+                  onClick={() => openFolder(folder.id)}
+                  onDragOver={(e) => handleFolderDragOver(e, folder.id)}
+                  onDragLeave={handleFolderDragLeave}
+                  onDrop={(e) => handleFolderDrop(e, folder.id)}
+                >
+                  <div className="flex flex-col h-full p-4">
+                    {/* Top section with icon and selection */}
+                    <div className="flex items-start justify-between mb-3">
+                      {/* Folder icon */}
+                      <div className={`w-12 h-12 rounded-lg bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 flex items-center justify-center shadow-md`}>
+                        <Folder className="w-6 h-6 text-white" />
+                      </div>
+
+                      {/* Selection indicator */}
+        <button 
+                        onClick={(e) => handleDotClick(e, folder.id)}
+                        className={`w-4 h-4 rounded-full border-2 transition-all duration-300 hover:scale-110 ${
+                          selectedFiles.includes(folder.id)
+                            ? 'bg-blue-500 border-blue-500 scale-110'
+                            : 'bg-transparent border-gray-400 group-hover:border-gray-300 hover:border-blue-400'
+                        }`}
+                        title="Select folder"
+                      />
+                    </div>
+
+                    {/* Folder info */}
+                    <div className="flex-1">
+                      <div className="mb-2">
+                        <div className={`font-semibold text-sm mb-1 truncate ${
+                          darkMode ? 'text-white' : 'text-gray-900'
+                        }`}>
+                          {folder.name}
+                        </div>
+                        <div className={`text-xs ${
+                          darkMode ? 'text-gray-400' : 'text-gray-500'
+                        }`}>
+                          {folder.files.length} files • {folder.createdAt.toLocaleDateString()}
+                        </div>
+                        {dragOverFolder === folder.id && (
+                          <div className="mt-2 px-2 py-1 bg-green-500/20 text-green-600 dark:text-green-400 text-xs rounded-lg border border-green-500/30">
+                            Drop file here
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Bottom section with actions */}
+                    <div className="flex items-center justify-between">
+                      {/* Action buttons */}
+                      <div className="flex items-center gap-2">
+                        <button 
+                          className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors relative z-10"
+                          onClick={(e) => handleMoreMenuClick(folder.id, e)}
+                          title="More Options"
+                        >
+                          <MoreVertical className="w-4 h-4" />
+        </button>
+      </div>
+
+                      {/* Folder indicator */}
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                        Folder
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {/* Files */}
+              {filteredAndSortedFiles.length === 0 && filteredAndSortedFolders.length === 0 ? (
                 <div className={`col-span-full text-center py-16 ${
                   darkMode ? 'text-gray-400' : 'text-gray-500'
                 }`}>
                   <Folder className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                  <p className="text-lg font-medium mb-2">No files found</p>
-                  <p className="text-sm">Try adjusting your search or filters</p>
+                  <p className="text-lg font-medium mb-2">
+                    {currentFolder ? `No files in "${currentFolder.name}"` : 'No files found'}
+                  </p>
+                  <p className="text-sm">
+                    {currentFolder 
+                      ? 'This folder is empty. Drag files here or use the menu to add files.'
+                      : 'Try adjusting your search or filters'
+                    }
+                  </p>
                 </div>
               ) : (
                 filteredAndSortedFiles.map((file) => (
-                                                  <div
+                <div
                   key={file.id}
+                  data-file-id={file.id}
+                  draggable
+                  onDragStart={(e) => handleFileDragStart(e, file.id)}
+                  onDragEnd={handleFileDragEnd}
                   className={`group relative ${
                     darkMode ? 'bg-gray-800/50' : 'bg-white'
                   } rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer border ${
-                    selectedFiles.includes(file.id)
+                  selectedFiles.includes(file.id) 
                       ? 'ring-2 ring-blue-500 shadow-blue-500/25'
+                      : draggedFile === file.id
+                        ? 'opacity-50 scale-95'
                       : darkMode
                         ? 'border-gray-700 hover:border-gray-600'
                         : 'border-gray-200 hover:border-gray-300'
-                  } overflow-hidden aspect-[4/3]`}
+                  } overflow-visible aspect-[4/3]`}
                   onClick={() => {
-                    const newSelected = selectedFiles.includes(file.id)
+                    const newSelected = selectedFiles.includes(file.id) 
                       ? selectedFiles.filter(id => id !== file.id)
                       : [...selectedFiles, file.id];
                     setSelectedFiles(newSelected);
@@ -454,20 +1069,24 @@ export default function Files() {
                   <div className="flex flex-col h-full p-4">
                     {/* Top section with icon and selection */}
                     <div className="flex items-start justify-between mb-3">
-                      {/* File icon */}
+                  {/* File icon */}
                       <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${getFileIconBg(file.type)} flex items-center justify-center shadow-md`}>
-                        {getFileIcon(file.type)}
+                    {getFileIcon(file.type)}
                       </div>
 
                       {/* Selection indicator */}
-                      <div className={`w-4 h-4 rounded-full border-2 transition-all duration-300 ${
+                      <button
+                        onClick={(e) => handleDotClick(e, file.id)}
+                        className={`w-4 h-4 rounded-full border-2 transition-all duration-300 hover:scale-110 ${
                         selectedFiles.includes(file.id)
                           ? 'bg-blue-500 border-blue-500 scale-110'
-                          : 'bg-transparent border-gray-400 group-hover:border-gray-300'
-                      }`} />
-                    </div>
-
-                    {/* File info */}
+                            : 'bg-transparent border-gray-400 group-hover:border-gray-300 hover:border-blue-400'
+                        }`}
+                        title="Select file"
+                      />
+                  </div>
+                  
+                  {/* File info */}
                     <div className="flex-1">
                       <div className="mb-2">
                         <div className={`font-semibold text-sm mb-1 truncate ${
@@ -480,9 +1099,9 @@ export default function Files() {
                         }`}>
                           {formatFileSize(file.size)} • {file.uploadedAt.toLocaleDateString()}
                         </div>
-                      </div>
-
-                      {/* Tags */}
+                  </div>
+                  
+                  {/* Tags */}
                       <div className="flex flex-wrap gap-1 mb-3">
                         {file.tags.slice(0, 3).map((tag, index) => (
                           <span key={index} className={`px-1.5 py-0.5 text-xs rounded-full font-medium ${
@@ -490,9 +1109,9 @@ export default function Files() {
                               ? 'bg-gray-700 text-gray-300'
                               : 'bg-gray-100 text-gray-700'
                           }`}>
-                            {tag}
-                          </span>
-                        ))}
+                        {tag}
+                      </span>
+                    ))}
                         {file.tags.length > 3 && (
                           <span className={`px-1.5 py-0.5 text-xs rounded-full font-medium ${
                             darkMode
@@ -530,44 +1149,11 @@ export default function Files() {
                           <Share2 className="w-4 h-4" />
                         </button>
                         <button 
-                          className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors relative"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setOpenMoreMenu(openMoreMenu === file.id ? null : file.id);
-                          }}
+                          className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors relative z-10"
+                          onClick={(e) => handleMoreMenuClick(file.id, e)}
                           title="More Options"
                         >
                           <MoreVertical className="w-4 h-4" />
-                          
-                          {/* More Options Dropdown */}
-                          {openMoreMenu === file.id && (
-                            <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
-                              <div className="py-1">
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleDownloadFile(file.id);
-                                    setOpenMoreMenu(null);
-                                  }}
-                                  className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
-                                >
-                                  <Download className="w-4 h-4" />
-                                  Download
-                                </button>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleDeleteFile(file.id);
-                                    setOpenMoreMenu(null);
-                                  }}
-                                  className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                  Delete
-                                </button>
-                              </div>
-                            </div>
-                          )}
                         </button>
                       </div>
 
@@ -588,11 +1174,11 @@ export default function Files() {
                     </div>
                   </div>
                 </div>
-                ))
-              )}
-            </div>
-          ) : (
-            <div className="space-y-3">
+              ))
+          )}
+        </div>
+      ) : (
+        <div className="space-y-3">
               {filteredAndSortedFiles.length === 0 ? (
                 <div className={`text-center py-16 ${
                   darkMode ? 'text-gray-400' : 'text-gray-500'
@@ -603,19 +1189,20 @@ export default function Files() {
                 </div>
               ) : (
                 filteredAndSortedFiles.map((file) => (
-                                  <div
+                <div
                   key={file.id}
+                  data-file-id={file.id}
                   className={`group relative ${
                     darkMode ? 'bg-gray-800/50' : 'bg-white'
                   } rounded-xl p-4 transition-all duration-300 cursor-pointer border ${
-                    selectedFiles.includes(file.id)
+                    selectedFiles.includes(file.id) 
                       ? 'ring-2 ring-blue-500 shadow-blue-500/25'
                       : darkMode
                         ? 'border-gray-700 hover:border-gray-600'
                         : 'border-gray-200 hover:border-gray-300'
                   } hover:shadow-lg`}
                   onClick={() => {
-                    const newSelected = selectedFiles.includes(file.id)
+                    const newSelected = selectedFiles.includes(file.id) 
                       ? selectedFiles.filter(id => id !== file.id)
                       : [...selectedFiles, file.id];
                     setSelectedFiles(newSelected);
@@ -626,7 +1213,7 @@ export default function Files() {
                     <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${getFileIconBg(file.type)} flex items-center justify-center shadow-lg flex-shrink-0 mr-6`}>
                       {getFileIcon(file.type)}
                     </div>
-
+                    
                     {/* File details */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 mb-2">
@@ -689,53 +1276,24 @@ export default function Files() {
                         <Share2 className="w-5 h-5" />
                       </button>
                       <button 
-                        className="p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors relative"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setOpenMoreMenu(openMoreMenu === file.id ? null : file.id);
-                        }}
+                        className="p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors relative z-10"
+                        onClick={(e) => handleMoreMenuClick(file.id, e)}
                         title="More Options"
                       >
                         <MoreVertical className="w-5 h-5" />
-                        
-                        {/* More Options Dropdown */}
-                        {openMoreMenu === file.id && (
-                          <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
-                            <div className="py-1">
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDownloadFile(file.id);
-                                  setOpenMoreMenu(null);
-                                }}
-                                className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
-                              >
-                                <Download className="w-4 h-4" />
-                                Download
-                              </button>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDeleteFile(file.id);
-                                  setOpenMoreMenu(null);
-                                }}
-                                className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                                Delete
-                              </button>
-                            </div>
-                          </div>
-                        )}
                       </button>
                     </div>
-
+                    
                     {/* Selection indicator */}
-                    <div className={`w-6 h-6 rounded-full border-2 transition-all duration-300 flex-shrink-0 mr-4 ${
-                      selectedFiles.includes(file.id)
+                    <button
+                      onClick={(e) => handleDotClick(e, file.id)}
+                      className={`w-6 h-6 rounded-full border-2 transition-all duration-300 flex-shrink-0 mr-4 hover:scale-110 ${
+                      selectedFiles.includes(file.id) 
                         ? 'bg-blue-500 border-blue-500 scale-110'
-                        : 'bg-transparent border-gray-400 group-hover:border-gray-300'
-                    }`} />
+                          : 'bg-transparent border-gray-400 group-hover:border-gray-300 hover:border-blue-400'
+                      }`}
+                      title="Select file"
+                    />
 
                     {/* Favorite indicator */}
                     <button
@@ -753,7 +1311,7 @@ export default function Files() {
                     </button>
                   </div>
                 </div>
-                ))
+              ))
               )}
             </div>
           )}
@@ -841,7 +1399,7 @@ export default function Files() {
         }`}>
           {successMessage && (
             <div className={`flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl ${
-              darkMode ? 'bg-green-600 text-white' : 'bg-green-500 text-white'
+              darkMode ? 'bg-[#2196F3] text-white' : 'bg-[#2196F3] text-white'
             }`}>
               <CheckCircle className="w-5 h-5" />
               <span className="font-medium">{successMessage}</span>
@@ -937,7 +1495,7 @@ export default function Files() {
                   </div>
                 </button>
               </div>
-
+              
               {/* Files List */}
               {uploadedFiles.length > 0 && (
                 <div className="space-y-4">
@@ -962,7 +1520,7 @@ export default function Files() {
                         darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'
                       }`}>
                         <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${getFileIconBg(file.type)} flex items-center justify-center`}>
-                          {getFileIcon(file.type)}
+                        {getFileIcon(file.type)}
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className={`text-sm font-medium truncate ${
@@ -1005,10 +1563,10 @@ export default function Files() {
                 </div>
               )}
             </div>
-          </div>
-        </div>
-      )}
-
+                  </div>
+                </div>
+              )}
+              
       {/* Share Modal */}
       <ShareModal
         isOpen={showShareModal}
@@ -1016,6 +1574,158 @@ export default function Files() {
         itemName={selectedFile?.name || ''}
         itemType="file"
       />
+
+      {/* Dropdown Menu Portal */}
+      <DropdownMenu />
+
+
+      {/* Create Folder Modal */}
+      {showCreateFolderModal && (
+        <div 
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 backdrop-blur-md"
+          onClick={(e) => e.target === e.currentTarget && setShowCreateFolderModal(false)}
+        >
+          <div className={`${
+            darkMode ? 'bg-gray-800/95' : 'bg-white/95'
+          } rounded-3xl shadow-2xl w-96 max-h-[85vh] overflow-hidden transform transition-all duration-500 scale-100 backdrop-blur-xl border ${
+            darkMode ? 'border-gray-700/50' : 'border-gray-200/50'
+          }`}>
+            <div className={`flex items-center justify-between p-6 border-b ${
+              darkMode ? 'border-gray-700' : 'border-gray-200'
+            }`}>
+              <h2 className={`text-xl font-semibold ${
+                darkMode ? 'text-white' : 'text-gray-900'
+              }`}>
+                Create New Folder
+              </h2>
+              <button 
+                onClick={() => setShowCreateFolderModal(false)} 
+                className={`p-2 rounded-full transition-colors ${
+                  darkMode 
+                    ? 'text-gray-400 hover:text-white hover:bg-gray-700' 
+                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${
+                  darkMode ? 'text-gray-300' : 'text-gray-700'
+                }`}>
+                  Folder Name
+                </label>
+                <input
+                  type="text"
+                  value={newFolderName}
+                  onChange={(e) => setNewFolderName(e.target.value)}
+                  placeholder="Enter folder name..."
+                  className={`w-full px-4 py-3 rounded-xl border transition-all duration-300 ${
+                    darkMode 
+                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20' 
+                      : 'bg-white border-gray-200 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20'
+                  } focus:outline-none`}
+                  autoFocus
+                  onKeyPress={(e) => e.key === 'Enter' && createFolder()}
+                />
+              </div>
+              
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => setShowCreateFolderModal(false)}
+                  className={`px-4 py-2 rounded-xl font-medium transition-all duration-300 ${
+                    darkMode 
+                      ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' 
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  }`}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={createFolder}
+                  disabled={!newFolderName.trim()}
+                  className={`px-4 py-2 rounded-xl font-medium transition-all duration-300 ${
+                    newFolderName.trim()
+                      ? 'bg-blue-600 text-white hover:bg-blue-700'
+                      : 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                  }`}
+                >
+                  Create Folder
+                </button>
+              </div>
+            </div>
+          </div>
+                </div>
+              )}
+
+      {/* Add to Folder Modal */}
+      {showAddToFolderModal && (
+        <div 
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 backdrop-blur-md"
+          onClick={(e) => e.target === e.currentTarget && setShowAddToFolderModal(false)}
+        >
+          <div className={`${
+            darkMode ? 'bg-gray-800/95' : 'bg-white/95'
+          } rounded-3xl shadow-2xl w-96 max-h-[85vh] overflow-hidden transform transition-all duration-500 scale-100 backdrop-blur-xl border ${
+            darkMode ? 'border-gray-700/50' : 'border-gray-200/50'
+          }`}>
+            <div className={`flex items-center justify-between p-6 border-b ${
+              darkMode ? 'border-gray-700' : 'border-gray-200'
+            }`}>
+              <h2 className={`text-xl font-semibold ${
+                darkMode ? 'text-white' : 'text-gray-900'
+              }`}>
+                Move to Folder
+              </h2>
+              <button 
+                onClick={() => setShowAddToFolderModal(false)} 
+                className={`p-2 rounded-full transition-colors ${
+                  darkMode 
+                    ? 'text-gray-400 hover:text-white hover:bg-gray-700' 
+                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              <div className="space-y-2 max-h-60 overflow-y-auto">
+                {folders.map((folder) => (
+                  <button
+                    key={folder.id}
+                    onClick={() => moveFileToFolder(fileToMove, folder.id)}
+                    className={`w-full p-4 rounded-xl border transition-all duration-300 text-left ${
+                      darkMode 
+                        ? 'bg-gray-700 border-gray-600 hover:bg-gray-600' 
+                        : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Folder className={`w-5 h-5 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`} />
+                      <div>
+                        <div className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                          {folder.name}
+                        </div>
+                        <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                          {folder.files.length} files
+                        </div>
+                      </div>
+                    </div>
+                  </button>
+                ))}
+                {folders.length === 0 && (
+                  <div className={`text-center py-8 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    No folders available. Create a folder first.
+                </div>
+              )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 

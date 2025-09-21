@@ -4,7 +4,7 @@ import {
   Milestone, Paperclip, CheckCircle, AlertCircle, Edit3, Brain, Sparkles as SparklesIcon,
   Settings, Send, X, Bold, Italic, Underline, Strikethrough, AlignLeft, AlignCenter, 
   AlignRight, AlignJustify, Highlighter, Link, Quote, Code, Type, List, ListOrdered,
-  Save, BookOpen, BarChart3, Clock, Plus, Pencil, ChevronDown, FileText, Download, File, Search,
+  Save, BookOpen, BarChart3, Clock, Plus, Pencil, ChevronDown, FileText, Download, File, Search, CheckSquare, StickyNote,
   Table, Image, AlignJustify as Justify, Indent, Outdent, Superscript, Subscript,
   Palette, MoreHorizontal, Eye, EyeOff, Users, MessageSquare, History, Copy, Scissors,
   RotateCcw, RotateCw, ZoomIn, ZoomOut, Maximize2, Minimize2, Grid, Columns, Rows
@@ -17,24 +17,15 @@ const ResearchMode = () => {
   const [selectedFormat, setSelectedFormat] = useState('Chicago');
   const [viewMode, setViewMode] = useState('Hide'); // Default to Hide mode - no sidebar
   const [activeTab, setActiveTab] = useState('Writing');
-  const [showFormatModal, setShowFormatModal] = useState(false);
-  const [customFormat, setCustomFormat] = useState('');
-  const [showContextMenu, setShowContextMenu] = useState(false);
-  const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
-  const [showNotesModal, setShowNotesModal] = useState(false);
-  const [notesContent, setNotesContent] = useState('');
-  const [wordCount, setWordCount] = useState(0);
-  const [charCount, setCharCount] = useState(0);
-
-  const [lastSaved, setLastSaved] = useState('12:22:45 PM');
-  const [aiSidebarWidth, setAiSidebarWidth] = useState(320);
-  const [isResizingAi, setIsResizingAi] = useState(false);
-  const [isAiSidebarCollapsed, setIsAiSidebarCollapsed] = useState(false);
-  const [isAiSidebarMinimized, setIsAiSidebarMinimized] = useState(false);
-  const [aiChatHistory, setAiChatHistory] = useState([]);
-  const [currentAiMessage, setCurrentAiMessage] = useState('');
-  const [showExportModal, setShowExportModal] = useState(false);
-  const [outlineSections, setOutlineSections] = useState([
+  
+  // Research Project Management
+  const [researchProjects, setResearchProjects] = useState([
+    {
+      id: 'default',
+      name: 'Research Project 1',
+      notes: '',
+      researchContent: '',
+      outlineSections: [
     {
       id: 1,
       title: 'Introduction',
@@ -52,11 +43,60 @@ const ResearchMode = () => {
       title: 'Methodology',
       description: 'Research design, data collection, analysis methods',
       order: 3
+        },
+        {
+          id: 4,
+          title: 'Results',
+          description: 'Findings, data analysis, key discoveries',
+          order: 4
+        },
+        {
+          id: 5,
+          title: 'Discussion',
+          description: 'Interpretation, implications, limitations',
+          order: 5
+        },
+        {
+          id: 6,
+          title: 'Conclusion',
+          description: 'Summary, contributions, future research',
+          order: 6
+        }
+      ],
+      literatureSources: [],
+      timelineEvents: [],
+      analysisData: []
     }
   ]);
+  const [activeProjectId, setActiveProjectId] = useState('default');
+  const [showNewProjectModal, setShowNewProjectModal] = useState(false);
+  const [newProjectName, setNewProjectName] = useState('');
+  const [showFormatModal, setShowFormatModal] = useState(false);
+  const [customFormat, setCustomFormat] = useState('');
+  const [showCitationsModal, setShowCitationsModal] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [showEdenSearch, setShowEdenSearch] = useState(false);
+  const [showAddSourceModal, setShowAddSourceModal] = useState(false);
   const [showAddSectionModal, setShowAddSectionModal] = useState(false);
   const [newSectionTitle, setNewSectionTitle] = useState('');
   const [newSectionDescription, setNewSectionDescription] = useState('');
+  const [showVersionHistory, setShowVersionHistory] = useState(false);
+  const [activeSidePanel, setActiveSidePanel] = useState(null); // 'comments', 'history', 'eden', null
+  const [showContextMenu, setShowContextMenu] = useState(false);
+  const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
+  const [showNotesModal, setShowNotesModal] = useState(false);
+  const [notesContent, setNotesContent] = useState('');
+  const [wordCount, setWordCount] = useState(0);
+  const [charCount, setCharCount] = useState(0);
+
+  const [lastSaved, setLastSaved] = useState('12:22:45 PM');
+  const [aiSidebarWidth, setAiSidebarWidth] = useState(320);
+  const [isResizingAi, setIsResizingAi] = useState(false);
+  const [isAiSidebarCollapsed, setIsAiSidebarCollapsed] = useState(false);
+  const [isAiSidebarMinimized, setIsAiSidebarMinimized] = useState(false);
+  const [aiChatHistory, setAiChatHistory] = useState([]);
+  const [currentAiMessage, setCurrentAiMessage] = useState('');
+  const [showExportModal, setShowExportModal] = useState(false);
   const [papers, setPapers] = useState([
     {
       id: 1,
@@ -184,6 +224,98 @@ const ResearchMode = () => {
     setIsResizingAi(false);
     document.body.style.cursor = '';
     document.body.style.userSelect = '';
+  };
+
+  // Helper functions for project management
+  const getCurrentProject = () => {
+    return researchProjects.find(project => project.id === activeProjectId) || researchProjects[0];
+  };
+
+  const updateCurrentProject = (updates) => {
+    setResearchProjects(prev => prev.map(project => 
+      project.id === activeProjectId ? { ...project, ...updates } : project
+    ));
+  };
+
+  const createNewProject = () => {
+    if (!newProjectName.trim()) return;
+    
+    const newProject = {
+      id: `project_${Date.now()}`,
+      name: newProjectName.trim(),
+      notes: '',
+      researchContent: '',
+      outlineSections: [
+        {
+          id: 1,
+          title: 'Introduction',
+          description: 'Background, problem statement, research questions',
+          order: 1
+        },
+        {
+          id: 2,
+          title: 'Literature Review',
+          description: 'Existing research, theoretical framework',
+          order: 2
+        },
+        {
+          id: 3,
+          title: 'Methodology',
+          description: 'Research design, data collection, analysis methods',
+          order: 3
+        },
+        {
+          id: 4,
+          title: 'Results',
+          description: 'Findings, data analysis, key discoveries',
+          order: 4
+        },
+        {
+          id: 5,
+          title: 'Discussion',
+          description: 'Interpretation, implications, limitations',
+          order: 5
+        },
+        {
+          id: 6,
+          title: 'Conclusion',
+          description: 'Summary, contributions, future research',
+          order: 6
+        }
+      ],
+      literatureSources: [],
+      timelineEvents: [],
+      analysisData: []
+    };
+    
+    setResearchProjects(prev => [...prev, newProject]);
+    setActiveProjectId(newProject.id);
+    setNewProjectName('');
+    setShowNewProjectModal(false);
+  };
+
+  const switchProject = (projectId) => {
+    setActiveProjectId(projectId);
+  };
+
+  const deleteProject = (projectId) => {
+    if (researchProjects.length <= 1) return; // Don't delete the last project
+    
+    setResearchProjects(prev => prev.filter(project => project.id !== projectId));
+    
+    // Switch to the first remaining project if we deleted the active one
+    if (activeProjectId === projectId) {
+      const remainingProjects = researchProjects.filter(project => project.id !== projectId);
+      setActiveProjectId(remainingProjects[0].id);
+    }
+  };
+
+  // Import content to current project
+  const importToCurrentProject = (content) => {
+    const currentProject = getCurrentProject();
+    updateCurrentProject({
+      researchContent: currentProject.researchContent + (currentProject.researchContent ? '\n\n' : '') + content
+    });
   };
 
   useEffect(() => {
@@ -512,6 +644,73 @@ const ResearchMode = () => {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  // Add CSS styles to document head
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      .editor-content h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 1.5rem 0 1rem 0;
+        line-height: 1.2;
+      }
+      .editor-content h2 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin: 1.25rem 0 0.75rem 0;
+        line-height: 1.3;
+      }
+      .editor-content h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin: 1rem 0 0.5rem 0;
+        line-height: 1.4;
+      }
+      .editor-content p {
+        margin: 0.75rem 0;
+        line-height: 1.6;
+      }
+      .editor-content ul, .editor-content ol {
+        margin: 0.75rem 0;
+        padding-left: 1.5rem;
+      }
+      .editor-content li {
+        margin: 0.25rem 0;
+        line-height: 1.5;
+      }
+      .editor-content blockquote {
+        border-left: 4px solid #e5e7eb;
+        padding-left: 1rem;
+        margin: 1rem 0;
+        font-style: italic;
+        color: #6b7280;
+      }
+      .editor-content code {
+        background-color: #f3f4f6;
+        padding: 0.125rem 0.25rem;
+        border-radius: 0.25rem;
+        font-family: 'Courier New', monospace;
+        font-size: 0.875rem;
+      }
+      .editor-content pre {
+        background-color: #f3f4f6;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        overflow-x: auto;
+        margin: 1rem 0;
+      }
+      .editor-content pre code {
+        background-color: transparent;
+        padding: 0;
+      }
+    `;
+    document.head.appendChild(style);
+    
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
+
   const handleFormatChange = (format) => {
     setSelectedFormat(format);
     setShowFormatModal(false);
@@ -617,13 +816,16 @@ const ResearchMode = () => {
   // Outline section handlers
   const handleAddSection = () => {
     if (newSectionTitle.trim()) {
+      const currentProject = getCurrentProject();
       const newSection = {
         id: Date.now(),
         title: newSectionTitle.trim(),
         description: newSectionDescription.trim() || 'Add description...',
-        order: outlineSections.length + 1
+        order: currentProject.outlineSections.length + 1
       };
-      setOutlineSections([...outlineSections, newSection]);
+      updateCurrentProject({ 
+        outlineSections: [...currentProject.outlineSections, newSection] 
+      });
       setNewSectionTitle('');
       setNewSectionDescription('');
       setShowAddSectionModal(false);
@@ -631,15 +833,19 @@ const ResearchMode = () => {
   };
 
   const handleDeleteSection = (id) => {
-    setOutlineSections(outlineSections.filter(section => section.id !== id));
+    const currentProject = getCurrentProject();
+    const updatedSections = currentProject.outlineSections.filter(section => section.id !== id);
+    updateCurrentProject({ outlineSections: updatedSections });
   };
 
   const handleEditSection = (id, newTitle, newDescription) => {
-    setOutlineSections(outlineSections.map(section => 
+    const currentProject = getCurrentProject();
+    const updatedSections = currentProject.outlineSections.map(section => 
       section.id === id 
         ? { ...section, title: newTitle, description: newDescription }
         : section
-    ));
+    );
+    updateCurrentProject({ outlineSections: updatedSections });
   };
 
   // Paper handlers
@@ -811,79 +1017,106 @@ const ResearchMode = () => {
       case 'Writing':
         return (
           <div className="flex-1 flex flex-col">
-                         {/* Comprehensive Google Docs-like Toolbar - Compact */}
-             <div className="flex items-center gap-1 p-2 border-b border-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-10">
+            {/* Minimal Writing Toolbar - Apple Style */}
+            <div className="flex items-center gap-1 px-4 py-2 border-b border-gray-200/60 bg-white">
               {/* Document Title */}
               <div className="flex items-center gap-3 mr-6">
                 <input 
                   type="text" 
                   placeholder="Untitled Document" 
-                  className="text-lg font-semibold bg-transparent border-0 focus:outline-none text-gray-900 placeholder-gray-400 min-w-[200px]"
+                  className="text-base font-medium bg-transparent border-0 focus:outline-none text-gray-900 placeholder-gray-400 min-w-[180px]"
                 />
-                <div className="flex items-center gap-2 text-sm text-gray-500">
-                  <span>•</span>
-                  <span>Last saved {lastSaved}</span>
-                </div>
+                <div className="w-1 h-1 bg-green-500 rounded-full"></div>
               </div>
 
               <div className="flex-1 flex items-center gap-1">
-                {/* Format Dropdown */}
-                <select 
-                  className="text-sm border-0 bg-transparent focus:outline-none text-gray-700 font-medium pr-8 cursor-pointer hover:text-gray-900 transition-colors"
-                  onChange={(e) => {
-                    if (e.target.value === 'h1') execCommand('formatBlock', 'h1');
-                    else if (e.target.value === 'h2') execCommand('formatBlock', 'h2');
-                    else if (e.target.value === 'h3') execCommand('formatBlock', 'h3');
-                    else if (e.target.value === 'p') execCommand('formatBlock', 'p');
-                  }}
-                >
-                  <option value="p">Normal text</option>
-                  <option value="h1">Heading 1</option>
-                  <option value="h2">Heading 2</option>
-                  <option value="h3">Heading 3</option>
-                </select>
-
-                <div className="h-6 w-px bg-gray-300 mx-2"></div>
-
-                {/* Text Formatting */}
+                {/* Text Formatting - Essential only */}
                 <button 
                   onClick={() => execCommand('bold')}
-                  className={`w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100 transition-all duration-200 ${
-                    currentFormat.bold ? 'bg-blue-100 text-blue-700' : 'text-gray-600'
+                  className={`w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100 transition-all duration-200 ${
+                    currentFormat.bold ? 'bg-gray-100 text-gray-900' : 'text-gray-500'
                   }`}
-                  title="Bold (Ctrl+B)"
+                  title="Bold"
                 >
-                  <Bold className="w-4 h-4" />
+                  <Bold className="w-3.5 h-3.5" />
                 </button>
                 <button 
                   onClick={() => execCommand('italic')}
-                  className={`w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100 transition-all duration-200 ${
-                    currentFormat.italic ? 'bg-blue-100 text-blue-700' : 'text-gray-600'
+                  className={`w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100 transition-all duration-200 ${
+                    currentFormat.italic ? 'bg-gray-100 text-gray-900' : 'text-gray-500'
                   }`}
-                  title="Italic (Ctrl+I)"
+                  title="Italic"
                 >
-                  <Italic className="w-4 h-4" />
+                  <Italic className="w-3.5 h-3.5" />
+                </button>
+                
+                <div className="h-3 w-px bg-gray-300 mx-1"></div>
+                
+                {/* Lists */}
+                <button 
+                  onClick={() => execCommand('insertUnorderedList')}
+                  className="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100 transition-all duration-200 text-gray-500"
+                  title="Bullet List"
+                >
+                  <List className="w-3.5 h-3.5" />
                 </button>
                 <button 
-                  onClick={() => execCommand('underline')}
-                  className={`w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100 transition-all duration-200 ${
-                    currentFormat.underline ? 'bg-blue-100 text-blue-700' : 'text-gray-600'
-                  }`}
-                  title="Underline (Ctrl+U)"
+                  onClick={() => execCommand('insertOrderedList')}
+                  className="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100 transition-all duration-200 text-gray-500"
+                  title="Numbered List"
                 >
-                  <Underline className="w-4 h-4" />
-                </button>
-                <button 
-                  onClick={() => execCommand('strikeThrough')}
-                  className={`w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100 transition-all duration-200 ${
-                    currentFormat.strikethrough ? 'bg-blue-100 text-blue-700' : 'text-gray-600'
-                  }`}
-                  title="Strikethrough"
-                >
-                  <Strikethrough className="w-4 h-4" />
+                  <ListOrdered className="w-3.5 h-3.5" />
                 </button>
 
-                <div className="h-6 w-px bg-gray-300 mx-2"></div>
+                <div className="h-3 w-px bg-gray-300 mx-1"></div>
+                
+                {/* Insert Options */}
+                <button 
+                  onClick={() => setShowTableMenu(!showTableMenu)}
+                  className="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100 transition-all duration-200 text-gray-500"
+                  title="Insert Table"
+                >
+                  <Table className="w-3.5 h-3.5" />
+                </button>
+                <button 
+                  onClick={() => document.getElementById('image-upload').click()}
+                  className="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100 transition-all duration-200 text-gray-500"
+                  title="Insert Image"
+                >
+                  <Image className="w-3.5 h-3.5" />
+                </button>
+                
+                <div className="h-3 w-px bg-gray-300 mx-1"></div>
+                
+                {/* Auto-Formatting Panel */}
+                <button 
+                  onClick={() => setShowFormatModal(true)}
+                  className="flex items-center gap-1.5 px-2 py-1.5 text-xs font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-all duration-200"
+                >
+                  <Type className="w-3.5 h-3.5" />
+                  {selectedFormat}
+                  <ChevronDown className="w-3 h-3" />
+                </button>
+                
+                <div className="h-3 w-px bg-gray-300 mx-1"></div>
+                
+                {/* Citations */}
+                <button 
+                  onClick={() => setShowCitationsModal(true)}
+                  className="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100 transition-all duration-200 text-gray-500"
+                  title="Citations"
+                >
+                  <BookOpen className="w-3.5 h-3.5" />
+                </button>
+                
+                {/* Share */}
+                <button 
+                  onClick={() => setShowShareModal(true)}
+                  className="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100 transition-all duration-200 text-gray-500"
+                  title="Share Document"
+                >
+                  <Share2 className="w-3.5 h-3.5" />
+                </button>
 
                 {/* Text Color */}
                 <div className="relative">
@@ -1200,45 +1433,10 @@ const ResearchMode = () => {
                   </div>
                 )}
 
-                {/* Document Editor Area */}
+            {/* Main Writing Area - Google Docs Style */}
                 <div className="flex-1 flex flex-col">
-                                     {/* Page-based Editor */}
-                   <div className="flex-1 p-6 bg-gray-100/30" style={{ transform: `scale(${zoomLevel / 100})`, transformOrigin: 'top left' }}>
-                     <div className="max-w-6xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
-                      {/* Page Header - Compact */}
-                      <div className="h-12 border-b border-gray-200 flex items-center justify-between px-6">
-                        <div className="flex items-center gap-4">
-                          <span className="text-sm text-gray-500">Page {currentPage} of {totalPages}</span>
-                          <div className="flex items-center gap-2">
-                            <button 
-                              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                              disabled={currentPage === 1}
-                              className="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                              <ChevronDown className="w-4 h-4 rotate-90" />
-                            </button>
-                            <button 
-                              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                              disabled={currentPage === totalPages}
-                              className="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                              <ChevronDown className="w-4 h-4 -rotate-90" />
-                            </button>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <button 
-                            onClick={() => setShowOutline(!showOutline)}
-                            className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 rounded hover:bg-gray-100"
-                            title="Toggle outline"
-                          >
-                            <Grid className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Document Content - Expanded with Focus Mode */}
-                      <div className={`min-h-[900px] p-6 transition-all duration-300 ${showFocusMode ? 'bg-gray-900' : ''}`}>
+              <div className="flex-1 p-8">
+                <div className="max-w-4xl mx-auto">
                         <div 
                           ref={editorRef}
                           contentEditable
@@ -1246,23 +1444,20 @@ const ResearchMode = () => {
                           onFocus={handleEditorFocus}
                           onBlur={handleEditorBlur}
                   onContextMenu={handleContextMenu}
-                          className={`editor-content w-full min-h-[800px] border-0 bg-transparent text-gray-900 resize-none focus:outline-none text-base leading-relaxed placeholder-gray-400 transition-all duration-200 prose prose-lg max-w-none focus:ring-0 ${
-                            showFocusMode ? 'text-white' : ''
-                          }`}
+                    className="w-full min-h-[calc(100vh-200px)] border-0 bg-transparent text-gray-900 focus:outline-none text-base leading-relaxed placeholder-gray-400 transition-all duration-200 focus:ring-0"
                           style={{
-                            fontFamily: currentFormat.fontFamily,
-                            fontSize: currentFormat.fontSize,
-                            color: currentFormat.textColor,
-                            backgroundColor: currentFormat.backgroundColor,
-                            textAlign: currentFormat.textAlign,
+                      fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
+                      fontSize: '16px',
                             lineHeight: '1.6'
                           }}
                           suppressContentEditableWarning={true}
                         />
+                </div>
+              </div>
                       </div>
 
-                      {/* Advanced Status Bar - Academic Features */}
-                      <div className="h-12 border-t border-gray-200 flex items-center justify-between px-6 text-sm text-gray-500 bg-gray-50/50">
+            {/* Status Bar - Essential Stats */}
+            <div className="h-10 border-t border-gray-200 flex items-center justify-between px-6 text-sm text-gray-500 bg-gray-50/50">
                         <div className="flex items-center gap-6">
                           <div className="flex items-center gap-2">
                             <span className="font-medium text-gray-700">{writingStats.words}</span>
@@ -1276,26 +1471,10 @@ const ResearchMode = () => {
                             <span className="font-medium text-gray-700">{writingStats.paragraphs}</span>
                             <span className="text-gray-500">paragraphs</span>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium text-gray-700">{writingStats.readingTime}</span>
-                            <span className="text-gray-500">min read</span>
-                          </div>
                           {citations.length > 0 && (
                             <div className="flex items-center gap-2">
                               <span className="font-medium text-blue-600">{citations.length}</span>
                               <span className="text-gray-500">citations</span>
-                            </div>
-                          )}
-                          {footnotes.length > 0 && (
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium text-purple-600">{footnotes.length}</span>
-                              <span className="text-gray-500">footnotes</span>
-                            </div>
-                          )}
-                          {spellErrors.length > 0 && (
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium text-red-600">{spellErrors.length}</span>
-                              <span className="text-gray-500">errors</span>
                             </div>
                           )}
                         </div>
@@ -1308,52 +1487,49 @@ const ResearchMode = () => {
                             <span className="text-gray-500">Last saved:</span>
                             <span className="font-medium text-gray-700">{lastSaved}</span>
                             <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>
 
-
-              {/* Floating Action Button - Fixed positioning */}
+            {/* Floating Action Buttons - Essential Features */}
                <div className="fixed bottom-6 right-6 z-[9999] pointer-events-auto">
                 <div className="flex flex-col gap-2">
                   {/* Quick Format Menu */}
                   <div className="bg-white rounded-full shadow-xl border border-gray-200 p-1.5 flex flex-col gap-1">
                     <button 
                       onClick={() => execCommand('bold')}
-                      className={`w-9 h-9 flex items-center justify-center rounded-full transition-all duration-200 ${
+                    className={`w-8 h-8 flex items-center justify-center rounded-full transition-all duration-200 ${
                         currentFormat.bold ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'
                       }`}
-                      title="Bold (Ctrl+B)"
+                    title="Bold"
                     >
                       <Bold className="w-4 h-4" />
                     </button>
                     <button 
                       onClick={() => execCommand('italic')}
-                      className={`w-9 h-9 flex items-center justify-center rounded-full transition-all duration-200 ${
+                    className={`w-8 h-8 flex items-center justify-center rounded-full transition-all duration-200 ${
                         currentFormat.italic ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'
                       }`}
-                      title="Italic (Ctrl+I)"
+                    title="Italic"
                     >
                       <Italic className="w-4 h-4" />
                     </button>
                     <button 
-                      onClick={() => execCommand('underline')}
-                      className={`w-9 h-9 flex items-center justify-center rounded-full transition-all duration-200 ${
-                        currentFormat.underline ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'
-                      }`}
-                      title="Underline (Ctrl+U)"
-                    >
-                      <Underline className="w-4 h-4" />
+                    onClick={() => setShowCitationsModal(true)}
+                    className="w-8 h-8 flex items-center justify-center rounded-full transition-all duration-200 text-gray-600 hover:bg-gray-100"
+                    title="Citations"
+                  >
+                    <BookOpen className="w-4 h-4" />
                     </button>
                   </div>
 
                   {/* Main FAB */}
-                  <button className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center justify-center group">
-                    <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
+                <button 
+                  onClick={() => setShowShareModal(true)}
+                  className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center justify-center group"
+                  title="Share Document"
+                >
+                  <Share2 className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
                   </button>
                 </div>
               </div>
@@ -1362,61 +1538,45 @@ const ResearchMode = () => {
       
       case 'Outline':
   return (
-          <div className="flex-1 p-8">
-            <div className="w-full">
-              <div className="flex items-center justify-between mb-8">
-                <h2 className="text-2xl font-bold text-gray-900">Research Outline</h2>
-                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-all duration-300 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 flex items-center gap-2">
-                  <Plus className="w-4 h-4" />
+          <div className="flex-1 p-6">
+            <div className="max-w-4xl mx-auto">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-semibold text-gray-900">Research Outline</h2>
+                <button 
+                  onClick={() => setShowAddSectionModal(true)}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+                >
                   Add Section
                 </button>
               </div>
               
               <div className="space-y-4">
-                <div className="bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-xl p-6 shadow-sm">
+                {getCurrentProject().outlineSections.map((section, index) => (
+                  <div key={section.id} className="bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-xl p-6 shadow-sm">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold text-gray-900">1. Introduction</h3>
+                      <h3 className="text-lg font-semibold text-gray-900">{index + 1}. {section.title}</h3>
                     <div className="flex items-center gap-2">
-                      <button className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-50/80 rounded-lg transition-all duration-200">
+                        <button 
+                          onClick={() => {
+                            setNewSectionTitle(section.title);
+                            setNewSectionDescription(section.description);
+                            setShowAddSectionModal(true);
+                          }}
+                          className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-50/80 rounded-lg transition-all duration-200"
+                        >
                         <Pencil className="w-4 h-4" />
                       </button>
-                      <button className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-50/80 rounded-lg transition-all duration-200">
+                        <button 
+                          onClick={() => handleDeleteSection(section.id)}
+                          className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50/80 rounded-lg transition-all duration-200"
+                        >
                         <X className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
-                  <p className="text-gray-600 mt-2">Background, problem statement, research questions</p>
+                    <p className="text-gray-600 mt-2">{section.description}</p>
                 </div>
-                
-                <div className="bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-xl p-6 shadow-sm">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold text-gray-900">2. Literature Review</h3>
-                    <div className="flex items-center gap-2">
-                      <button className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-50/80 rounded-lg transition-all duration-200">
-                        <Pencil className="w-4 h-4" />
-                      </button>
-                      <button className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-50/80 rounded-lg transition-all duration-200">
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                  <p className="text-gray-600 mt-2">Existing research, theoretical framework</p>
-        </div>
-        
-                <div className="bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-xl p-6 shadow-sm">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold text-gray-900">3. Methodology</h3>
-                    <div className="flex items-center gap-2">
-                      <button className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-50/80 rounded-lg transition-all duration-200">
-                        <Pencil className="w-4 h-4" />
-                      </button>
-                      <button className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-50/80 rounded-lg transition-all duration-200">
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                  <p className="text-gray-600 mt-2">Research design, data collection, analysis methods</p>
-                </div>
+                ))}
               </div>
             </div>
           </div>
@@ -1424,16 +1584,15 @@ const ResearchMode = () => {
       
       case 'Literature':
         return (
-          <div className="flex-1 p-8">
-            <div className="w-full">
-              <div className="flex items-center justify-between mb-8">
-                <h2 className="text-2xl font-bold text-gray-900">Literature Review</h2>
+          <div className="flex-1 p-6">
+            <div className="max-w-4xl mx-auto">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-semibold text-gray-900">Literature Sources</h2>
                 <button 
-                  onClick={() => setShowAddPaperModal(true)}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-all duration-300 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 flex items-center gap-2"
+                  onClick={() => setShowAddSourceModal(true)}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
                 >
-                  <Plus className="w-4 h-4" />
-                  Add Paper
+                  Add Source
                 </button>
               </div>
 
@@ -1777,6 +1936,209 @@ const ResearchMode = () => {
           </div>
         );
       
+      case 'Data':
+        return (
+          <div className="flex-1 p-6">
+            <div className="max-w-6xl mx-auto">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-900">Research Data Hub</h2>
+                  <p className="text-sm text-gray-600 mt-1">Organize and search through all your research data</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button 
+                    onClick={() => setShowEdenSearch(true)}
+                    className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg text-sm font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-200 flex items-center gap-2"
+                  >
+                    <Brain className="w-4 h-4" />
+                    Eden Search
+                  </button>
+                  <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                    Add Data
+                  </button>
+                </div>
+              </div>
+              
+              {/* Data Categories */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* Studies */}
+                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                      <BookOpen className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">Studies</h3>
+                      <p className="text-sm text-gray-600">Research studies & experiments</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div>
+                        <p className="font-medium text-gray-900">Machine Learning Study</p>
+                        <p className="text-sm text-gray-600">3 datasets, 12 papers</p>
+                      </div>
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div>
+                        <p className="font-medium text-gray-900">Psychology Research</p>
+                        <p className="text-sm text-gray-600">2 surveys, 8 interviews</p>
+                      </div>
+                      <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Datasets */}
+                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center">
+                      <BarChart3 className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">Datasets</h3>
+                      <p className="text-sm text-gray-600">Raw data & analysis files</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div>
+                        <p className="font-medium text-gray-900">Survey Data 2024</p>
+                        <p className="text-sm text-gray-600">1,247 responses</p>
+                      </div>
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div>
+                        <p className="font-medium text-gray-900">Experimental Results</p>
+                        <p className="text-sm text-gray-600">156 trials</p>
+                      </div>
+                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* References */}
+                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
+                      <FileText className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">References</h3>
+                      <p className="text-sm text-gray-600">Papers, books & citations</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div>
+                        <p className="font-medium text-gray-900">Academic Papers</p>
+                        <p className="text-sm text-gray-600">45 papers</p>
+                      </div>
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div>
+                        <p className="font-medium text-gray-900">Books & Reports</p>
+                        <p className="text-sm text-gray-600">12 sources</p>
+                      </div>
+                      <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Notes & Ideas */}
+                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
+                      <Pencil className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">Notes & Ideas</h3>
+                      <p className="text-sm text-gray-600">Research notes & insights</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div>
+                        <p className="font-medium text-gray-900">Research Notes</p>
+                        <p className="text-sm text-gray-600">23 notes</p>
+                      </div>
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div>
+                        <p className="font-medium text-gray-900">Ideas & Hypotheses</p>
+                        <p className="text-sm text-gray-600">8 ideas</p>
+                      </div>
+                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Media & Files */}
+                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-pink-600 rounded-lg flex items-center justify-center">
+                      <Image className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">Media & Files</h3>
+                      <p className="text-sm text-gray-600">Images, videos & documents</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div>
+                        <p className="font-medium text-gray-900">Images & Charts</p>
+                        <p className="text-sm text-gray-600">34 files</p>
+                      </div>
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div>
+                        <p className="font-medium text-gray-900">Videos & Audio</p>
+                        <p className="text-sm text-gray-600">12 files</p>
+                      </div>
+                      <div className="w-2 h-2 bg-pink-500 rounded-full"></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Collaborations */}
+                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                      <Users className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">Collaborations</h3>
+                      <p className="text-sm text-gray-600">Team projects & partnerships</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div>
+                        <p className="font-medium text-gray-900">Joint Research</p>
+                        <p className="text-sm text-gray-600">3 collaborators</p>
+                      </div>
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div>
+                        <p className="font-medium text-gray-900">Peer Reviews</p>
+                        <p className="text-sm text-gray-600">5 reviews</p>
+                      </div>
+                      <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      
       default:
         return (
           <div className="flex-1">
@@ -1791,22 +2153,7 @@ const ResearchMode = () => {
     }
   };
 
-  // Add CSS styles to document head
-  useEffect(() => {
-    const style = document.createElement('style');
-    style.textContent = `
-      .editor-content h1 {
-        font-size: 2rem;
-        font-weight: 700;
-        margin: 1.5rem 0 1rem 0;
-        line-height: 1.2;
-      }
-      .editor-content h2 {
-        font-size: 1.5rem;
-        font-weight: 600;
-        margin: 1.25rem 0 0.75rem 0;
-        line-height: 1.3;
-      }
+  return (
       .editor-content h3 {
         font-size: 1.25rem;
         font-weight: 600;
@@ -1869,208 +2216,229 @@ const ResearchMode = () => {
   }, []);
 
   return (
-    <div className="flex h-screen bg-[#fafafa] overflow-hidden" onClick={() => setShowContextMenu(false)}>
+    <div className="flex h-screen bg-white overflow-hidden" onClick={() => setShowContextMenu(false)}>
       {/* Main Content Area */}
       <div className="flex flex-1">
         {/* Left Panel - Notes with Apple Precision */}
-        <div className={`${viewMode === 'Side' ? 'w-80' : 'w-0'} bg-white/90 backdrop-blur-xl border-r border-gray-100/50 flex flex-col transition-all duration-500 ease-out overflow-hidden flex-shrink-0`}>
-          <div className="flex items-center justify-between p-6 border-b border-gray-100/50">
-            <div className="flex items-center gap-3">
-              <h2 className="text-lg font-semibold text-gray-900 tracking-tight">Research Notes</h2>
-                            <span className="px-2.5 py-1 bg-green-100/80 text-green-700 text-xs font-medium rounded-full backdrop-blur-sm">Auto-save</span>
+        <div className={`${viewMode === 'Side' ? 'w-72' : 'w-0'} bg-white border-r border-gray-200/60 flex flex-col transition-all duration-300 ease-out overflow-hidden flex-shrink-0`}>
+          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200/60">
+            <div className="flex items-center gap-2">
+              <h2 className="text-sm font-semibold text-gray-900 tracking-tight">Notes</h2>
+              <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
             </div>
             <button 
               onClick={() => setViewMode('Hide')}
-              className="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-50/80 rounded-lg transition-all duration-200"
+              className="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md transition-all duration-200"
             >
               <X className="w-3 h-3" />
             </button>
           </div>
           
-          {/* Toolbar - Floating design with perfect spacing */}
-          <div className="flex items-center gap-2 p-4 border-b border-gray-100/50 bg-white/50 backdrop-blur-sm">
-            <select className="text-sm border-0 bg-transparent focus:outline-none text-gray-700 font-medium pr-6 cursor-pointer">
-              <option>Normal</option>
-              <option>Heading 1</option>
-              <option>Heading 2</option>
-            </select>
-            <div className="h-3 w-px bg-gray-200/50 mx-2"></div>
-            <button className="w-7 h-7 flex items-center justify-center hover:bg-gray-50/80 rounded-lg transition-all duration-200 group">
-              <Bold className="w-3.5 h-3.5 text-gray-600 group-hover:text-gray-800" />
-            </button>
-            <button className="w-7 h-7 flex items-center justify-center hover:bg-gray-50/80 rounded-lg transition-all duration-200 group">
-              <Italic className="w-3.5 h-3.5 text-gray-600 group-hover:text-gray-800" />
-            </button>
-            <button className="w-7 h-7 flex items-center justify-center hover:bg-gray-50/80 rounded-lg transition-all duration-200 group">
-              <Underline className="w-3.5 h-3.5 text-gray-600 group-hover:text-gray-800" />
-            </button>
-            <div className="h-3 w-px bg-gray-200/50 mx-2"></div>
-            <button className="w-7 h-7 flex items-center justify-center hover:bg-gray-50/80 rounded-lg transition-all duration-200 group">
-              <List className="w-3.5 h-3.5 text-gray-600 group-hover:text-gray-800" />
-            </button>
-            <button className="w-7 h-7 flex items-center justify-center hover:bg-gray-50/80 rounded-lg transition-all duration-200 group">
-              <ListOrdered className="w-3.5 h-3.5 text-gray-800" />
-            </button>
-            <div className="h-3 w-px bg-gray-200/50 mx-2"></div>
-            <button className="w-7 h-7 flex items-center justify-center hover:bg-gray-50/80 rounded-lg transition-all duration-200 group">
-              <Link className="w-3.5 h-3.5 text-gray-600 group-hover:text-gray-800" />
-            </button>
-            <button className="w-7 h-7 flex items-center justify-center hover:bg-gray-50/80 rounded-lg transition-all duration-200 group">
-              <Quote className="w-3.5 h-3.5 text-gray-600 group-hover:text-gray-800" />
-            </button>
-          </div>
-          
           {/* Notes Content - Clean, focused writing area */}
-          <div className="flex-1 p-6">
+          <div className="flex-1 p-4">
             <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Capture your research insights, ideas, and observations..."
-              className="w-full h-full p-4 border border-gray-200/50 rounded-xl bg-white/80 backdrop-blur-sm text-gray-900 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent text-sm leading-relaxed placeholder-gray-400 transition-all duration-200"
+              value={getCurrentProject().notes}
+              onChange={(e) => updateCurrentProject({ notes: e.target.value })}
+              placeholder="Research insights and observations..."
+              className="w-full h-full p-3 border-0 bg-transparent text-gray-900 resize-none focus:outline-none text-sm leading-relaxed placeholder-gray-400 font-mono"
             />
           </div>
         </div>
 
-        {/* Main Research Writing Panel - Apple Design Excellence */}
-        <div className="flex-1 bg-white/90 backdrop-blur-xl flex flex-col min-w-0">
-                     {/* Header - Ultra compact design */}
-           <div className="px-6 py-2 border-b border-gray-100/50 bg-white/80 backdrop-blur-sm">
+        {/* Main Research Writing Panel - Google Docs Style */}
+        <div className="flex-1 bg-white flex flex-col min-w-0">
+          {/* Top Header - Google Docs Style */}
+          <div className="px-6 py-3 border-b border-gray-200 bg-white">
             <div className="flex items-center justify-between">
-              {/* Left side - Compact icon and title */}
+              {/* Left side - Document title and project info */}
+              <div className="flex items-center gap-4">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/20">
-                  <Pencil className="w-4 h-4 text-white" />
+                  <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                    <FileText className="w-4 h-4 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-xl font-semibold text-gray-900 tracking-tight">Research Writing</h1>
-                  <p className="text-gray-500 text-sm">Eden-powered academic writing assistant</p>
+                    <h1 className="text-lg font-semibold text-gray-900">
+                      {getCurrentProject().name}
+                    </h1>
+                    <p className="text-xs text-gray-500">Research Document</p>
                 </div>
               </div>
               
-                            {/* Right side - Compact controls */}
-              <div className="flex items-center gap-4">
+                {/* Project switcher */}
+                {researchProjects.length > 1 && (
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-gray-500">Notes:</span>
-                  <div className="flex items-center gap-1">
-                    <button 
-                        className={`px-2 py-1 rounded text-xs font-medium transition-all duration-300 ${viewMode === 'Side' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-                        onClick={() => setViewMode('Side')}
+                    <select 
+                      value={activeProjectId}
+                      onChange={(e) => switchProject(e.target.value)}
+                      className="text-sm border border-gray-300 rounded-md px-2 py-1 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
-                        Side
-                    </button>
+                      {researchProjects.map((project) => (
+                        <option key={project.id} value={project.id}>
+                          {project.name}
+                        </option>
+                      ))}
+                    </select>
                     <button 
-                        className={`px-2 py-1 rounded text-xs font-medium transition-all duration-300 ${viewMode === 'Popup' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-                        onClick={() => setViewMode('Popup')}
+                      onClick={() => setShowNewProjectModal(true)}
+                      className="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md transition-all duration-200"
+                      title="New Project"
                     >
-                        Popup
-                    </button>
-                    <button 
-                        className={`px-2 py-1 rounded text-xs font-medium transition-all duration-300 ${viewMode === 'Hide' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-                        onClick={() => setViewMode('Hide')}
-                    >
-                      Hide
+                      <Plus className="w-3 h-3" />
                     </button>
                   </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button 
-                    onClick={toggleAiSidebar}
-                    className={`px-3 py-2 rounded-lg text-xs font-medium transition-all duration-300 flex items-center gap-2 ${
-                      isAiSidebarCollapsed 
-                        ? 'bg-gradient-to-r from-emerald-50 to-cyan-50 border border-emerald-200/50 text-emerald-700 hover:from-emerald-100 hover:to-cyan-100' 
-                        : 'bg-gradient-to-r from-emerald-600 to-cyan-500 text-white shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/30'
-                    }`}
-                  >
-                    <Brain className="w-3 h-3" />
-                    {isAiSidebarCollapsed ? 'Show AI' : 'Hide AI'}
-                  </button>
+                )}
+              </div>
+              
+              {/* Right side - Document controls */}
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <span>Last saved: {lastSaved}</span>
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span className="text-xs text-gray-500">1 words</span>
+                </div>
+                
+                <div className="flex items-center gap-1">
+                    <button 
+                    onClick={() => setActiveSidePanel(activeSidePanel === 'comments' ? null : 'comments')}
+                    className={`w-8 h-8 flex items-center justify-center rounded-md transition-all duration-200 ${
+                      activeSidePanel === 'comments' 
+                        ? 'text-blue-600 bg-blue-100' 
+                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                    }`}
+                    title="Comments"
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                    </button>
+                    <button 
+                    onClick={() => setActiveSidePanel(activeSidePanel === 'history' ? null : 'history')}
+                    className={`w-8 h-8 flex items-center justify-center rounded-md transition-all duration-200 ${
+                      activeSidePanel === 'history' 
+                        ? 'text-blue-600 bg-blue-100' 
+                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                    }`}
+                    title="Version History"
+                  >
+                    <History className="w-4 h-4" />
+                    </button>
+                  <button 
+                    onClick={() => setActiveSidePanel(activeSidePanel === 'eden' ? null : 'eden')}
+                    className={`w-8 h-8 flex items-center justify-center rounded-md transition-all duration-200 ${
+                      activeSidePanel === 'eden' 
+                        ? 'text-blue-600 bg-blue-100' 
+                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                    }`}
+                    title="Eden AI"
+                  >
+                    <Brain className="w-4 h-4" />
+                  </button>
+                </div>
+                
+                <div className="h-6 w-px bg-gray-300"></div>
+                
+                <div className="flex items-center gap-2">
                   <button 
                   onClick={() => setShowFormatModal(true)}
-                  className="group relative px-3 py-2 bg-white border border-gray-200 rounded-lg hover:border-gray-300 transition-all duration-300"
-                >
-                  <div className="flex items-center gap-2">
-                    <div className="w-5 h-5 bg-gradient-to-br from-green-500 to-emerald-600 rounded flex items-center justify-center">
-                      <Type className="w-3 h-3 text-white" />
-                    </div>
-                    <span className="text-sm font-medium text-gray-900">{selectedFormat}</span>
-                    <ChevronDown className="w-3 h-3 text-gray-500" />
-                  </div>
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-all duration-200"
+                  >
+                    {selectedFormat}
+                    <ChevronDown className="w-3 h-3" />
+                  </button>
+                  <button className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-all duration-200">
+                    <Share2 className="w-4 h-4" />
+                  </button>
+                  <button className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-all duration-200">
+                    <Download className="w-4 h-4" />
                   </button>
                 </div>
               </div>
             </div>
           </div>
 
-                     {/* Top Bar - Ultra compact floating design */}
-           <div className="px-6 py-3 border-b border-gray-100/50 bg-white/60 backdrop-blur-sm">
+          {/* Verification Tabs - AI Auditor Interface */}
+          <div className="px-4 py-2 border-b border-gray-200/60 bg-white">
             <div className="flex items-center justify-between">
-              {/* Action buttons with premium feel */}
-              <div className="flex items-center gap-3">
+              <div className="flex items-center bg-gray-100 rounded-lg p-0.5">
                 <button 
-                  onClick={() => setShowExportModal(true)}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-all duration-300 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30"
-                >
-                  <Save className="w-4 h-4" />
-                  Save
-                </button>
-                <button className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-lg text-sm font-medium hover:from-purple-700 hover:to-pink-600 transition-all duration-300 shadow-lg shadow-purple-500/25 hover:shadow-xl hover:shadow-purple-500/30">
-                  <BarChart3 className="w-4 h-4" />
-                  Analyze
-                </button>
-                <button 
-                  onClick={() => setShowFormatModal(true)}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-all duration-300 shadow-lg shadow-green-500/25 hover:shadow-xl hover:shadow-green-500/30"
-                >
-                  <Type className="w-4 h-4" />
-                  Format
-                </button>
-                <button 
-                  onClick={() => setShowNotesModal(true)}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-orange-600 text-white rounded-lg text-sm font-medium hover:bg-orange-700 transition-all duration-300 shadow-lg shadow-orange-500/25 hover:shadow-xl hover:shadow-orange-500/30"
-                >
-                  <BookOpen className="w-4 h-4" />
-                  Notes
-                </button>
-              </div>
-              
-              {/* Right Section - Navigation tabs with floating design */}
-              <div className="flex items-center bg-gray-100/80 backdrop-blur-sm rounded-xl p-1 shadow-sm">
-                <button 
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${activeTab === 'Writing' ? 'bg-white text-blue-600 shadow-sm border border-blue-200/50' : 'text-gray-700 hover:bg-white/50'}`}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ${
+                    activeTab === 'Writing' 
+                      ? 'bg-white text-gray-900 shadow-sm' 
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
                   onClick={() => setActiveTab('Writing')}
                 >
-                  <Pencil className="w-4 h-4" />
+                  <Pencil className="w-3 h-3" />
                   Writing
                 </button>
                 <button 
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${activeTab === 'Outline' ? 'bg-white text-blue-600 shadow-sm border border-blue-200/50' : 'text-gray-700 hover:bg-white/50'}`}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ${
+                    activeTab === 'Outline' 
+                      ? 'bg-white text-gray-900 shadow-sm' 
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
                   onClick={() => setActiveTab('Outline')}
                 >
-                  <FileText className="w-4 h-4" />
+                  <FileText className="w-3 h-3" />
                   Outline
                 </button>
                 <button 
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${activeTab === 'Literature' ? 'bg-white text-blue-600 shadow-sm border border-blue-200/50' : 'text-gray-700 hover:bg-white/50'}`}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ${
+                    activeTab === 'Literature' 
+                      ? 'bg-white text-gray-900 shadow-sm' 
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
                   onClick={() => setActiveTab('Literature')}
                 >
-                  <BookOpen className="w-4 h-4" />
+                  <BookOpen className="w-3 h-3" />
                   Literature
                 </button>
                 <button 
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${activeTab === 'Timeline' ? 'bg-white text-blue-600 shadow-sm border border-blue-200/50' : 'text-gray-700 hover:bg-white/50'}`}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ${
+                    activeTab === 'Timeline' 
+                      ? 'bg-white text-gray-900 shadow-sm' 
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
                   onClick={() => setActiveTab('Timeline')}
                 >
-                  <Clock className="w-4 h-4" />
+                  <Clock className="w-3 h-3" />
                   Timeline
                 </button>
                 <button 
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${activeTab === 'Analysis' ? 'bg-white text-blue-600 shadow-sm border border-blue-200/50' : 'text-gray-700 hover:bg-white/50'}`}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ${
+                    activeTab === 'Analysis' 
+                      ? 'bg-white text-gray-900 shadow-sm' 
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
                   onClick={() => setActiveTab('Analysis')}
                 >
-                  <BarChart3 className="w-4 h-4" />
+                  <BarChart3 className="w-3 h-3" />
                   Analysis
+                </button>
+                <button 
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ${
+                    activeTab === 'Data' 
+                      ? 'bg-white text-gray-900 shadow-sm' 
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                  onClick={() => setActiveTab('Data')}
+                >
+                  <File className="w-3 h-3" />
+                  Data
+                </button>
+              </div>
+              
+              {/* Auditor Action buttons */}
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => setShowExportModal(true)}
+                  className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-all duration-200"
+                  title="Export Audit Report"
+                >
+                  <Download className="w-4 h-4" />
+                </button>
+                <button 
+                  className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-all duration-200"
+                  title="Share Verification"
+                >
+                  <Share2 className="w-4 h-4" />
                 </button>
               </div>
             </div>
@@ -2080,183 +2448,94 @@ const ResearchMode = () => {
           {renderTabContent()}
         </div>
 
-        {/* Right AI Sidebar - Enhanced Chat Interface */}
-        <div 
-          className={`bg-gradient-to-br from-slate-50 to-slate-100/80 backdrop-blur-xl border-l border-slate-200/60 flex flex-col shadow-xl shadow-slate-900/10 relative group flex-shrink-0 transition-all duration-300 ${
-            isAiSidebarCollapsed ? 'w-0 overflow-hidden' : ''
-          }`}
-          style={{ width: isAiSidebarCollapsed ? '0px' : `${aiSidebarWidth}px` }}
-        >
-          {/* Resize Handle */}
-          {!isAiSidebarCollapsed && (
-            <div 
-              className={`absolute left-0 top-0 bottom-0 w-1 transition-all duration-200 z-10 ${
-                isResizingAi 
-                  ? 'bg-slate-500 w-1.5' 
-                  : 'hover:bg-slate-400/80 group-hover:bg-slate-500/80'
-              }`}
-              onMouseDown={handleAiResizeStart}
-              style={{ cursor: 'col-resize' }}
-            ></div>
-          )}
-          
-          {/* Header - Enhanced with Controls */}
-          <div className="p-6 border-b border-slate-200/50 bg-white/60 backdrop-blur-sm">
-            <div className="flex items-center justify-between mb-4">
+        {/* Right Side Panel - Dynamic Content */}
+        {activeSidePanel && (
+          <div 
+            className="bg-white border-l border-gray-200 flex flex-col shadow-lg relative flex-shrink-0 transition-all duration-300"
+            style={{ width: '320px' }}
+          >
+            {/* Side Panel Header */}
+            <div className="p-4 border-b border-gray-200 bg-gray-50">
+              <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/25 relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/20 to-cyan-400/20"></div>
-                  <div className="relative z-10 w-6 h-6 bg-white rounded-lg flex items-center justify-center">
-                    <div className="w-3 h-3 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-sm"></div>
+                  {activeSidePanel === 'comments' && (
+                    <>
+                      <MessageSquare className="w-5 h-5 text-blue-600" />
+                      <h3 className="text-lg font-semibold text-gray-900">Comments</h3>
+                    </>
+                  )}
+                  {activeSidePanel === 'history' && (
+                    <>
+                      <History className="w-5 h-5 text-blue-600" />
+                      <h3 className="text-lg font-semibold text-gray-900">Version History</h3>
+                    </>
+                  )}
+                  {activeSidePanel === 'eden' && (
+                    <>
+                      <Brain className="w-5 h-5 text-blue-600" />
+                      <h3 className="text-lg font-semibold text-gray-900">Eden AI</h3>
+                    </>
+                  )}
                   </div>
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-slate-900 tracking-tight">Eden AI</h3>
-                  <div className="flex items-center gap-2 mt-1">
-                    <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                    <span className="text-xs text-emerald-600 font-medium">Intelligent Assistant</span>
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
                 <button 
-                  onClick={minimizeAiSidebar}
-                  className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100/80 rounded-xl transition-all duration-200"
+                  onClick={() => setActiveSidePanel(null)}
+                  className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded-lg transition-all duration-200"
+                  title="Close"
                 >
-                  <ChevronDown className="w-4 h-4" />
-                </button>
-                <button className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100/80 rounded-xl transition-all duration-200">
-                  <Settings className="w-4 h-4" />
+                  <X className="w-4 h-4" />
                 </button>
               </div>
             </div>
             
-            {/* AI Status - Enhanced */}
-            <div className="bg-gradient-to-r from-emerald-50/80 to-cyan-50/80 rounded-xl p-3 border border-emerald-100/50 backdrop-blur-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-lg flex items-center justify-center">
-                  <Brain className="w-3 h-3 text-white" />
+            {/* Side Panel Content */}
+            <div className="flex-1 p-4 overflow-y-auto">
+              {activeSidePanel === 'comments' && (
+                <div className="space-y-4">
+                  <div className="text-center py-8">
+                    <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                    <h4 className="text-lg font-medium text-gray-900 mb-2">No comments yet</h4>
+                    <p className="text-sm text-gray-600">Comments will appear here when collaborators add them.</p>
                 </div>
-                <span className="text-sm font-medium text-slate-700">Ready to enhance your research</span>
               </div>
-            </div>
-          </div>
-          
-          {/* AI Chat Interface */}
-          <div className="flex-1 flex flex-col">
-            {/* Chat History */}
-            <div className="flex-1 p-4 overflow-y-auto space-y-4">
-              {aiChatHistory.length === 0 ? (
-                <div className="text-center py-8">
-                  <div className="w-16 h-16 bg-gradient-to-br from-emerald-100 to-cyan-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Brain className="w-8 h-8 text-emerald-600" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-slate-900 mb-2">Start a conversation</h3>
-                  <p className="text-sm text-slate-600 mb-4">Ask me anything about your research or writing</p>
-                  <div className="flex flex-wrap gap-2 justify-center">
-                    <button className="px-3 py-1.5 text-xs text-slate-600 bg-white/80 border border-slate-200/50 rounded-lg hover:bg-white hover:border-slate-300 transition-all duration-200">
-                      Improve clarity
-                    </button>
-                    <button className="px-3 py-1.5 text-xs text-slate-600 bg-white/80 border border-slate-200/50 rounded-lg hover:bg-white hover:border-slate-300 transition-all duration-200">
-                      Add citations
-                    </button>
-                    <button className="px-3 py-1.5 text-xs text-slate-600 bg-white/80 border border-slate-200/50 rounded-lg hover:bg-white hover:border-slate-300 transition-all duration-200">
-                      Research ideas
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                aiChatHistory.map((message) => (
-                  <div key={message.id} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-[80%] p-3 rounded-2xl ${
-                      message.type === 'user' 
-                        ? 'bg-gradient-to-r from-emerald-500 to-cyan-500 text-white' 
-                        : 'bg-white/80 border border-slate-200/50 text-slate-900'
-                    }`}>
-                      <p className="text-sm leading-relaxed">{message.content}</p>
-                      <p className={`text-xs mt-1 ${
-                        message.type === 'user' ? 'text-emerald-100' : 'text-slate-500'
-                      }`}>
-                        {message.timestamp}
-                      </p>
-                    </div>
-                  </div>
-                ))
               )}
-            </div>
-            
-            {/* Quick Actions */}
-            <div className="p-4 border-t border-slate-200/50 bg-white/40 backdrop-blur-sm">
-              <div className="flex flex-wrap gap-2 mb-3">
-                <button className="px-3 py-1.5 text-xs text-slate-600 bg-white/80 border border-slate-200/50 rounded-lg hover:bg-white hover:border-slate-300 transition-all duration-200">
-                  <Zap className="w-3 h-3 inline mr-1" />
-                  Analyze
-                </button>
-                <button className="px-3 py-1.5 text-xs text-slate-600 bg-white/80 border border-slate-200/50 rounded-lg hover:bg-white hover:border-slate-300 transition-all duration-200">
-                  <Target className="w-3 h-3 inline mr-1" />
-                  Research
-                </button>
-                <button className="px-3 py-1.5 text-xs text-slate-600 bg-white/80 border border-slate-200/50 rounded-lg hover:bg-white hover:border-slate-300 transition-all duration-200">
-                  <Lightbulb className="w-3 h-3 inline mr-1" />
-                  Ideas
-                </button>
-                <button className="px-3 py-1.5 text-xs text-slate-600 bg-white/80 border border-slate-200/50 rounded-lg hover:bg-white hover:border-slate-300 transition-all duration-200">
-                  <TrendingUp className="w-3 h-3 inline mr-1" />
-                  Citations
-                </button>
-              </div>
-            </div>
+              
+              {activeSidePanel === 'history' && (
+                <div className="space-y-4">
+                <div className="text-center py-8">
+                    <History className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                    <h4 className="text-lg font-medium text-gray-900 mb-2">Version History</h4>
+                    <p className="text-sm text-gray-600">Document versions will appear here.</p>
+                  </div>
+                  </div>
+              )}
+              
+              {activeSidePanel === 'eden' && (
+                <div className="space-y-4">
+                  <div className="text-center py-8">
+                    <Brain className="w-12 h-12 text-blue-600 mx-auto mb-3" />
+                    <h4 className="text-lg font-medium text-gray-900 mb-2">Eden AI Assistant</h4>
+                    <p className="text-sm text-gray-600">Ask me anything about your research or writing.</p>
           </div>
           
-          {/* AI Input - Enhanced Chat Input */}
-          <div className="p-6 border-t border-slate-200/50 bg-white/40 backdrop-blur-sm">
-            <div className="relative">
-              <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
-                <div className="w-6 h-6 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-lg flex items-center justify-center">
-                  <Brain className="w-3 h-3 text-white" />
-                </div>
-              </div>
-              <input
-                type="text"
-                value={currentAiMessage}
-                onChange={(e) => setCurrentAiMessage(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleAiMessageSend()}
-                placeholder="Ask Eden for research insights..."
-                className="w-full pl-12 pr-16 py-4 border border-slate-200/50 rounded-2xl bg-white/80 backdrop-blur-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-transparent text-sm shadow-sm placeholder-slate-400 transition-all duration-200"
-              />
-              <button 
-                onClick={handleAiMessageSend}
-                disabled={!currentAiMessage.trim()}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 w-10 h-10 bg-gradient-to-r from-emerald-600 to-cyan-500 text-white rounded-xl hover:from-emerald-700 hover:to-cyan-600 transition-all duration-300 flex items-center justify-center shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Send className="w-4 h-4" />
+                  <div className="space-y-3">
+                    <button className="w-full p-3 text-left bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
+                      <div className="font-medium text-gray-900">Improve clarity</div>
+                      <div className="text-sm text-gray-600">Make your writing clearer and more concise</div>
               </button>
-            </div>
-            
-            {/* Quick Prompts - Enhanced */}
-            <div className="mt-4 flex flex-wrap gap-2">
-              <button 
-                onClick={() => setCurrentAiMessage("Improve the clarity of my writing")}
-                className="px-3 py-1.5 text-xs text-slate-600 bg-white/80 border border-slate-200/50 rounded-lg hover:bg-white hover:border-slate-300 transition-all duration-200"
-              >
-                Improve clarity
+                    <button className="w-full p-3 text-left bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
+                      <div className="font-medium text-gray-900">Add citations</div>
+                      <div className="text-sm text-gray-600">Find and add relevant citations</div>
               </button>
-              <button 
-                onClick={() => setCurrentAiMessage("Help me expand on these ideas")}
-                className="px-3 py-1.5 text-xs text-slate-600 bg-white/80 border border-slate-200/50 rounded-lg hover:bg-white hover:border-slate-300 transition-all duration-200"
-              >
-                Expand ideas
-              </button>
-              <button 
-                onClick={() => setCurrentAiMessage("Check the logic and flow of my argument")}
-                className="px-3 py-1.5 text-xs text-slate-600 bg-white/80 border border-slate-200/50 rounded-lg hover:bg-white hover:border-slate-300 transition-all duration-200"
-              >
-                Check logic
+                    <button className="w-full p-3 text-left bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
+                      <div className="font-medium text-gray-900">Research ideas</div>
+                      <div className="text-sm text-gray-600">Explore new research directions</div>
               </button>
             </div>
           </div>
+              )}
         </div>
       </div>
+        )}
 
 
 
@@ -3237,6 +3516,138 @@ const ResearchMode = () => {
                 <p className="text-xs text-gray-400 mt-1">Changes will appear here</p>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* New Project Modal */}
+      {showNewProjectModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md mx-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Create New Research Project</h3>
+              <button
+                onClick={() => setShowNewProjectModal(false)}
+                className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Project Name
+                </label>
+                <input
+                  type="text"
+                  value={newProjectName}
+                  onChange={(e) => setNewProjectName(e.target.value)}
+                  placeholder="Enter project name..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  autoFocus
+                />
+              </div>
+              
+              <div className="flex items-center gap-3 pt-4">
+                <button
+                  onClick={createNewProject}
+                  disabled={!newProjectName.trim()}
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Create Project
+                </button>
+                <button
+                  onClick={() => setShowNewProjectModal(false)}
+                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Eden Search Popup */}
+      {showEdenSearch && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-2xl mx-4">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                  <Brain className="w-4 h-4 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900">Eden Search</h3>
+              </div>
+              <button
+                onClick={() => setShowEdenSearch(false)}
+                className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search through all your research data..."
+                  className="w-full px-4 py-3 pl-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  autoFocus
+                />
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium text-gray-700">Quick Filters</h4>
+                  <div className="flex flex-wrap gap-2">
+                    <button className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm hover:bg-blue-200 transition-colors">
+                      Studies
+                    </button>
+                    <button className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm hover:bg-gray-200 transition-colors">
+                      Datasets
+                    </button>
+                    <button className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm hover:bg-gray-200 transition-colors">
+                      Papers
+                    </button>
+                    <button className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm hover:bg-gray-200 transition-colors">
+                      Notes
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium text-gray-700">Recent Searches</h4>
+                  <div className="space-y-1">
+                    <div className="text-sm text-gray-600 hover:text-gray-900 cursor-pointer">machine learning algorithms</div>
+                    <div className="text-sm text-gray-600 hover:text-gray-900 cursor-pointer">survey data analysis</div>
+                    <div className="text-sm text-gray-600 hover:text-gray-900 cursor-pointer">psychology research methods</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="border-t pt-4">
+                <h4 className="text-sm font-medium text-gray-700 mb-2">Search Results</h4>
+                <div className="space-y-2 max-h-40 overflow-y-auto">
+                  <div className="p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center gap-2 mb-1">
+                      <BookOpen className="w-4 h-4 text-blue-600" />
+                      <span className="text-sm font-medium text-gray-900">Machine Learning Study</span>
+                    </div>
+                    <p className="text-xs text-gray-600">3 datasets, 12 papers • Last updated 2 days ago</p>
+                  </div>
+                  <div className="p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center gap-2 mb-1">
+                      <BarChart3 className="w-4 h-4 text-green-600" />
+                      <span className="text-sm font-medium text-gray-900">Survey Data 2024</span>
+                    </div>
+                    <p className="text-xs text-gray-600">1,247 responses • Last updated 1 week ago</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}

@@ -33,25 +33,25 @@ export default function ChatPanel({
               className={`flex my-6 ${msg.role === 'user' ? 'justify-end' : 'justify-center'}`}
             >
               <div className="flex flex-col max-w-2xl group">
-                <div className={`relative px-4 py-3 rounded-xl shadow-sm ${
+                <div className={`relative px-4 py-3 rounded-xl shadow-sm message-bubble ${
                   msg.role === 'user'
-                    ? 'bg-gradient-to-r from-emerald-500 to-cyan-500 text-white shadow-lg shadow-emerald-500/25'
+                    ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 border border-[#2196F3]/20/50'
                     : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 border border-emerald-200/50'
                 }`}>
                   {/* Avatar/Icon */}
                   <div className="absolute -left-10 top-2">
                     {msg.role === 'user' ? (
-                      <div className="w-6 h-6 bg-gradient-to-br from-emerald-400 to-cyan-400 rounded-full p-1 flex items-center justify-center">
+                        <div className="w-6 h-6 bg-gradient-to-br from-[#2196F3] to-[#2196F3] rounded-full p-1 flex items-center justify-center">
                         <User className="w-4 h-4 text-white" />
                       </div>
                     ) : (
-                      <div className="w-6 h-6 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-full p-1 flex items-center justify-center">
+                      <div className="w-6 h-6 bg-gradient-to-br from-[#2196F3] to-cyan-500 rounded-full p-1 flex items-center justify-center">
                         <Bot className="w-4 h-4 text-white" />
                       </div>
                     )}
                   </div>
                   {/* Content */}
-                  <div className="whitespace-pre-line">
+                  <div className={`whitespace-pre-line ${msg.role === 'ai' ? 'ai-response-text' : ''}`}>
                     {msg.content}
                   </div>
                 </div>
@@ -59,7 +59,7 @@ export default function ChatPanel({
                 <div className="mt-2 flex justify-end items-center w-full text-xs text-gray-500 dark:text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300 gap-2">
                   <button
                     type="button"
-                    className="flex items-center gap-1 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                    className="flex items-center gap-1 hover:text-[#2196F3] dark:hover:text-emerald-400 transition-colors"
                     onClick={() => onCopy && onCopy(idx)}
                     title="Copy Message"
                   >
@@ -68,7 +68,7 @@ export default function ChatPanel({
                   {onCite && (
                     <button
                       type="button"
-                      className="flex items-center gap-1 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                      className="flex items-center gap-1 hover:text-[#2196F3] dark:hover:text-emerald-400 transition-colors"
                       onClick={() => onCite(msg, idx)}
                       title="Cite to Notes"
                     >
@@ -78,7 +78,7 @@ export default function ChatPanel({
                   {onWrite && (
                     <button
                       type="button"
-                      className="flex items-center gap-1 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                      className="flex items-center gap-1 hover:text-[#2196F3] dark:hover:text-emerald-400 transition-colors"
                       onClick={() => onWrite(msg)}
                       title="Send to Write"
                     >
@@ -88,7 +88,7 @@ export default function ChatPanel({
                   {onNotes && (
                     <button
                       type="button"
-                      className="flex items-center gap-1 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                      className="flex items-center gap-1 hover:text-[#2196F3] dark:hover:text-emerald-400 transition-colors"
                       onClick={() => onNotes(msg)}
                       title="Open Notes"
                     >
@@ -116,15 +116,17 @@ export default function ChatPanel({
           value={inputValue}
           onChange={e => onInputChange && onInputChange(e.target.value)}
           placeholder={inputPlaceholder}
-          className="flex-1 px-3 py-2 border border-emerald-300 dark:border-emerald-600 rounded-lg bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 text-sm transition-all duration-200"
+          className="flex-1 px-3 py-2 border border-[#2196F3]/20/50 dark:border-[#2196F3]/20/50 rounded-lg bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2196F3]/50 focus:border-[#2196F3] text-sm transition-all duration-200"
           disabled={loading}
         />
         <button
           type="submit"
-          className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white rounded-lg hover:from-emerald-600 hover:to-cyan-600 transition-all duration-300 flex items-center gap-1 shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/30 transform hover:scale-105 group"
+          className="relative px-4 py-2 bg-white dark:bg-gray-800 border border-[#2196F3] text-[#2196F3] rounded-lg hover:bg-[#2196F3] hover:text-white transition-all duration-300 flex items-center gap-1 shadow-lg shadow-[#2196F3]/25 hover:shadow-xl hover:shadow-[#2196F3]/30 transform hover:scale-105 group overflow-hidden"
           disabled={loading || !inputValue.trim()}
         >
-          <ArrowRight className="w-4 h-4 transition-all duration-300 group-hover:-translate-y-2 group-hover:rotate-90" />
+          {/* Dynamic hover overlay */}
+          <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          <ArrowRight className="w-4 h-4 transition-all duration-300 group-hover:-translate-y-2 group-hover:rotate-90" style={{ color: '#4285F4' }} />
         </button>
       </form>
     </div>

@@ -8,8 +8,7 @@ const navItems = [
   { id: 'new-chat', label: 'New Chat', icon: Plus, isAction: true },
   { id: 'prompt-console', label: 'Chat', icon: MessageSquare },
   { id: 'files', label: 'Files', icon: FileText },
-  { id: 'projects', label: 'Projects', icon: Folder },
-  { id: 'research-mode', label: 'Research Mode', icon: BookOpen },
+  { id: 'folders', label: 'Folders', icon: Folder },
   { id: 'memory-retrieval', label: 'Memory & Retrieval', icon: MemoryStick },
 
   { id: 'settings', label: 'Settings', icon: Settings },

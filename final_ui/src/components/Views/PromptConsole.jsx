@@ -197,7 +197,7 @@ const SmartPromptSuggestor = ({ prompt, onSuggestionSelect, onClose, visible }) 
   );
 };
 
-export default function PromptConsole({ setView, embedded = false, researchMode = false }) {
+export default function PromptConsole({ setView, embedded = false }) {
   const {
     searchQuery,
     searchResults,
@@ -307,7 +307,6 @@ export default function PromptConsole({ setView, embedded = false, researchMode 
     "Large Document Analysis",
     "Coding",
     "Academic Research",
-    "Deep Research Mode",
     "Finance",
     "General",
     "Enterprise Model"
@@ -681,10 +680,6 @@ export default function PromptConsole({ setView, embedded = false, researchMode 
       case 'rewrite-selection':
         // TODO: Implement text rewriting
         console.log(`Rewrite selection in ${panel} panel`);
-        break;
-      case 'research-topic':
-        // TODO: Implement topic research
-        console.log(`Research topic for ${panel} panel`);
         break;
       case 'cite-sources':
         // TODO: Implement source citation
@@ -1545,10 +1540,6 @@ export default function PromptConsole({ setView, embedded = false, researchMode 
       // Academic Research mode - Research-focused analysis
       console.log('Academic Research mode activated - Research and citation-focused processing');
       applyPreset('academic');
-    } else if (mode === "Deep Research Mode") {
-      // Deep Research Mode - Comprehensive research with advanced analysis
-      console.log('Deep Research Mode activated - Advanced research with comprehensive analysis and cross-referencing');
-      applyPreset('research');
     } else if (mode === "Finance") {
       // Finance mode - Financial document analysis
       console.log('Finance mode activated - Financial analysis and risk assessment enabled');
@@ -2015,10 +2006,6 @@ export default function PromptConsole({ setView, embedded = false, researchMode 
         setTimeout(() => {
           presetButton.classList.remove('ring-4', 'ring-accent', 'animate-pulse');
         }, 2000);
-      }
-      // If research mode, switch view
-      if (presetKey === 'research' && setView) {
-        setView('research');
       }
     }
   };
@@ -2941,18 +2928,6 @@ export default function PromptConsole({ setView, embedded = false, researchMode 
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
-                     onClick={() => handleContextMenuAction('research-topic', contextMenu.target)}>
-                  <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center">
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <div className="font-semibold text-gray-900 dark:text-white">Research Topic</div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">Explore and expand ideas</div>
-                  </div>
-                </div>
               </div>
 
               {/* Divider */}
@@ -2985,7 +2960,7 @@ export default function PromptConsole({ setView, embedded = false, researchMode 
 
           <form 
             onSubmit={handleSubmit} 
-            className={`w-full ${fullscreen ? 'max-w-6xl' : 'max-w-3xl'} mx-auto card-modern glass rounded-2xl border border-gray-200 dark:border-gray-700 shadow-apple p-3 ${researchMode ? 'mb-10' : ''} transition-all duration-300`}
+            className={`w-full ${fullscreen ? 'max-w-6xl' : 'max-w-3xl'} mx-auto card-modern glass rounded-2xl border border-gray-200 dark:border-gray-700 shadow-apple p-3 transition-all duration-300`}
           >
             {/* Main input row */}
             <div className={`flex items-center gap-3 transition-all duration-200 ${fullscreen ? 'min-h-[200px]' : ''}`}>

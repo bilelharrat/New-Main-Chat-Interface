@@ -7,8 +7,7 @@ import Sidebar from './components/Layout/Sidebar';
 import Topbar from './components/Layout/Topbar';
 import PromptConsole from './components/Views/PromptConsole';
 import Files from './components/Views/Files';
-import Projects from './components/Views/Projects';
-import ResearchMode from './components/Views/ResearchMode';
+import Folders from './components/Views/Folders';
 import MemoryRetrieval from './components/Views/MemoryRetrieval';
 import Login from './components/Auth/Login';
 import Signup from './components/Auth/Signup';
@@ -382,10 +381,8 @@ function AppShell() {
                 return <PromptConsole setView={setCurrentView} />;
             case 'files':
                 return <Files />;
-            case 'projects':
-                return <Projects />;
-            case 'research-mode':
-                return <ResearchMode />;
+            case 'folders':
+                return <Folders setCurrentView={setCurrentView} />;
             case 'memory-retrieval':
                 return <MemoryRetrieval />;
 

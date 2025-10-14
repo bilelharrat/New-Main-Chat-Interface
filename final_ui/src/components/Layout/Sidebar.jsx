@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { FileText, MemoryStick, Settings, MessageSquare, ChevronLeft, ChevronRight, Folder, Search, Plus, BookOpen } from 'lucide-react';
+import { FileText, MemoryStick, Settings, MessageSquare, ChevronLeft, ChevronRight, Folder, Search, Plus, PenTool, Workflow } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { useSearch } from '../../context/SearchContext';
 import SmartSearchModal from '../SmartSearchModal';
@@ -7,12 +7,15 @@ import SmartSearchModal from '../SmartSearchModal';
 const navItems = [
   { id: 'new-chat', label: 'New Chat', icon: Plus, isAction: true },
   { id: 'prompt-console', label: 'Chat', icon: MessageSquare },
+  { id: 'notebook-writer', label: 'Notebook', icon: PenTool },
+  { id: 'flow-diagram', label: 'Flow Diagram', icon: Workflow },
   { id: 'files', label: 'Files', icon: FileText },
   { id: 'folders', label: 'Folders', icon: Folder },
   { id: 'memory-retrieval', label: 'Memory & Retrieval', icon: MemoryStick },
 
   { id: 'settings', label: 'Settings', icon: Settings },
 ];
+
 
 
 
@@ -99,18 +102,22 @@ export default function Sidebar({ currentView, setCurrentView, collapsed, setCol
             <Plus size={18} />
           </button>
           {navItems.filter(item => item.id !== 'new-chat').map((item) => (
-            <button
-              key={item.id}
-              onClick={item.id === 'settings' ? () => setCurrentView('settings') : () => setCurrentView(item.id)}
-              className={`flex items-center justify-center w-10 h-10 rounded-xl transition focus-ring ${
-                currentView === item.id 
-                  ? 'bg-gradient-to-r from-[#007AFF] to-[#5AC8FA] text-white shadow-sm' 
-                  : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400'
-              }`}
-              title={item.label}
-            >
-              <item.icon size={18} />
-            </button>
+            <div key={item.id} className="relative">
+              <button
+                onClick={item.id === 'settings' ? () => setCurrentView('settings') : 
+                        item.id === 'notebook-writer' ? () => setCurrentView('notebook-writer') : 
+                        () => setCurrentView(item.id)}
+                className={`flex items-center justify-center w-10 h-10 rounded-xl transition focus-ring ${
+                  currentView === item.id
+                    ? 'bg-gradient-to-r from-[#007AFF] to-[#5AC8FA] text-white shadow-sm'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400'
+                }`}
+                title={item.label}
+              >
+                <item.icon size={18} />
+              </button>
+              
+            </div>
           ))}
         </div>
         <SmartSearchModal open={showSearchModal} onClose={() => setShowSearchModal(false)} />
@@ -181,25 +188,28 @@ export default function Sidebar({ currentView, setCurrentView, collapsed, setCol
             {navItems.filter(item => item.id !== 'new-chat').map((item) => (
               <div
                 key={item.id}
-                className={`flex items-center component-gap-md bg-gray-50 dark:bg-gray-800 px-3 min-h-12 ${item.id === 'settings' ? 'm-sm border-t border-gray-200 dark:border-gray-700 pt-2' : ''}`}
+                className={`flex items-center component-gap-md bg-gray-50 dark:bg-gray-800 px-3 min-h-12 relative ${item.id === 'settings' ? 'm-sm border-t border-gray-200 dark:border-gray-700 pt-2' : ''}`}
               >
                 <div
-                  className={`flex items-center w-full component-gap-md cursor-pointer transition-all duration-300 rounded-xl px-3 py-2.5 focus-ring-enhanced ${
-                    currentView === item.id 
-                      ? 'bg-gradient-to-r from-[#007AFF] to-[#5AC8FA] text-white shadow-apple-medium transform scale-105' 
-                      : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 hover:transform hover:scale-102'
-                  }`}
-                  onClick={item.id === 'settings' ? () => setCurrentView('settings') : () => setCurrentView(item.id)}
+                      className={`flex items-center w-full component-gap-md cursor-pointer transition-all duration-300 rounded-xl px-3 py-2.5 focus-ring-enhanced ${
+                        currentView === item.id
+                          ? 'bg-gradient-to-r from-[#007AFF] to-[#5AC8FA] text-white shadow-apple-medium transform scale-105'
+                          : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 hover:transform hover:scale-102'
+                      }`}
+                  onClick={item.id === 'settings' ? () => setCurrentView('settings') : 
+                          item.id === 'notebook-writer' ? () => setCurrentView('notebook-writer') : 
+                          () => setCurrentView(item.id)}
                 >
                   <div className={`flex items-center justify-center rounded-lg shrink-0 size-8 transition-all duration-300 ${
-                    currentView === item.id 
-                      ? 'bg-white/20 text-white transform scale-110' 
+                    currentView === item.id
+                      ? 'bg-white/20 text-white transform scale-110'
                       : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
                   }`}>
                     <item.icon size={18} />
                   </div>
                   <p className={`flex-1 truncate text-sm leading-normal transition-all duration-300 ${currentView === item.id ? 'font-semibold text-white' : 'font-medium'}`}>{item.label}</p>
                 </div>
+                
               </div>
             ))}
           </div>

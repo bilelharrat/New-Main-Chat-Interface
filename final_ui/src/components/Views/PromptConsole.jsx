@@ -197,7 +197,18 @@ const SmartPromptSuggestor = ({ prompt, onSuggestionSelect, onClose, visible }) 
   );
 };
 
-export default function PromptConsole({ setView, embedded = false }) {
+/**
+ * @typedef {Object} PromptConsoleProps
+ * @property {Function} setView
+ * @property {boolean} [embedded=false]
+ * @property {string} [currentView='prompt-console']
+ * @property {Function} [onOpenUploadModal]
+ */
+
+/**
+ * @param {PromptConsoleProps} props
+ */
+export default function PromptConsole({ setView, embedded = false, currentView = 'prompt-console', onOpenUploadModal }) {
   const {
     searchQuery,
     searchResults,
@@ -2495,26 +2506,73 @@ export default function PromptConsole({ setView, embedded = false }) {
       )}
       <div className="flex flex-col flex-1 h-full p-6 min-w-0 bg-white dark:bg-black">
         <div className="flex-1 min-h-[200px] max-h-[calc(100vh-220px)] overflow-y-auto px-6 flex flex-col bg-white dark:bg-black">
-          {messages.length === 0 ? (
+          {(messages.length === 0 && !(currentView === 'notebook' || currentView === 'notebook-sources' || currentView === 'notebook-notes' || currentView === 'notebook-writer')) || (currentView === 'notebook' || currentView === 'notebook-sources' || currentView === 'notebook-notes' || currentView === 'notebook-writer') ? (
             <div className="flex-1 flex flex-col items-center justify-center text-center text-gray-400 dark:text-gray-500">
-              {/* Elegant Icon with Subtle Glow */}
-              <div className="mb-8 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 rounded-full blur-3xl animate-pulse"></div>
-                <div className="relative w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 rounded-3xl shadow-2xl flex items-center justify-center border border-gray-200/50 dark:border-gray-700/50">
-                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-gray-400 dark:text-gray-500">
-                    <path d="M12 2L2 7V17L12 22L22 17V7L12 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
-                    <path d="M2 7L12 12M12 22V12M22 7L12 12M17 4.5L7 9.5" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
-                  </svg>
-                </div>
-              </div>
-              
-              {/* Refined Typography with Better Hierarchy */}
-              <h2 className="text-3xl font-light text-gray-700 dark:text-gray-300 mb-4 tracking-tight">
-                Welcome to Eden
-              </h2>
-              <p className="mt-2 max-w-md text-base leading-relaxed text-gray-500 dark:text-gray-400 font-light">
-                Your intelligent reasoning partner for high-stakes work. Start a conversation below to begin.
-              </p>
+              {/* Check if we're in notebook mode */}
+              {(currentView === 'notebook' || currentView === 'notebook-sources' || currentView === 'notebook-notes' || currentView === 'notebook-writer') ? (
+                <>
+                  {/* Notebook Mode Welcome */}
+                  <div className="mb-8 relative">
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 rounded-full blur-3xl animate-pulse"></div>
+                    <div className="relative w-24 h-24 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-800 dark:to-blue-900 rounded-3xl shadow-2xl flex items-center justify-center border border-blue-200/50 dark:border-blue-700/50">
+                      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-blue-500 dark:text-blue-400">
+                        <path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+                        <path d="M14 2V8H20" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+                        <path d="M16 13H8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                        <path d="M16 17H8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                        <path d="M10 9H8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                      </svg>
+                    </div>
+                  </div>
+                  
+                  <h2 className="text-3xl font-light text-gray-700 dark:text-gray-300 mb-4 tracking-tight">
+                    Notebook Mode
+                  </h2>
+                  <p className="mt-2 max-w-md text-base leading-relaxed text-gray-500 dark:text-gray-400 font-light mb-8">
+                    Upload documents now to get started
+                  </p>
+                  
+              {/* Upload Button */}
+              <button
+                onClick={() => {
+                  if (typeof onOpenUploadModal === 'function') {
+                    onOpenUploadModal();
+                  } else {
+                    setView('notebook-sources');
+                  }
+                }}
+                className="px-8 py-4 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl font-medium text-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 flex items-center gap-3"
+              >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/>
+                      <path d="M14 2V8H20" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/>
+                      <path d="M12 18V12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                      <path d="M9 15L12 12L15 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    Upload Files & Links
+                  </button>
+                </>
+              ) : (
+                <>
+                  {/* Default Welcome */}
+                  <div className="mb-8 relative">
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 rounded-full blur-3xl animate-pulse"></div>
+                    <div className="relative w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 rounded-3xl shadow-2xl flex items-center justify-center border border-gray-200/50 dark:border-gray-700/50">
+                      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-gray-400 dark:text-gray-500">
+                        <path d="M12 2L2 7V17L12 22L22 17V7L12 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+                        <path d="M2 7L12 12M12 22V12M22 7L12 12M17 4.5L7 9.5" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
+                  </div>
+                  
+                  <h2 className="text-3xl font-light text-gray-700 dark:text-gray-300 mb-4 tracking-tight">
+                    Welcome to Eden
+                  </h2>
+                  <p className="mt-2 max-w-md text-base leading-relaxed text-gray-500 dark:text-gray-400 font-light">
+                    Your intelligent reasoning partner for high-stakes work. Start a conversation below to begin.
+                  </p>
+                </>
+              )}
               
               {/* Enhanced Coding Mode Indicator */}
               {selectedMode === "Coding" && (
@@ -2960,10 +3018,10 @@ export default function PromptConsole({ setView, embedded = false }) {
 
           <form 
             onSubmit={handleSubmit} 
-            className={`w-full ${fullscreen ? 'max-w-6xl' : 'max-w-3xl'} mx-auto card-modern glass rounded-2xl border border-gray-200 dark:border-gray-700 shadow-apple p-3 transition-all duration-300`}
+            className={`w-full ${fullscreen ? 'max-w-6xl' : 'max-w-3xl'} mx-auto card-modern glass rounded-2xl border border-gray-200 dark:border-gray-700 shadow-apple p-2 transition-all duration-300`}
           >
             {/* Main input row */}
-            <div className={`flex items-center gap-3 transition-all duration-200 ${fullscreen ? 'min-h-[200px]' : ''}`}>
+            <div className={`flex items-center gap-2 transition-all duration-200 ${fullscreen ? 'min-h-[200px]' : ''}`}>
               <div className="relative flex-1 flex flex-col">
                 
 
@@ -3077,106 +3135,37 @@ export default function PromptConsole({ setView, embedded = false }) {
                 </div>
               </div>
             )}
-            {/* Pills row - Streamlined */}
-            <div className="w-full flex items-center gap-3 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700/50">
-              {/* Smart Suggestions Hint */}
-              {prompt.length >= 3 && (
-                <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                  <Lightbulb size={12} className="text-blue-500" />
-                  <span>Smart suggestions available</span>
-                  <kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-xs">⌘/</kbd>
-                  <span>to show</span>
-                </div>
-              )}
+            {/* Notebook Navigation Menu - Sources Left, Notes Right */}
+            <div className="w-full flex justify-between items-center mt-2 pt-2">
+              {/* Sources Button - Left Side */}
+              <button
+                type="button"
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
+                  currentView === 'notebook-sources'
+                    ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 shadow-sm'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
+                }`}
+                onClick={() => setView('notebook-sources')}
+              >
+                <FileText size={14} />
+                <span>Sources</span>
+              </button>
               
-              {/* Mode Selector - Essential Only */}
-          <div className="relative">
-            <button
-              type="button"
-                  className={`flex items-center gap-2 text-sm transition px-3 py-1.5 rounded-xl ${
-                    selectedMode === "Coding" 
-                      ? 'text-white bg-gradient-to-r from-[#FF5722] to-[#FF9800] shadow-sm' 
-                      : isHierarchicalSummarizerMode(selectedMode)
-                      ? 'text-white bg-gradient-to-r from-[#007AFF] to-[#5AC8FA] shadow-sm'
-                      : 'text-gray-500 dark:text-gray-400 hover:text-accent dark:hover:text-accent-foreground hover:bg-gray-100 dark:hover:bg-gray-700'
-                  }`}
-              onClick={() => setModeMenuOpen((open) => !open)}
-            >
-                  {selectedMode === "Coding" ? <div className="w-3.5 h-3.5 bg-red-600 rounded flex items-center justify-center text-white text-xs font-bold">C</div> : <Sliders size={14} />}
-                  <span className="text-xs font-medium">{selectedMode}</span>
-                  {isHierarchicalSummarizerMode(selectedMode) && (
-                    <div className="w-2 h-2 bg-white rounded-full shadow-sm" title="Hierarchical Summarizer Mode" />
-                  )}
-            </button>
-            {modeMenuOpen && (
-                  <div className="absolute left-0 bottom-full mb-2 w-64 card-modern glass border border-gray-200 dark:border-gray-700 rounded-xl shadow-apple z-10">
-                {modeOptions.map((mode) => (
-                  <button
-                    key={mode}
-                    onClick={() => handleModeSelect(mode)}
-                        className={`w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100 dark:hover:bg-gray-700/50 transition flex items-center justify-between rounded-lg ${
-                          selectedMode === mode ? 'font-semibold text-accent bg-accent/10' : 'text-black dark:text-white'
-                        }`}
-                  >
-                    <span>{mode}</span>
-                    {isHierarchicalSummarizerMode(mode) && (
-                      <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 bg-[#007AFF] rounded-full shadow-sm" title="Hierarchical Summarizer Mode" />
-                            <span className="text-xs text-[#007AFF] dark:text-[#5AC8FA] font-medium">HS</span>
-                      </div>
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-              
-              {/* File Upload - Only show when file is uploaded */}
-              {uploadedFile && (
+              {/* Notes Button - Right Side */}
               <button
                 type="button"
-            className="flex items-center gap-1.5 text-sm transition px-3 py-1.5 rounded-xl text-white bg-gradient-to-r from-[#007AFF] to-[#5AC8FA] shadow-sm"
-            title={`Uploaded: ${uploadedFile.name}`}
-          >
-            <Upload size={14}/>
-                    <span className="text-xs font-medium">
-                    {uploadedFile.name.substring(0, 15) + (uploadedFile.name.length > 15 ? '...' : '')}
-                    </span>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleRemoveFile();
-                }}
-                    className="ml-1 text-white/80 hover:text-white transition-colors"
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
+                  currentView === 'notebook-notes'
+                    ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 shadow-sm'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
+                }`}
+                onClick={() => setView('notebook-notes')}
               >
-                <X size={12} />
+                <StickyNote size={14} />
+                <span>Notes</span>
               </button>
-          </button>
-              )}
-
-              <div className="flex-grow" />
-
-              {/* Essential Actions Only */}
-              <button
-                type="button"
-                className={`flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-xl transition ${writeOpen ? 'text-white bg-gradient-to-r from-[#007AFF] to-[#5AC8FA] shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
-                onClick={() => setWriteOpen((open) => !open)}
-              >
-                <Pencil size={14} /> <span className="text-xs font-medium">Write</span>
-              </button>
-              <button
-                type="button"
-                className={`flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-xl transition ${notesOpen && !writeOpen ? 'text-white bg-gradient-to-r from-[#007AFF] to-[#5AC8FA] shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
-                onClick={() => setNotesOpen((open) => !open)}
-              >
-                <StickyNote size={14} /> <span className="text-xs font-medium">Notes</span>
-              </button>
-
-              {/* Subtle Upload Button - Only when no file is uploaded */}
-
-        </div>
-      </form>
+            </div>
+          </form>
         </div>
       </div>
       {panelLayout === 'right' && (

@@ -168,7 +168,7 @@ interface SourcesPanelProps {
 export const SourcesPanel: React.FC<SourcesPanelProps> = ({ className = '', onClose, openUploadModal = false, onUploadModalClose }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSource, setSelectedSource] = useState<Source | null>(null);
-  const [sources] = useState<Source[]>(mockSources);
+  const [sources, setSources] = useState<Source[]>([]);
   const [selectedSourceIds, setSelectedSourceIds] = useState<Set<string>>(new Set());
   const [showOnlySelected, setShowOnlySelected] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -291,31 +291,6 @@ export const SourcesPanel: React.FC<SourcesPanelProps> = ({ className = '', onCl
           </div>
         </div>
 
-        {/* Selection Controls */}
-        {selectedSourceIds.size > 0 && (
-          <div className="flex items-center gap-2 mb-3 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-            <div className="flex items-center gap-2">
-              <button
-                onClick={clearSelection}
-                className="flex items-center gap-1 px-2 py-1 text-xs text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded transition-colors"
-              >
-                <X size={12} />
-                Clear
-              </button>
-              <button
-                onClick={() => setShowOnlySelected(!showOnlySelected)}
-                className={`flex items-center gap-1 px-2 py-1 text-xs rounded transition-colors ${
-                  showOnlySelected
-                    ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-                    : 'text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30'
-                }`}
-              >
-                <Filter size={12} />
-                Show Selected Only
-              </button>
-            </div>
-          </div>
-        )}
 
         {/* Bulk Actions */}
         <div className="flex items-center gap-2 mb-3">
@@ -366,9 +341,17 @@ export const SourcesPanel: React.FC<SourcesPanelProps> = ({ className = '', onCl
           ) : (
             <div className="text-center py-8 text-gray-500 dark:text-gray-400">
               <FileText size={32} className="mx-auto mb-3 opacity-50" />
-              <p className="text-sm">No sources found</p>
-              {searchQuery && (
+              <p className="text-sm mb-4">No sources found</p>
+              {searchQuery ? (
                 <p className="text-xs mt-1">Try adjusting your search terms</p>
+              ) : (
+                <button
+                  onClick={() => setShowUploadModal(true)}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors text-sm font-medium"
+                >
+                  <Upload size={16} />
+                  Upload Files & Links
+                </button>
               )}
             </div>
           )}
@@ -402,12 +385,6 @@ export const SourcesPanel: React.FC<SourcesPanelProps> = ({ className = '', onCl
             <span className="text-sm font-medium">Upload Document</span>
           </button>
           
-          {selectedSourceIds.size > 0 && (
-            <button className="w-full flex items-center justify-center gap-2 py-2 px-4 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors">
-              <Search size={16} />
-              <span className="text-sm font-medium">Analyze Selected Sources</span>
-            </button>
-          )}
         </div>
       </div>
 
@@ -548,8 +525,17 @@ export const SourcesPanel: React.FC<SourcesPanelProps> = ({ className = '', onCl
                   </button>
               <button
                 onClick={() => {
-                  // TODO: Process uploaded files
-                  console.log('Uploading files:', uploadedFiles);
+                  // Add uploaded files as sources
+                  const newSources: Source[] = uploadedFiles.map((file, index) => ({
+                    id: `uploaded-${Date.now()}-${index}`,
+                    title: file.name,
+                    authors: ['Uploaded File'],
+                    year: new Date().getFullYear(),
+                    type: file.type === 'application/pdf' ? 'pdf' : 'article',
+                    summary: `Uploaded file: ${file.name} (${formatFileSize(file.size)})`
+                  }));
+                  
+                  setSources(prev => [...prev, ...newSources]);
                   setShowUploadModal(false);
                   setUploadedFiles([]);
                   onUploadModalClose?.();

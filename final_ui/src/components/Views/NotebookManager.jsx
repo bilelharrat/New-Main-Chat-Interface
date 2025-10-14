@@ -252,7 +252,7 @@ export default function NotebookManager({ setView }) {
                 {/* Top section with icon and selection */}
                 <div className="flex items-start justify-between mb-3">
                   {/* Notebook icon */}
-                  <div className={`w-12 h-12 rounded-lg bg-gradient-to-br from-purple-400 via-purple-500 to-purple-600 flex items-center justify-center shadow-md`}>
+                  <div className={`w-12 h-12 rounded-lg bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 flex items-center justify-center shadow-md`}>
                     <BookOpen className="w-6 h-6 text-white" />
                   </div>
 
@@ -288,46 +288,6 @@ export default function NotebookManager({ setView }) {
                     </div>
                   </div>
 
-                  {/* Stats */}
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="flex items-center gap-1">
-                      <FileText className="w-3 h-3 text-blue-500" />
-                      <span className="text-xs text-gray-500">{notebook.sourcesCount}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <StickyNote className="w-3 h-3 text-green-500" />
-                      <span className="text-xs text-gray-500">{notebook.notesCount}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <PenTool className="w-3 h-3 text-purple-500" />
-                      <span className="text-xs text-gray-500">{notebook.writeCount}</span>
-                    </div>
-                  </div>
-
-                  {/* Tags */}
-                  {notebook.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1">
-                      {notebook.tags.slice(0, 2).map((tag, index) => (
-                        <span
-                          key={index}
-                          className={`px-2 py-1 text-xs rounded-full ${
-                            darkMode
-                              ? 'bg-gray-700 text-gray-300'
-                              : 'bg-gray-100 text-gray-600'
-                          }`}
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                      {notebook.tags.length > 2 && (
-                        <span className={`text-xs ${
-                          darkMode ? 'text-gray-400' : 'text-gray-500'
-                        }`}>
-                          +{notebook.tags.length - 2}
-                        </span>
-                      )}
-                    </div>
-                  )}
                 </div>
 
                 {/* Bottom section with actions */}

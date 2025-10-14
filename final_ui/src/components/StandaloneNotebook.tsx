@@ -1,29 +1,22 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { 
-  StickyNote, 
-  FileText, 
+import React, { useState, useEffect } from 'react';
+import {
+  StickyNote,
+  FileText,
   ChevronRight,
   ChevronLeft,
   X
 } from 'lucide-react';
-import PromptConsole from '../Views/PromptConsole';
-import { SourcesPanel } from '../../app/sources/SourcesPanel';
-import NotebookNotesPanel from './NotebookNotesPanel';
-
-interface NotebookLayoutProps {
-  setView: (view: string) => void;
-  currentView?: string;
-}
+import PromptConsole from './Views/PromptConsole';
+import { SourcesPanel } from '../app/sources/SourcesPanel';
+import NotebookNotesPanel from './Notebook/NotebookNotesPanel';
 
 type PanelType = 'notes' | 'sources';
 
-export const NotebookLayout: React.FC<NotebookLayoutProps> = ({ setView, currentView }) => {
-  const [activePanel, setActivePanel] = useState<PanelType | null>(null);
+export const StandaloneNotebook: React.FC = () => {
   const [activePanels, setActivePanels] = useState<PanelType[]>([]);
   const [sidebarWidth] = useState(400);
   const [rightPanelWidth] = useState(600);
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [panelLayout, setPanelLayout] = useState<'notes-left' | 'notes-right'>('notes-right');
   const [notesContent, setNotesContent] = useState<string>('');
   const [openUploadModal, setOpenUploadModal] = useState(false);
 
@@ -32,85 +25,38 @@ export const NotebookLayout: React.FC<NotebookLayoutProps> = ({ setView, current
     { id: 'notes' as PanelType, label: 'Notes', icon: StickyNote },
   ];
 
-  // Auto-set panels based on current view
-  useEffect(() => {
-    if (currentView) {
-      switch (currentView) {
-        case 'notebook-sources':
-          setActivePanel(null);
-          setActivePanels(prev => prev.includes('sources') ? prev : [...prev, 'sources']);
-          break;
-        case 'notebook-notes':
-          setActivePanel(null);
-          setActivePanels(prev => prev.includes('notes') ? prev : [...prev, 'notes']);
-          break;
-        case 'notebook-writer':
-        case 'notebook':
-          // Default notebook layout - automatically open sources panel
-          setActivePanel(null);
-          setActivePanels(['sources']);
-          break;
-      }
-    }
-  }, [currentView]);
-
-
-
   const togglePanel = (panelId: PanelType) => {
     if (activePanels.includes(panelId)) {
-      // Remove panel if it's already active
       setActivePanels(activePanels.filter(p => p !== panelId));
     } else {
-      // Add panel to active panels
       setActivePanels([...activePanels, panelId]);
     }
-    setActivePanel(null);
-  };
-
-  const togglePanelLayout = () => {
-    setPanelLayout(prev => 
-      prev === 'notes-left' 
-        ? 'notes-right' 
-        : 'notes-left'
-    );
   };
 
   const handleOpenUploadModal = () => {
-    // Ensure Sources panel is open
     if (!activePanels.includes('sources')) {
       setActivePanels(prev => [...prev, 'sources']);
     }
-    // Open the upload modal
     setOpenUploadModal(true);
   };
 
-
-  const renderPanel = (panelId: PanelType) => {
-    if (panelId === 'sources') {
-      return <SourcesPanel className="h-full" onClose={() => setIsCollapsed(true)} />;
-    }
-    return null;
-  };
-
   const renderRightPanels = () => {
-    // Filter out sources from right panels since it will be rendered on the left
     const rightPanels = activePanels.filter(panel => panel !== 'sources');
     if (rightPanels.length === 0) return null;
 
-    // Only notes panel can be on the right now
     if (rightPanels.includes('notes')) {
       return (
-        <div 
+        <div
           className={`bg-white dark:bg-gray-900 border-l border-gray-200/60 dark:border-gray-700/60 transition-all duration-300 flex-shrink-0`}
           style={{ width: `${rightPanelWidth}px` }}
         >
-              <NotebookNotesPanel
-                className="h-full"
-                onInsertToWriter={(content: string) => console.log('Insert to writer:', content)}
-                onClose={() => setActivePanels(activePanels.filter(p => p !== 'notes'))}
-                initialContent={notesContent}
-                onContentChange={setNotesContent}
-              />
+          <NotebookNotesPanel
+            className="h-full"
+            onInsertToWriter={(content: string) => console.log('Insert to writer:', content)}
+            onClose={() => setActivePanels(activePanels.filter(p => p !== 'notes'))}
+            initialContent={notesContent}
+            onContentChange={setNotesContent}
+          />
         </div>
       );
     }
@@ -122,7 +68,7 @@ export const NotebookLayout: React.FC<NotebookLayoutProps> = ({ setView, current
     <div className="flex h-screen bg-gray-50 dark:bg-black overflow-hidden">
       {/* Left Sources Panel */}
       {activePanels.includes('sources') && !isCollapsed && (
-        <div 
+        <div
           className="bg-white dark:bg-gray-900 border-r border-gray-200/60 dark:border-gray-700/60 transition-all duration-300 flex-shrink-0 rounded-r-2xl"
           style={{ width: `${sidebarWidth}px` }}
         >
@@ -151,13 +97,13 @@ export const NotebookLayout: React.FC<NotebookLayoutProps> = ({ setView, current
       {/* Main Chat Area */}
       <div className="flex-1 min-w-0">
         <PromptConsole 
-          setView={setView} 
-          currentView={currentView} 
+          setView={() => {}} // No-op since we're standalone
+          currentView="notebook" 
           onOpenUploadModal={handleOpenUploadModal}
         />
       </div>
 
-      {/* Right Panels (Notes/Write) */}
+      {/* Right Panels (Notes) */}
       {renderRightPanels()}
 
       {/* Collapsed Sidebar */}
@@ -169,7 +115,7 @@ export const NotebookLayout: React.FC<NotebookLayoutProps> = ({ setView, current
           >
             <ChevronRight size={16} />
           </button>
-          
+
           <div className="flex flex-col gap-2">
             {panels.map((panel) => (
               <button
@@ -209,9 +155,8 @@ export const NotebookLayout: React.FC<NotebookLayoutProps> = ({ setView, current
           </div>
         </div>
       )}
-
     </div>
   );
 };
 
-export default NotebookLayout;
+export default StandaloneNotebook;

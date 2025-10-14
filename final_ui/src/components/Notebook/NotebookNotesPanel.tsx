@@ -313,48 +313,17 @@ export const NotebookNotesPanel: React.FC<NotebookNotesPanelProps> = ({
                   placeholder="Start writing your notes here..."
                   modules={{
                     toolbar: [
-                      [{ 'header': [1, 2, 3, false] }],
-                      ['bold', 'italic', 'underline', 'strike'],
-                      [{ 'color': [] }, { 'background': [] }],
-                      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                      [{ 'indent': '-1'}, { 'indent': '+1' }],
-                      [{ 'align': [] }],
-                      ['link', 'image', 'code-block'],
-                      ['clean']
+                      [{ 'header': [1, 2, 3, false] }, 'bold', 'italic', 'underline', 'strike', { 'color': [] }, { 'background': [] }, { 'list': 'ordered'}, { 'list': 'bullet' }, { 'indent': '-1'}, { 'indent': '+1' }, { 'align': [] }, 'link', 'clean']
                     ]
                   }}
                   formats={[
                     'header', 'bold', 'italic', 'underline', 'strike',
                     'color', 'background', 'list', 'bullet', 'indent',
-                    'align', 'link', 'image', 'code-block'
+                    'align', 'link'
                   ]}
                 />
               </div>
 
-              {/* Floating Action Menu */}
-              <div className="absolute bottom-6 right-6 flex flex-col gap-2">
-                <button
-                  onClick={() => handleQuickAction('notes', 'cite')}
-                  className="w-12 h-12 bg-gradient-to-r from-[#007AFF] to-[#5AC8FA] text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 flex items-center justify-center"
-                  title="Cite to Chat"
-                >
-                  <MessageSquare size={20} />
-                </button>
-                <button
-                  onClick={() => handleQuickAction('notes', 'export')}
-                  className="w-12 h-12 bg-gradient-to-r from-[#007AFF] to-[#5AC8FA] text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 flex items-center justify-center"
-                  title="Export Notes"
-                >
-                  <Download size={20} />
-                </button>
-                <button
-                  onClick={() => handleQuickAction('notes', 'share')}
-                  className="w-12 h-12 bg-gradient-to-r from-[#007AFF] to-[#5AC8FA] text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 flex items-center justify-center"
-                  title="Share Notes"
-                >
-                  <Send size={20} />
-                </button>
-              </div>
             </div>
           </div>
         </div>

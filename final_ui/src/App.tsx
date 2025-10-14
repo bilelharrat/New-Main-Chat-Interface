@@ -13,6 +13,7 @@ import ForgotPassword from './components/Auth/ForgotPassword';
 import NotebookLayout from './components/Notebook/NotebookLayout';
 import NotebookManager from './components/Views/NotebookManager';
 import FlowDiagram from './app/flow/FlowDiagram';
+import StandaloneNotebook from './components/StandaloneNotebook';
 
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 
@@ -31,6 +32,13 @@ function AppShell() {
         const token = localStorage.getItem('authToken');
         setIsAuthenticated(!!token);
     }, []);
+
+    // Auto-collapse sidebar when entering notebook mode
+    useEffect(() => {
+        if (currentView === 'notebook-writer' || currentView === 'notebook-sources' || currentView === 'notebook-notes' || currentView === 'notebook') {
+            setSidebarCollapsed(true);
+        }
+    }, [currentView]);
 
     const handleLogin = (token: string) => {
         localStorage.setItem('authToken', token);
@@ -97,27 +105,35 @@ function AppShell() {
 
     return (
         <Router>
-            {/* Show full screen auth pages */}
-            {(currentView === 'login' || currentView === 'forgot-password') ? (
-                <div className="h-screen w-screen">
-                    {renderView()}
-                </div>
-            ) : (
-                <div className="flex h-screen bg-gray-50 dark:bg-black overflow-hidden">
-                    <Sidebar 
-                        currentView={currentView} 
-                        setCurrentView={setCurrentView} 
-                        collapsed={sidebarCollapsed}
-                        setCollapsed={setSidebarCollapsed}
-                        onLogout={handleLogout}
-                    />
-                    <div className="flex-1 flex flex-col">
-                        <main className="flex-1 overflow-hidden">
+            <Routes>
+                {/* Standalone Notebook Route */}
+                <Route path="/notebook" element={<StandaloneNotebook />} />
+                
+                {/* All other routes */}
+                <Route path="*" element={
+                    /* Show full screen auth pages */
+                    (currentView === 'login' || currentView === 'forgot-password') ? (
+                        <div className="h-screen w-screen">
                             {renderView()}
-                        </main>
-                    </div>
-                </div>
-            )}
+                        </div>
+                    ) : (
+                        <div className="flex h-screen bg-gray-50 dark:bg-black overflow-hidden">
+                            <Sidebar 
+                                currentView={currentView} 
+                                setCurrentView={setCurrentView} 
+                                collapsed={sidebarCollapsed}
+                                setCollapsed={setSidebarCollapsed}
+                                onLogout={handleLogout}
+                            />
+                            <div className="flex-1 flex flex-col">
+                                <main className="flex-1 overflow-hidden">
+                                    {renderView()}
+                                </main>
+                            </div>
+                        </div>
+                    )
+                } />
+            </Routes>
         </Router>
     );
 }

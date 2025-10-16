@@ -14,6 +14,8 @@ import NotebookLayout from './components/Notebook/NotebookLayout';
 import NotebookManager from './components/Views/NotebookManager';
 import FlowDiagram from './app/flow/FlowDiagram';
 import StandaloneNotebook from './components/StandaloneNotebook';
+import AppleNotebook from './components/AppleNotebook';
+import AppleFrontPage from './components/AppleFrontPage';
 
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 
@@ -82,6 +84,10 @@ function AppShell() {
                 return <NotebookLayout setView={setCurrentView} currentView={currentView} />;
             case 'notebook':
                 return <NotebookLayout setView={setCurrentView} currentView={currentView} />;
+    case 'apple-notebook':
+        return <AppleNotebook />;
+    case 'apple-front-page':
+        return <AppleFrontPage />;
             case 'flow-diagram':
                 return <FlowDiagram />;
             case 'files':
@@ -108,6 +114,10 @@ function AppShell() {
             <Routes>
                 {/* Standalone Notebook Route */}
                 <Route path="/notebook" element={<StandaloneNotebook />} />
+                
+                {/* Apple Notebook Route */}
+                <Route path="/apple-notebook" element={<AppleNotebook />} />
+        <Route path="/apple-front-page" element={<AppleFrontPage />} />
                 
                 {/* All other routes */}
                 <Route path="*" element={

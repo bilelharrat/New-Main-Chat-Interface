@@ -1008,9 +1008,11 @@ const ChatInterface: React.FC<{
                 {message.isUser ? (
                   <p className="whitespace-pre-wrap">{message.content}</p>
                 ) : (
-                  <ReactMarkdown className="prose prose-sm dark:prose-invert max-w-none">
-                    {message.content}
-                  </ReactMarkdown>
+                  <div className="prose prose-sm dark:prose-invert max-w-none">
+                    <ReactMarkdown>
+                      {message.content}
+                    </ReactMarkdown>
+                  </div>
                 )}
               </div>
             </div>

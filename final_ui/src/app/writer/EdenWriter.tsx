@@ -37,7 +37,20 @@ interface EdenWriterProps {
   initialContent?: string;
 }
 
-const VerifyPill: React.FC<{ status: VerifyStatus; confidence: number }> = ({ status, confidence }) => {
+type VerificationStatus = 'verified' | 'flagged' | 'unverified';
+
+// Helper function to convert VerifyStatus object to simple string status
+const getVerificationStatus = (verifyResult: VerifyStatus): VerificationStatus => {
+  if (verifyResult.isValid) {
+    return 'verified';
+  } else if (verifyResult.message?.includes('citation') || verifyResult.message?.includes('source')) {
+    return 'flagged';
+  } else {
+    return 'unverified';
+  }
+};
+
+const VerifyPill: React.FC<{ status: VerificationStatus; confidence: number }> = ({ status, confidence }) => {
   const getStatusConfig = () => {
     switch (status) {
       case 'verified':
@@ -105,7 +118,7 @@ export const EdenWriter: React.FC<EdenWriterProps> = ({
   const [autoformat, setAutoformat] = useState(false);
   const [verifyMode, setVerifyMode] = useState<'strict' | 'assisted' | 'lenient'>('assisted');
   const [wordCount, setWordCount] = useState(0);
-  const [verifyResult, setVerifyResult] = useState<{ status: VerifyStatus; confidence: number }>({
+  const [verifyResult, setVerifyResult] = useState<{ status: VerificationStatus; confidence: number }>({
     status: 'unverified',
     confidence: 0
   });
@@ -145,7 +158,10 @@ export const EdenWriter: React.FC<EdenWriterProps> = ({
       setWordCount(words);
       
       const result = fakeVerify(text);
-      setVerifyResult(result);
+      setVerifyResult({
+        status: getVerificationStatus(result),
+        confidence: result.isValid ? 0.9 : 0.3
+      });
       
       onContentChange?.(html);
     },
@@ -178,7 +194,10 @@ export const EdenWriter: React.FC<EdenWriterProps> = ({
     if (!editor) return;
     const text = editor.getText();
     const result = fakeVerify(text);
-    setVerifyResult(result);
+    setVerifyResult({
+      status: getVerificationStatus(result),
+      confidence: result.isValid ? 0.9 : 0.3
+    });
   }, [editor]);
 
   if (!editor) {

@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import Apple Notebook Styles */
+@import './apple-notebook.css';
+
 /* Hide scrollbar but keep functionality */
 .scrollbar-hide {
   -ms-overflow-style: none;  /* Internet Explorer 10+ */
@@ -449,14 +452,14 @@ a {
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, #9333ea, #ec4899);
+  background: linear-gradient(to bottom, #6b7280, #9ca3af);
   border-radius: 5px;
   transition: all 0.3s ease;
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(to bottom, #a855f7, #f472b6);
-  box-shadow: 0 0 10px rgba(147, 51, 234, 0.5);
+  background: linear-gradient(to bottom, #9ca3af, #d1d5db);
+  box-shadow: 0 0 10px rgba(107, 114, 128, 0.5);
   transform: scale(1.1);
 }
 
@@ -471,14 +474,14 @@ a {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, #9333ea, #ec4899);
+  background: linear-gradient(to bottom, #6b7280, #9ca3af);
   border-radius: 5px;
   transition: all 0.3s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(to bottom, #a855f7, #f472b6);
-  box-shadow: 0 0 10px rgba(147, 51, 234, 0.5);
+  background: linear-gradient(to bottom, #9ca3af, #d1d5db);
+  box-shadow: 0 0 10px rgba(107, 114, 128, 0.5);
   transform: scale(1.1);
 }
 

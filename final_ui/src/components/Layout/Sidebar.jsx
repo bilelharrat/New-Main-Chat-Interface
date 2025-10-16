@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { FileText, MemoryStick, Settings, MessageSquare, ChevronLeft, ChevronRight, Folder, Search, Plus, PenTool, Workflow, BookOpen } from 'lucide-react';
+import { FileText, MemoryStick, Settings, MessageSquare, ChevronLeft, ChevronRight, Folder, Search, Plus, PenTool, Workflow, BookOpen, Sparkles, Home } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { useSearch } from '../../context/SearchContext';
 import SmartSearchModal from '../SmartSearchModal';
 
 const navItems = [
+  { id: 'apple-front-page', label: 'Home', icon: Home },
   { id: 'new-chat', label: 'New Chat', icon: Plus, isAction: true },
   { id: 'prompt-console', label: 'Chat', icon: MessageSquare },
   { id: 'notebook-writer', label: 'Notebook', icon: BookOpen },
+  { id: 'apple-notebook', label: 'Apple Notebook', icon: BookOpen },
   { id: 'flow-diagram', label: 'Flow Diagram', icon: Workflow },
   { id: 'files', label: 'Files', icon: FileText },
   { id: 'folders', label: 'Folders', icon: Folder },

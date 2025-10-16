@@ -41,8 +41,10 @@ const AppleFrontPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newNotebookTitle, setNewNotebookTitle] = useState('');
-  const [newNotebookType, setNewNotebookType] = useState<'apple-notebook' | 'complete-notebook' | 'chat' | 'writer' | 'flow'>('apple-notebook');
   const [newNotebookColor, setNewNotebookColor] = useState('from-[#007AFF] to-[#0056CC]');
+  const [editingNotebook, setEditingNotebook] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editDescription, setEditDescription] = useState('');
 
   // Mock notebooks data
   const [notebooks, setNotebooks] = useState<Notebook[]>([
@@ -103,43 +105,6 @@ const AppleFrontPage: React.FC = () => {
     }
   ]);
 
-  const notebookTypes = [
-    { 
-      id: 'apple-notebook', 
-      name: 'Apple Notebook', 
-      description: 'Elegant, minimalist notebook with Apple design',
-      icon: BookOpen,
-      color: 'from-[#007AFF] to-[#0056CC]'
-    },
-    { 
-      id: 'complete-notebook', 
-      name: 'Complete Notebook', 
-      description: 'Full-featured notebook with all tools',
-      icon: FileText,
-      color: 'from-green-500 to-emerald-500'
-    },
-    { 
-      id: 'chat', 
-      name: 'Chat Interface', 
-      description: 'Conversational AI interface',
-      icon: MessageSquare,
-      color: 'from-purple-500 to-pink-500'
-    },
-    { 
-      id: 'writer', 
-      name: 'Writer', 
-      description: 'Advanced writing and editing tool',
-      icon: PenTool,
-      color: 'from-orange-500 to-red-500'
-    },
-    { 
-      id: 'flow', 
-      name: 'Flow Diagram', 
-      description: 'Visual workflow and process mapping',
-      icon: Workflow,
-      color: 'from-indigo-500 to-purple-500'
-    }
-  ];
 
   const colorOptions = [
     { name: 'Apple Blue', value: 'from-[#007AFF] to-[#0056CC]' },
@@ -161,13 +126,13 @@ const AppleFrontPage: React.FC = () => {
     const newNotebook: Notebook = {
       id: Date.now().toString(),
       title: newNotebookTitle,
-      description: `A new ${notebookTypes.find(t => t.id === newNotebookType)?.name.toLowerCase()}`,
-      type: newNotebookType,
+      description: 'A new Apple notebook',
+      type: 'apple-notebook',
       createdAt: new Date(),
       updatedAt: new Date(),
       isStarred: false,
       color: newNotebookColor,
-      icon: notebookTypes.find(t => t.id === newNotebookType)?.icon || BookOpen
+      icon: BookOpen
     };
 
     setNotebooks([newNotebook, ...notebooks]);
@@ -183,6 +148,32 @@ const AppleFrontPage: React.FC = () => {
     setNotebooks(notebooks.map(notebook => 
       notebook.id === id ? { ...notebook, isStarred: !notebook.isStarred } : notebook
     ));
+  };
+
+  const handleStartEdit = (notebook: Notebook) => {
+    setEditingNotebook(notebook.id);
+    setEditTitle(notebook.title);
+    setEditDescription(notebook.description);
+  };
+
+  const handleSaveEdit = () => {
+    if (!editingNotebook || !editTitle.trim()) return;
+    
+    setNotebooks(notebooks.map(notebook => 
+      notebook.id === editingNotebook 
+        ? { ...notebook, title: editTitle.trim(), description: editDescription.trim(), updatedAt: new Date() }
+        : notebook
+    ));
+    
+    setEditingNotebook(null);
+    setEditTitle('');
+    setEditDescription('');
+  };
+
+  const handleCancelEdit = () => {
+    setEditingNotebook(null);
+    setEditTitle('');
+    setEditDescription('');
   };
 
   const formatDate = (date: Date) => {
@@ -286,16 +277,35 @@ const AppleFrontPage: React.FC = () => {
         ) : (
           /* Notebook Grid/List */
           <div className={viewMode === 'grid' 
-            ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6' 
+            ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8' 
             : 'space-y-4'
           }>
+            {/* Add New Notebook Card - First Position */}
+            <div
+              className="group relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 hover:scale-[1.02] apple-fade-in cursor-pointer"
+              onClick={() => setShowCreateModal(true)}
+              style={{ animationDelay: '0s' }}
+            >
+              <div className="p-8 h-full flex flex-col items-center justify-center text-center min-h-[280px]">
+                <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-200">
+                  <Plus size={24} className="text-gray-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  New Notebook
+                </h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Create a new notebook to get started
+                </p>
+              </div>
+            </div>
+
             {filteredNotebooks.map((notebook, index) => (
               <div
                 key={notebook.id}
                 className={`group relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 hover:scale-[1.02] apple-fade-in ${
-                  viewMode === 'list' ? 'flex items-center p-6' : 'p-6'
+                  viewMode === 'list' ? 'flex items-center p-6' : 'p-8 min-h-[280px]'
                 }`}
-                style={{ animationDelay: `${index * 0.1}s` }}
+                style={{ animationDelay: `${(index + 1) * 0.1}s` }}
               >
                 {/* Star Button */}
                 <button
@@ -313,18 +323,54 @@ const AppleFrontPage: React.FC = () => {
                   /* Grid View */
                   <>
                     {/* Icon */}
-                    <div className={`w-16 h-16 bg-gradient-to-br ${notebook.color} rounded-2xl flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform duration-200`}>
-                      <notebook.icon size={24} className="text-white" />
+                    <div className={`w-16 h-16 bg-gradient-to-br ${notebook.color} rounded-2xl flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-200`}>
+                      <notebook.icon size={20} className="text-white" />
                     </div>
 
                     {/* Content */}
-                    <div className="mb-4">
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 line-clamp-2">
-                        {notebook.title}
-                      </h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
-                        {notebook.description}
-                      </p>
+                    <div className="mb-4 flex-1">
+                      {editingNotebook === notebook.id ? (
+                        /* Edit Mode */
+                        <div className="space-y-3">
+                          <input
+                            type="text"
+                            value={editTitle}
+                            onChange={(e) => setEditTitle(e.target.value)}
+                            className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/20 focus:border-[#007AFF]/50 transition-all duration-200"
+                            autoFocus
+                          />
+                          <textarea
+                            value={editDescription}
+                            onChange={(e) => setEditDescription(e.target.value)}
+                            rows={2}
+                            className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-500 dark:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/20 focus:border-[#007AFF]/50 transition-all duration-200 resize-none"
+                          />
+                          <div className="flex gap-2">
+                            <button
+                              onClick={handleSaveEdit}
+                              className="px-3 py-1.5 bg-[#007AFF] text-white text-xs rounded-lg hover:bg-[#0056CC] transition-colors duration-200"
+                            >
+                              Save
+                            </button>
+                            <button
+                              onClick={handleCancelEdit}
+                              className="px-3 py-1.5 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 text-xs rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors duration-200"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        /* View Mode */
+                        <>
+                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 line-clamp-2">
+                            {notebook.title}
+                          </h3>
+                          <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
+                            {notebook.description}
+                          </p>
+                        </>
+                      )}
                     </div>
 
                     {/* Footer */}
@@ -339,24 +385,60 @@ const AppleFrontPage: React.FC = () => {
                 ) : (
                   /* List View */
                   <>
-                    <div className={`w-12 h-12 bg-gradient-to-br ${notebook.color} rounded-xl flex items-center justify-center mr-4 shadow-lg group-hover:scale-110 transition-transform duration-200`}>
-                      <notebook.icon size={20} className="text-white" />
+                    <div className={`w-10 h-10 bg-gradient-to-br ${notebook.color} rounded-xl flex items-center justify-center mr-4 shadow-lg group-hover:scale-110 transition-transform duration-200`}>
+                      <notebook.icon size={16} className="text-white" />
                     </div>
                     
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1 truncate">
-                        {notebook.title}
-                      </h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 mb-2 truncate">
-                        {notebook.description}
-                      </p>
-                      <div className="flex items-center gap-4 text-xs text-gray-400 dark:text-gray-500">
-                        <span>Updated {formatDate(notebook.updatedAt)}</span>
-                        <div className="flex items-center gap-1">
-                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                          <span>Active</span>
+                      {editingNotebook === notebook.id ? (
+                        /* Edit Mode */
+                        <div className="space-y-2">
+                          <input
+                            type="text"
+                            value={editTitle}
+                            onChange={(e) => setEditTitle(e.target.value)}
+                            className="w-full px-3 py-1.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/20 focus:border-[#007AFF]/50 transition-all duration-200"
+                            autoFocus
+                          />
+                          <input
+                            type="text"
+                            value={editDescription}
+                            onChange={(e) => setEditDescription(e.target.value)}
+                            className="w-full px-3 py-1.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-500 dark:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/20 focus:border-[#007AFF]/50 transition-all duration-200"
+                          />
+                          <div className="flex gap-2">
+                            <button
+                              onClick={handleSaveEdit}
+                              className="px-2 py-1 bg-[#007AFF] text-white text-xs rounded hover:bg-[#0056CC] transition-colors duration-200"
+                            >
+                              Save
+                            </button>
+                            <button
+                              onClick={handleCancelEdit}
+                              className="px-2 py-1 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 text-xs rounded hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors duration-200"
+                            >
+                              Cancel
+                            </button>
+                          </div>
                         </div>
-                      </div>
+                      ) : (
+                        /* View Mode */
+                        <>
+                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1 truncate">
+                            {notebook.title}
+                          </h3>
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mb-2 truncate">
+                            {notebook.description}
+                          </p>
+                          <div className="flex items-center gap-4 text-xs text-gray-400 dark:text-gray-500">
+                            <span>Updated {formatDate(notebook.updatedAt)}</span>
+                            <div className="flex items-center gap-1">
+                              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                              <span>Active</span>
+                            </div>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </>
                 )}
@@ -364,12 +446,17 @@ const AppleFrontPage: React.FC = () => {
                 {/* Actions Menu */}
                 <div className="absolute top-4 right-12 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                   <div className="flex items-center gap-1">
-                    <button className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200">
-                      <MoreHorizontal size={16} />
+                    <button 
+                      onClick={() => handleStartEdit(notebook)}
+                      className="p-2 text-gray-400 hover:text-[#007AFF] rounded-xl hover:bg-[#007AFF]/10 transition-all duration-200"
+                      title="Edit notebook"
+                    >
+                      <Edit3 size={16} />
                     </button>
                     <button 
                       onClick={() => handleDeleteNotebook(notebook.id)}
                       className="p-2 text-gray-400 hover:text-red-500 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200"
+                      title="Delete notebook"
                     >
                       <Trash2 size={16} />
                     </button>
@@ -412,35 +499,6 @@ const AppleFrontPage: React.FC = () => {
                 />
               </div>
 
-              {/* Notebook Type */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                  Notebook Type
-                </label>
-                <div className="grid grid-cols-1 gap-3">
-                  {notebookTypes.map((type) => (
-                    <button
-                      key={type.id}
-                      onClick={() => setNewNotebookType(type.id as any)}
-                      className={`p-4 rounded-2xl border-2 transition-all duration-200 text-left ${
-                        newNotebookType === type.id
-                          ? 'border-[#007AFF] bg-[#007AFF]/5'
-                          : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className={`w-10 h-10 bg-gradient-to-br ${type.color} rounded-xl flex items-center justify-center`}>
-                          <type.icon size={18} className="text-white" />
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-gray-900 dark:text-white">{type.name}</h4>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">{type.description}</p>
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
 
               {/* Color Selection */}
               <div>

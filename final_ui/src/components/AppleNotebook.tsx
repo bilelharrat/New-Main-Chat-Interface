@@ -24,7 +24,8 @@ import {
   MessageSquare,
   Download,
   Eye,
-  EyeOff
+  EyeOff,
+  Trash2
 } from 'lucide-react';
 
 // ============================================================================
@@ -92,7 +93,8 @@ const AppleSourceCard: React.FC<{
   onSelect: (source: Source) => void;
   isSelected: boolean;
   onToggleSelection: (sourceId: string) => void;
-}> = ({ source, onSelect, isSelected, onToggleSelection }) => {
+  onDelete?: (sourceId: string) => void;
+}> = ({ source, onSelect, isSelected, onToggleSelection, onDelete }) => {
   const getTypeIcon = () => {
     switch (source.type) {
       case 'pdf':
@@ -115,22 +117,39 @@ const AppleSourceCard: React.FC<{
       }`}
       onClick={() => onSelect(source)}
     >
-      {/* Selection Checkbox - Enhanced Apple Style */}
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          onToggleSelection(source.id);
-        }}
-        className="absolute top-5 right-5 p-2 rounded-full hover:bg-gray-100/80 dark:hover:bg-gray-700/80 transition-all duration-200 hover:scale-110"
-      >
-        {isSelected ? (
-          <div className="w-6 h-6 bg-gradient-to-r from-[#007AFF] to-[#0056CC] rounded-full flex items-center justify-center shadow-lg">
-            <Check size={14} className="text-white" />
-          </div>
-        ) : (
-          <div className="w-6 h-6 border-2 border-gray-300 dark:border-gray-600 rounded-full hover:border-[#007AFF] transition-all duration-200 hover:scale-110" />
+      {/* Action Buttons - Enhanced Apple Style */}
+      <div className="absolute top-5 right-5 flex items-center gap-2">
+        {/* Delete Button */}
+        {onDelete && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(source.id);
+            }}
+            className="p-2 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200 hover:scale-110 opacity-0 group-hover:opacity-100"
+            title="Delete source"
+          >
+            <Trash2 size={14} className="text-red-500 hover:text-red-600" />
+          </button>
         )}
-      </button>
+        
+        {/* Selection Checkbox */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleSelection(source.id);
+          }}
+          className="p-2 rounded-full hover:bg-gray-100/80 dark:hover:bg-gray-700/80 transition-all duration-200 hover:scale-110"
+        >
+          {isSelected ? (
+            <div className="w-6 h-6 bg-gradient-to-r from-[#007AFF] to-[#0056CC] rounded-full flex items-center justify-center shadow-lg">
+              <Check size={14} className="text-white" />
+            </div>
+          ) : (
+            <div className="w-6 h-6 border-2 border-gray-300 dark:border-gray-600 rounded-full hover:border-[#007AFF] transition-all duration-200 hover:scale-110" />
+          )}
+        </button>
+      </div>
 
       {/* Source Type Badge - Enhanced Apple Style */}
       <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 text-gray-700 dark:text-gray-300 mb-5 shadow-sm">
@@ -177,11 +196,17 @@ const AppleSourcesPanel: React.FC<{
 }> = ({ className = '', onClose }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSource, setSelectedSource] = useState<Source | null>(null);
-  const [sources] = useState<Source[]>(mockSources);
+  const [sources, setSources] = useState<Source[]>(mockSources);
   const [selectedSourceIds, setSelectedSourceIds] = useState<Set<string>>(new Set());
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [showAddSourcesModal, setShowAddSourcesModal] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [webLinks, setWebLinks] = useState<string[]>([]);
+  const [newWebLink, setNewWebLink] = useState('');
+  const [pastedTexts, setPastedTexts] = useState<{id: string, title: string, content: string}[]>([]);
+  const [newPastedText, setNewPastedText] = useState('');
+  const [newPastedTextTitle, setNewPastedTextTitle] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Filter sources based on search
@@ -209,6 +234,18 @@ const AppleSourcesPanel: React.FC<{
       setSelectedSourceIds(new Set());
     } else {
       setSelectedSourceIds(new Set(filteredSources.map(s => s.id)));
+    }
+  };
+
+  const handleDeleteSource = (sourceId: string) => {
+    setSources(prevSources => prevSources.filter(source => source.id !== sourceId));
+    setSelectedSourceIds(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(sourceId);
+      return newSet;
+    });
+    if (selectedSource?.id === sourceId) {
+      setSelectedSource(null);
     }
   };
 
@@ -267,6 +304,15 @@ const AppleSourcesPanel: React.FC<{
               <X size={16} />
               Clear
             </button>
+            <button
+              onClick={() => {
+                selectedSourceIds.forEach(sourceId => handleDeleteSource(sourceId));
+              }}
+              className="flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-2xl transition-all duration-200 hover:scale-105 font-medium"
+            >
+              <Trash2 size={16} />
+              Delete Selected
+            </button>
           </div>
         )}
       </div>
@@ -293,6 +339,7 @@ const AppleSourcesPanel: React.FC<{
                 onSelect={setSelectedSource}
                 isSelected={selectedSourceIds.has(source.id)}
                 onToggleSelection={toggleSourceSelection}
+                onDelete={handleDeleteSource}
               />
             </div>
           ))
@@ -318,7 +365,7 @@ const AppleSourcesPanel: React.FC<{
         )}
 
         <button
-          onClick={() => setShowUploadModal(true)}
+          onClick={() => setShowAddSourcesModal(true)}
           className="group w-full flex items-center justify-center gap-4 py-4 px-6 bg-gradient-to-r from-[#007AFF] via-[#0056CC] to-[#003D99] hover:from-[#0056CC] hover:via-[#003D99] hover:to-[#002A66] text-white rounded-3xl font-semibold transition-all duration-300 hover:shadow-xl hover:shadow-[#007AFF]/30 hover:scale-105 overflow-hidden"
         >
           <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
@@ -353,7 +400,7 @@ const AppleSourcesPanel: React.FC<{
             {/* Modal Content */}
             <div className="p-8 space-y-8">
               {/* Upload Methods */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* File Upload */}
                 <div
                   className={`group relative border-2 border-dashed rounded-3xl p-10 text-center transition-all duration-300 hover:scale-105 ${
@@ -433,6 +480,256 @@ const AppleSourcesPanel: React.FC<{
                 className="px-8 py-3 bg-gradient-to-r from-[#007AFF] to-[#0056CC] hover:from-[#0056CC] hover:to-[#003D99] disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed text-white rounded-2xl font-semibold transition-all duration-200 hover:shadow-lg hover:scale-105 disabled:hover:scale-100"
               >
                 Add {uploadedFiles.length} Source{uploadedFiles.length !== 1 ? 's' : ''}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Sources Modal */}
+      {showAddSourcesModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="w-full max-w-6xl bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden">
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200/50 dark:border-gray-700/50">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-[#007AFF] to-[#0056CC] rounded-2xl flex items-center justify-center shadow-lg">
+                  <ArrowUp size={20} className="text-white" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Add Sources</h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Upload files, add web links, or paste text to your sources</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowAddSourcesModal(false)}
+                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Upload Files Section */}
+                <div
+                  className={`border-2 border-dashed rounded-3xl p-8 text-center transition-all duration-200 ${
+                    isDragOver
+                      ? 'border-[#007AFF] bg-[#007AFF]/5'
+                      : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
+                  }`}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setIsDragOver(true);
+                  }}
+                  onDragLeave={() => setIsDragOver(false)}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setIsDragOver(false);
+                    const files = Array.from(e.dataTransfer.files);
+                    setUploadedFiles(prev => [...prev, ...files]);
+                  }}
+                >
+                  <div className="w-16 h-16 bg-gradient-to-br from-[#007AFF] to-[#0056CC] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <FolderOpen size={24} className="text-white" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">Upload Files</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Drag and drop files here or click to browse</p>
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="px-6 py-2.5 bg-gradient-to-r from-[#007AFF] to-[#0056CC] text-white rounded-2xl font-medium shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+                  >
+                    Choose Files
+                  </button>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-3">Supports PDF, DOC, TXT, images, and more</p>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    multiple
+                    className="hidden"
+                    onChange={(e) => {
+                      if (e.target.files) {
+                        const files = Array.from(e.target.files);
+                        setUploadedFiles(prev => [...prev, ...files]);
+                      }
+                    }}
+                  />
+                </div>
+
+                {/* Add Web Link Section */}
+                <div className="border border-gray-200 dark:border-gray-600 rounded-3xl p-8 text-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <Link size={24} className="text-white" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">Add Web Link</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Add articles, papers, or web pages</p>
+                  
+                  <div className="space-y-3">
+                    <input
+                      type="url"
+                      placeholder="https://example.com/article"
+                      value={newWebLink}
+                      onChange={(e) => setNewWebLink(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-2xl text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500/50 transition-all duration-200"
+                    />
+                    <button
+                      onClick={() => {
+                        if (newWebLink.trim()) {
+                          setWebLinks(prev => [...prev, newWebLink.trim()]);
+                          setNewWebLink('');
+                        }
+                      }}
+                      disabled={!newWebLink.trim()}
+                      className="px-6 py-2.5 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-2xl font-medium shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                    >
+                      Add Link
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-3">Paste URLs from websites and articles</p>
+                </div>
+
+                {/* Paste Text Section */}
+                <div className="border border-gray-200 dark:border-gray-600 rounded-3xl p-8 text-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <FileText size={24} className="text-white" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">Paste Text</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Add text content directly</p>
+                  
+                  <div className="space-y-3">
+                    <input
+                      type="text"
+                      placeholder="Enter a title for this text"
+                      value={newPastedTextTitle}
+                      onChange={(e) => setNewPastedTextTitle(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-2xl text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500/50 transition-all duration-200"
+                    />
+                    <textarea
+                      placeholder="Paste your text content here..."
+                      value={newPastedText}
+                      onChange={(e) => setNewPastedText(e.target.value)}
+                      rows={4}
+                      className="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-2xl text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500/50 transition-all duration-200 resize-none"
+                    />
+                    <button
+                      onClick={() => {
+                        if (newPastedText.trim() && newPastedTextTitle.trim()) {
+                          const newText = {
+                            id: Date.now().toString(),
+                            title: newPastedTextTitle.trim(),
+                            content: newPastedText.trim()
+                          };
+                          setPastedTexts(prev => [...prev, newText]);
+                          setNewPastedText('');
+                          setNewPastedTextTitle('');
+                        }
+                      }}
+                      disabled={!newPastedText.trim() || !newPastedTextTitle.trim()}
+                      className="px-6 py-2.5 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-2xl font-medium shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                    >
+                      Add Text
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-3">Perfect for notes, quotes, or any text content</p>
+                </div>
+              </div>
+
+              {/* Added Items */}
+              {(uploadedFiles.length > 0 || webLinks.length > 0 || pastedTexts.length > 0) && (
+                <div className="mt-6 space-y-4">
+                  <h4 className="text-lg font-semibold text-gray-700 dark:text-gray-300">Added Items</h4>
+                  
+                  {/* Uploaded Files */}
+                  {uploadedFiles.length > 0 && (
+                    <div className="space-y-2">
+                      <h5 className="text-sm font-medium text-gray-600 dark:text-gray-400">Files ({uploadedFiles.length})</h5>
+                      {uploadedFiles.map((file, index) => (
+                        <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-2xl">
+                          <div className="flex items-center gap-3">
+                            <File size={16} className="text-gray-400" />
+                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{file.name}</span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400">({(file.size / 1024 / 1024).toFixed(2)} MB)</span>
+                          </div>
+                          <button
+                            onClick={() => setUploadedFiles(prev => prev.filter((_, i) => i !== index))}
+                            className="p-1 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Web Links */}
+                  {webLinks.length > 0 && (
+                    <div className="space-y-2">
+                      <h5 className="text-sm font-medium text-gray-600 dark:text-gray-400">Links ({webLinks.length})</h5>
+                      {webLinks.map((link, index) => (
+                        <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-2xl">
+                          <div className="flex items-center gap-3">
+                            <Link size={16} className="text-green-500" />
+                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">{link}</span>
+                          </div>
+                          <button
+                            onClick={() => setWebLinks(prev => prev.filter((_, i) => i !== index))}
+                            className="p-1 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Pasted Texts */}
+                  {pastedTexts.length > 0 && (
+                    <div className="space-y-2">
+                      <h5 className="text-sm font-medium text-gray-600 dark:text-gray-400">Texts ({pastedTexts.length})</h5>
+                      {pastedTexts.map((text, index) => (
+                        <div key={text.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-2xl">
+                          <div className="flex items-center gap-3">
+                            <FileText size={16} className="text-purple-500" />
+                            <div className="flex flex-col">
+                              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{text.title}</span>
+                              <span className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-xs">{text.content.substring(0, 50)}...</span>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => setPastedTexts(prev => prev.filter((_, i) => i !== index))}
+                            className="p-1 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200/50 dark:border-gray-700/50 bg-gray-50/50 dark:bg-gray-700/50">
+              <button
+                onClick={() => setShowAddSourcesModal(false)}
+                className="px-6 py-2.5 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors duration-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  // Handle adding sources logic here
+                  setShowAddSourcesModal(false);
+                  setUploadedFiles([]);
+                  setWebLinks([]);
+                  setPastedTexts([]);
+                }}
+                disabled={uploadedFiles.length === 0 && webLinks.length === 0 && pastedTexts.length === 0}
+                className="px-8 py-2.5 bg-gradient-to-r from-[#007AFF] to-[#0056CC] text-white rounded-2xl font-medium shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              >
+                Add {uploadedFiles.length + webLinks.length + pastedTexts.length} Source{(uploadedFiles.length + webLinks.length + pastedTexts.length) !== 1 ? 's' : ''}
               </button>
             </div>
           </div>
@@ -754,6 +1051,15 @@ const AppleChatInterface: React.FC<{
   onToggleSources?: () => void;
 }> = ({ onOpenUploadModal, onToggleNotes, onToggleSources }) => {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [showAddSourcesModal, setShowAddSourcesModal] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [webLinks, setWebLinks] = useState<string[]>([]);
+  const [newWebLink, setNewWebLink] = useState('');
+  const [pastedTexts, setPastedTexts] = useState<{id: string, title: string, content: string}[]>([]);
+  const [newPastedText, setNewPastedText] = useState('');
+  const [newPastedTextTitle, setNewPastedTextTitle] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [prompt, setPrompt] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
@@ -929,11 +1235,7 @@ The data reveals three distinct patterns in user behavior:
             
             {/* Upload Button - Enhanced Apple Style */}
             <button
-              onClick={() => {
-                if (typeof onOpenUploadModal === 'function') {
-                  onOpenUploadModal();
-                }
-              }}
+              onClick={() => setShowAddSourcesModal(true)}
               className="group relative px-10 py-5 bg-gradient-to-r from-[#007AFF] via-[#0056CC] to-[#003D99] hover:from-[#0056CC] hover:via-[#003D99] hover:to-[#002A66] text-white rounded-3xl font-medium text-lg shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 flex items-center gap-4 overflow-hidden"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
@@ -1245,6 +1547,256 @@ The data reveals three distinct patterns in user behavior:
                 className="px-6 py-3 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors font-medium"
               >
                 Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Sources Modal */}
+      {showAddSourcesModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="w-full max-w-6xl bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden">
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200/50 dark:border-gray-700/50">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-[#007AFF] to-[#0056CC] rounded-2xl flex items-center justify-center shadow-lg">
+                  <ArrowUp size={20} className="text-white" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Add Sources</h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Upload files, add web links, or paste text to your sources</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowAddSourcesModal(false)}
+                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Upload Files Section */}
+                <div
+                  className={`border-2 border-dashed rounded-3xl p-8 text-center transition-all duration-200 ${
+                    isDragOver
+                      ? 'border-[#007AFF] bg-[#007AFF]/5'
+                      : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
+                  }`}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setIsDragOver(true);
+                  }}
+                  onDragLeave={() => setIsDragOver(false)}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setIsDragOver(false);
+                    const files = Array.from(e.dataTransfer.files);
+                    setUploadedFiles(prev => [...prev, ...files]);
+                  }}
+                >
+                  <div className="w-16 h-16 bg-gradient-to-br from-[#007AFF] to-[#0056CC] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <FolderOpen size={24} className="text-white" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">Upload Files</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Drag and drop files here or click to browse</p>
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="px-6 py-2.5 bg-gradient-to-r from-[#007AFF] to-[#0056CC] text-white rounded-2xl font-medium shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+                  >
+                    Choose Files
+                  </button>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-3">Supports PDF, DOC, TXT, images, and more</p>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    multiple
+                    className="hidden"
+                    onChange={(e) => {
+                      if (e.target.files) {
+                        const files = Array.from(e.target.files);
+                        setUploadedFiles(prev => [...prev, ...files]);
+                      }
+                    }}
+                  />
+                </div>
+
+                {/* Add Web Link Section */}
+                <div className="border border-gray-200 dark:border-gray-600 rounded-3xl p-8 text-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <Link size={24} className="text-white" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">Add Web Link</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Add articles, papers, or web pages</p>
+                  
+                  <div className="space-y-3">
+                    <input
+                      type="url"
+                      placeholder="https://example.com/article"
+                      value={newWebLink}
+                      onChange={(e) => setNewWebLink(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-2xl text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500/50 transition-all duration-200"
+                    />
+                    <button
+                      onClick={() => {
+                        if (newWebLink.trim()) {
+                          setWebLinks(prev => [...prev, newWebLink.trim()]);
+                          setNewWebLink('');
+                        }
+                      }}
+                      disabled={!newWebLink.trim()}
+                      className="px-6 py-2.5 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-2xl font-medium shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                    >
+                      Add Link
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-3">Paste URLs from websites and articles</p>
+                </div>
+
+                {/* Paste Text Section */}
+                <div className="border border-gray-200 dark:border-gray-600 rounded-3xl p-8 text-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <FileText size={24} className="text-white" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">Paste Text</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Add text content directly</p>
+                  
+                  <div className="space-y-3">
+                    <input
+                      type="text"
+                      placeholder="Enter a title for this text"
+                      value={newPastedTextTitle}
+                      onChange={(e) => setNewPastedTextTitle(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-2xl text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500/50 transition-all duration-200"
+                    />
+                    <textarea
+                      placeholder="Paste your text content here..."
+                      value={newPastedText}
+                      onChange={(e) => setNewPastedText(e.target.value)}
+                      rows={4}
+                      className="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-2xl text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500/50 transition-all duration-200 resize-none"
+                    />
+                    <button
+                      onClick={() => {
+                        if (newPastedText.trim() && newPastedTextTitle.trim()) {
+                          const newText = {
+                            id: Date.now().toString(),
+                            title: newPastedTextTitle.trim(),
+                            content: newPastedText.trim()
+                          };
+                          setPastedTexts(prev => [...prev, newText]);
+                          setNewPastedText('');
+                          setNewPastedTextTitle('');
+                        }
+                      }}
+                      disabled={!newPastedText.trim() || !newPastedTextTitle.trim()}
+                      className="px-6 py-2.5 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-2xl font-medium shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                    >
+                      Add Text
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-3">Perfect for notes, quotes, or any text content</p>
+                </div>
+              </div>
+
+              {/* Added Items */}
+              {(uploadedFiles.length > 0 || webLinks.length > 0 || pastedTexts.length > 0) && (
+                <div className="mt-6 space-y-4">
+                  <h4 className="text-lg font-semibold text-gray-700 dark:text-gray-300">Added Items</h4>
+                  
+                  {/* Uploaded Files */}
+                  {uploadedFiles.length > 0 && (
+                    <div className="space-y-2">
+                      <h5 className="text-sm font-medium text-gray-600 dark:text-gray-400">Files ({uploadedFiles.length})</h5>
+                      {uploadedFiles.map((file, index) => (
+                        <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-2xl">
+                          <div className="flex items-center gap-3">
+                            <File size={16} className="text-gray-400" />
+                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{file.name}</span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400">({(file.size / 1024 / 1024).toFixed(2)} MB)</span>
+                          </div>
+                          <button
+                            onClick={() => setUploadedFiles(prev => prev.filter((_, i) => i !== index))}
+                            className="p-1 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Web Links */}
+                  {webLinks.length > 0 && (
+                    <div className="space-y-2">
+                      <h5 className="text-sm font-medium text-gray-600 dark:text-gray-400">Links ({webLinks.length})</h5>
+                      {webLinks.map((link, index) => (
+                        <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-2xl">
+                          <div className="flex items-center gap-3">
+                            <Link size={16} className="text-green-500" />
+                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">{link}</span>
+                          </div>
+                          <button
+                            onClick={() => setWebLinks(prev => prev.filter((_, i) => i !== index))}
+                            className="p-1 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Pasted Texts */}
+                  {pastedTexts.length > 0 && (
+                    <div className="space-y-2">
+                      <h5 className="text-sm font-medium text-gray-600 dark:text-gray-400">Texts ({pastedTexts.length})</h5>
+                      {pastedTexts.map((text, index) => (
+                        <div key={text.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-2xl">
+                          <div className="flex items-center gap-3">
+                            <FileText size={16} className="text-purple-500" />
+                            <div className="flex flex-col">
+                              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{text.title}</span>
+                              <span className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-xs">{text.content.substring(0, 50)}...</span>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => setPastedTexts(prev => prev.filter((_, i) => i !== index))}
+                            className="p-1 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200/50 dark:border-gray-700/50 bg-gray-50/50 dark:bg-gray-700/50">
+              <button
+                onClick={() => setShowAddSourcesModal(false)}
+                className="px-6 py-2.5 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors duration-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  // Handle adding sources logic here
+                  setShowAddSourcesModal(false);
+                  setUploadedFiles([]);
+                  setWebLinks([]);
+                  setPastedTexts([]);
+                }}
+                disabled={uploadedFiles.length === 0 && webLinks.length === 0 && pastedTexts.length === 0}
+                className="px-8 py-2.5 bg-gradient-to-r from-[#007AFF] to-[#0056CC] text-white rounded-2xl font-medium shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              >
+                Add {uploadedFiles.length + webLinks.length + pastedTexts.length} Source{(uploadedFiles.length + webLinks.length + pastedTexts.length) !== 1 ? 's' : ''}
               </button>
             </div>
           </div>

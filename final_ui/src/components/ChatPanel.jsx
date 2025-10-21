@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { User, Bot, Clipboard, Copy, Pencil, StickyNote, ArrowRight } from 'lucide-react';
+import { User, Bot, Clipboard, Copy, Pencil, StickyNote, ArrowUp } from 'lucide-react';
 
 export default function ChatPanel({
   messages = [],
@@ -102,33 +102,47 @@ export default function ChatPanel({
           <div ref={messagesEndRef} />
         </div>
       </div>
-      {/* Input Bar */}
-      <form
-        className="w-full max-w-2xl mx-auto flex items-center gap-2 px-4 pb-4 pt-2"
-        onSubmit={e => {
-          e.preventDefault();
-          if (onSend) onSend();
-        }}
-      >
-        <input
-          ref={inputRef}
-          type="text"
-          value={inputValue}
-          onChange={e => onInputChange && onInputChange(e.target.value)}
-          placeholder={inputPlaceholder}
-          className="flex-1 px-3 py-2 border border-[#2196F3]/20/50 dark:border-[#2196F3]/20/50 rounded-lg bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2196F3]/50 focus:border-[#2196F3] text-sm transition-all duration-200"
-          disabled={loading}
-        />
-        <button
-          type="submit"
-          className="relative px-4 py-2 bg-white dark:bg-gray-800 border border-[#2196F3] text-[#2196F3] rounded-lg hover:bg-[#2196F3] hover:text-white transition-all duration-300 flex items-center gap-1 shadow-lg shadow-[#2196F3]/25 hover:shadow-xl hover:shadow-[#2196F3]/30 transform hover:scale-105 group overflow-hidden"
-          disabled={loading || !inputValue.trim()}
+      {/* Input Bar - Apple Style */}
+      <div className="p-6 border-t border-gray-200/20 dark:border-gray-700/20">
+        <form
+          className="w-full max-w-4xl mx-auto bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-3xl border border-gray-200/20 dark:border-gray-700/20 shadow-xl p-3 transition-all duration-300 hover:shadow-2xl"
+          onSubmit={e => {
+            e.preventDefault();
+            if (onSend) onSend();
+          }}
         >
-          {/* Dynamic hover overlay */}
-          <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-          <ArrowRight className="w-4 h-4 transition-all duration-300 group-hover:-translate-y-2 group-hover:rotate-90" style={{ color: '#4285F4' }} />
-        </button>
-      </form>
+          <div className="flex items-end gap-4">
+            <div className="relative flex-1">
+              <textarea
+                ref={inputRef}
+                value={inputValue}
+                onChange={e => onInputChange && onInputChange(e.target.value)}
+                placeholder={inputPlaceholder}
+                className="w-full px-4 py-3 bg-transparent border-0 resize-none focus:outline-none text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 text-base leading-relaxed"
+                rows="1"
+                disabled={loading}
+                onInput={(e) => {
+                  e.target.style.height = 'auto';
+                  e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
+                }}
+                style={{ transition: 'height 0.15s' }}
+              />
+            </div>
+            <button
+              type="submit"
+              className="group relative p-4 rounded-full shadow-lg hover:shadow-xl flex items-center justify-center h-14 w-14 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 bg-gradient-to-r from-[#007AFF] to-[#0056CC] hover:from-[#0056CC] hover:to-[#003D99] text-white transform hover:scale-105 overflow-hidden"
+              disabled={loading || !inputValue.trim()}
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+              {loading ? (
+                <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin relative z-10"></div>
+              ) : (
+                <ArrowUp className="w-5 h-5 relative z-10 transition-transform duration-200 rotate-90 group-hover:rotate-0" />
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 } 

@@ -16,6 +16,7 @@ import FlowDiagram from './app/flow/FlowDiagram';
 import StandaloneNotebook from './components/StandaloneNotebook';
 import AppleNotebook from './components/AppleNotebook';
 import AppleFrontPage from './components/AppleFrontPage';
+import WriteView from './components/WriteView';
 
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 
@@ -77,7 +78,7 @@ function AppShell() {
             case 'prompt-console':
                 return <PromptConsole setView={setCurrentView} currentView={currentView} />;
             case 'notebook-writer':
-                return <NotebookManager setView={setCurrentView} />;
+                return <WriteView setView={setCurrentView} />;
             case 'notebook-sources':
                 return <NotebookLayout setView={setCurrentView} currentView={currentView} />;
             case 'notebook-notes':

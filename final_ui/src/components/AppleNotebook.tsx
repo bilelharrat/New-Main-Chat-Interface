@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import ReactMarkdown from 'react-markdown';
+import AppleWalkthrough from './AppleWalkthrough';
 import {
   Plus,
   Search,
@@ -25,7 +26,8 @@ import {
   Download,
   Eye,
   EyeOff,
-  Trash2
+  Trash2,
+  Sparkles
 } from 'lucide-react';
 
 // ============================================================================
@@ -367,6 +369,7 @@ const AppleSourcesPanel: React.FC<{
         <button
           onClick={() => setShowAddSourcesModal(true)}
           className="group w-full flex items-center justify-center gap-4 py-4 px-6 bg-gradient-to-r from-[#007AFF] via-[#0056CC] to-[#003D99] hover:from-[#0056CC] hover:via-[#003D99] hover:to-[#002A66] text-white rounded-3xl font-semibold transition-all duration-300 hover:shadow-xl hover:shadow-[#007AFF]/30 hover:scale-105 overflow-hidden"
+          data-walkthrough="add-sources-button"
         >
           <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
           <Plus size={20} className="relative z-10" />
@@ -400,7 +403,7 @@ const AppleSourcesPanel: React.FC<{
             {/* Modal Content */}
             <div className="p-8 space-y-8">
               {/* Upload Methods */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {/* File Upload */}
                 <div
                   className={`group relative border-2 border-dashed rounded-3xl p-10 text-center transition-all duration-300 hover:scale-105 ${
@@ -488,10 +491,10 @@ const AppleSourcesPanel: React.FC<{
 
       {/* Add Sources Modal */}
       {showAddSourcesModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="w-full max-w-6xl bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/50 backdrop-blur-sm overflow-y-auto">
+          <div className="w-full max-w-5xl max-h-[95vh] sm:max-h-[90vh] bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden my-2 sm:my-4">
             {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-200/50 dark:border-gray-700/50">
+            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200/50 dark:border-gray-700/50">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-gradient-to-br from-[#007AFF] to-[#0056CC] rounded-2xl flex items-center justify-center shadow-lg">
                   <ArrowUp size={20} className="text-white" />
@@ -510,8 +513,8 @@ const AppleSourcesPanel: React.FC<{
             </div>
 
             {/* Content */}
-            <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="p-4 sm:p-6 overflow-y-auto max-h-[calc(95vh-120px)] sm:max-h-[calc(90vh-140px)]">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {/* Upload Files Section */}
                 <div
                   className={`border-2 border-dashed rounded-3xl p-8 text-center transition-all duration-200 ${
@@ -1049,7 +1052,9 @@ const AppleChatInterface: React.FC<{
   onOpenUploadModal?: () => void;
   onToggleNotes?: () => void;
   onToggleSources?: () => void;
-}> = ({ onOpenUploadModal, onToggleNotes, onToggleSources }) => {
+  onStartWalkthrough?: () => void;
+  showTakeTourButton?: boolean;
+}> = ({ onOpenUploadModal, onToggleNotes, onToggleSources, onStartWalkthrough, showTakeTourButton = false }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [showAddSourcesModal, setShowAddSourcesModal] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -1233,15 +1238,30 @@ The data reveals three distinct patterns in user behavior:
               Upload documents to get started with intelligent research and note-taking
             </p>
             
-            {/* Upload Button - Enhanced Apple Style */}
-            <button
-              onClick={() => setShowAddSourcesModal(true)}
-              className="group relative px-10 py-5 bg-gradient-to-r from-[#007AFF] via-[#0056CC] to-[#003D99] hover:from-[#0056CC] hover:via-[#003D99] hover:to-[#002A66] text-white rounded-3xl font-medium text-lg shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 flex items-center gap-4 overflow-hidden"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
-              <Upload size={22} className="relative z-10" />
-              <span className="relative z-10">Upload Documents</span>
-            </button>
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              {/* Upload Button - Enhanced Apple Style */}
+              <button
+                onClick={() => setShowAddSourcesModal(true)}
+                className="group relative px-10 py-5 bg-gradient-to-r from-[#007AFF] via-[#0056CC] to-[#003D99] hover:from-[#0056CC] hover:via-[#003D99] hover:to-[#002A66] text-white rounded-3xl font-medium text-lg shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 flex items-center gap-4 overflow-hidden"
+                data-walkthrough="upload-button"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+                <Upload size={22} className="relative z-10" />
+                <span className="relative z-10">Upload Documents</span>
+              </button>
+
+              {/* Take Tour Button */}
+              {onStartWalkthrough && showTakeTourButton && (
+                <button
+                  onClick={onStartWalkthrough}
+                  className="group relative px-8 py-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 text-gray-700 dark:text-gray-300 rounded-3xl font-medium text-base shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 flex items-center gap-3"
+                >
+                  <Sparkles size={18} className="text-[#007AFF]" />
+                  <span>Take Tour</span>
+                </button>
+              )}
+            </div>
             
             {/* Subtle hint */}
             <p className="mt-8 text-sm text-gray-400 dark:text-gray-500 font-light">
@@ -1405,7 +1425,7 @@ The data reveals three distinct patterns in user behavior:
         </form>
         
         {/* Quick Actions - Enhanced Apple Style */}
-        <div className="flex justify-center gap-6 mt-6">
+        <div className="flex justify-center gap-6 mt-6" data-walkthrough="quick-actions">
           <button
             onClick={onToggleSources}
             className="group flex items-center gap-2.5 px-5 py-2.5 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-white/90 dark:hover:bg-gray-700/90 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 backdrop-blur-sm border border-gray-300/60 dark:border-gray-600/60 bg-white/70 dark:bg-gray-800/70"
@@ -1555,10 +1575,10 @@ The data reveals three distinct patterns in user behavior:
 
       {/* Add Sources Modal */}
       {showAddSourcesModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="w-full max-w-6xl bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/50 backdrop-blur-sm overflow-y-auto">
+          <div className="w-full max-w-5xl max-h-[95vh] sm:max-h-[90vh] bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden my-2 sm:my-4">
             {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-200/50 dark:border-gray-700/50">
+            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200/50 dark:border-gray-700/50">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-gradient-to-br from-[#007AFF] to-[#0056CC] rounded-2xl flex items-center justify-center shadow-lg">
                   <ArrowUp size={20} className="text-white" />
@@ -1577,8 +1597,8 @@ The data reveals three distinct patterns in user behavior:
             </div>
 
             {/* Content */}
-            <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="p-4 sm:p-6 overflow-y-auto max-h-[calc(95vh-120px)] sm:max-h-[calc(90vh-140px)]">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {/* Upload Files Section */}
                 <div
                   className={`border-2 border-dashed rounded-3xl p-8 text-center transition-all duration-200 ${
@@ -1817,6 +1837,9 @@ const AppleNotebook: React.FC = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [notesContent, setNotesContent] = useState<string>('');
   const [, setOpenUploadModal] = useState(false);
+  const [showWalkthrough, setShowWalkthrough] = useState(false);
+  const [hasSeenWalkthrough, setHasSeenWalkthrough] = useState(false);
+  const [showTakeTourButton, setShowTakeTourButton] = useState(false);
 
   const panels = [
     { id: 'sources', label: 'Sources', icon: FileText },
@@ -1838,6 +1861,40 @@ const AppleNotebook: React.FC = () => {
     setOpenUploadModal(true);
   };
 
+  // Show walkthrough for new users and manage tour button visibility
+  useEffect(() => {
+    const hasSeenWalkthroughBefore = localStorage.getItem('apple-notebook-walkthrough-seen');
+    const isFirstVisit = !hasSeenWalkthroughBefore;
+    
+    setShowTakeTourButton(isFirstVisit);
+    
+    if (isFirstVisit) {
+      // Delay showing walkthrough to let the interface load
+      const timer = setTimeout(() => {
+        setShowWalkthrough(true);
+      }, 1500); // Increased delay to ensure everything is loaded
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  const handleWalkthroughComplete = () => {
+    setShowWalkthrough(false);
+    setHasSeenWalkthrough(true);
+    setShowTakeTourButton(false);
+    localStorage.setItem('apple-notebook-walkthrough-seen', 'true');
+  };
+
+  const handleStartWalkthrough = () => {
+    setShowWalkthrough(true);
+  };
+
+  // Function to reset walkthrough (for testing - can be removed in production)
+  const resetWalkthrough = () => {
+    localStorage.removeItem('apple-notebook-walkthrough-seen');
+    setShowTakeTourButton(true);
+    setHasSeenWalkthrough(false);
+  };
+
   const renderRightPanels = () => {
     const rightPanels = activePanels.filter(panel => panel !== 'sources');
     if (rightPanels.length === 0) return null;
@@ -1847,6 +1904,7 @@ const AppleNotebook: React.FC = () => {
          <div
            className="transition-all duration-300 flex-shrink-0"
            style={{ width: `${rightPanelWidth}px` }}
+           data-walkthrough="notes-panel"
          >
           <AppleNotesPanel
             className="h-full"
@@ -1865,10 +1923,11 @@ const AppleNotebook: React.FC = () => {
     <div className="apple-notebook flex h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-black overflow-hidden">
       {/* Left Sources Panel */}
       {activePanels.includes('sources') && !isCollapsed && (
-         <div
-           className="transition-all duration-300 flex-shrink-0"
-           style={{ width: `${sidebarWidth}px` }}
-         >
+        <div
+          className="transition-all duration-300 flex-shrink-0"
+          style={{ width: `${sidebarWidth}px` }}
+          data-walkthrough="sources-panel"
+        >
           <AppleSourcesPanel 
             className="h-full" 
             onClose={() => setActivePanels(activePanels.filter(p => p !== 'sources'))} 
@@ -1877,11 +1936,13 @@ const AppleNotebook: React.FC = () => {
       )}
 
       {/* Main Chat Area */}
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0" data-walkthrough="chat-interface">
         <AppleChatInterface 
           onOpenUploadModal={handleOpenUploadModal} 
           onToggleNotes={() => togglePanel('notes')}
           onToggleSources={() => togglePanel('sources')}
+          onStartWalkthrough={handleStartWalkthrough}
+          showTakeTourButton={showTakeTourButton}
         />
       </div>
 
@@ -1936,6 +1997,23 @@ const AppleNotebook: React.FC = () => {
             ))}
           </div>
         </div>
+      )}
+
+      {/* Walkthrough */}
+      <AppleWalkthrough
+        isOpen={showWalkthrough}
+        onClose={() => setShowWalkthrough(false)}
+        onComplete={handleWalkthroughComplete}
+      />
+
+      {/* Temporary reset button for testing (remove in production) */}
+      {process.env.NODE_ENV === 'development' && (
+        <button
+          onClick={resetWalkthrough}
+          className="fixed bottom-4 right-4 z-[200] px-3 py-2 bg-red-500 text-white text-xs rounded-lg hover:bg-red-600 transition-colors"
+        >
+          Reset Tour
+        </button>
       )}
     </div>
   );

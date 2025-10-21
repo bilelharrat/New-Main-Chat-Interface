@@ -25,6 +25,114 @@
   letter-spacing: -0.01em;
 }
 
+/* Apple-Style Message Bubble Animations */
+@keyframes apple-message-appear {
+  0% {
+    opacity: 0;
+    transform: translateY(30px) scale(0.9);
+  }
+  50% {
+    opacity: 0.8;
+    transform: translateY(10px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes apple-message-hover {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 20px 40px rgba(0, 122, 255, 0.15), 0 8px 16px rgba(0, 122, 255, 0.1);
+  }
+  100% {
+    transform: scale(1.02);
+    box-shadow: 0 25px 50px rgba(0, 122, 255, 0.2), 0 12px 24px rgba(0, 122, 255, 0.15);
+  }
+}
+
+@keyframes apple-shadow-glow {
+  0% {
+    box-shadow: 0 20px 40px rgba(0, 122, 255, 0.15), 0 8px 16px rgba(0, 122, 255, 0.1);
+  }
+  100% {
+    box-shadow: 0 25px 50px rgba(0, 122, 255, 0.2), 0 12px 24px rgba(0, 122, 255, 0.15);
+  }
+}
+
+@keyframes apple-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.message-bubble {
+  animation: apple-message-appear 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+.message-bubble:hover {
+  animation: apple-message-hover 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+.animate-fade-in {
+  animation: apple-fade-in 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+/* Apple-style shadow utilities */
+.shadow-3xl {
+  box-shadow: 0 35px 60px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* Global Grey Scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #9ca3af #f3f4f6;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #9ca3af;
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* Dark mode scrollbars */
+.dark * {
+  scrollbar-color: #6b7280 #374151;
+}
+
+.dark *::-webkit-scrollbar-track {
+  background: #374151;
+}
+
+.dark *::-webkit-scrollbar-thumb {
+  background: #9ca3af;
+}
+
+.dark *::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* Apple-Style EVES Verification Badge - Static Version */
+
 :root {
   /* Professional Apple-inspired color palette - Enterprise-focused */
   --accent: 210 60% 45%; /* Matte Blue #6B8DB3 */
@@ -452,13 +560,13 @@ a {
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, #6b7280, #9ca3af);
+  background: #9ca3af;
   border-radius: 5px;
   transition: all 0.3s ease;
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(to bottom, #9ca3af, #d1d5db);
+  background: #6b7280;
   box-shadow: 0 0 10px rgba(107, 114, 128, 0.5);
   transform: scale(1.1);
 }
@@ -474,13 +582,13 @@ a {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, #6b7280, #9ca3af);
+  background: #9ca3af;
   border-radius: 5px;
   transition: all 0.3s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(to bottom, #9ca3af, #d1d5db);
+  background: #6b7280;
   box-shadow: 0 0 10px rgba(107, 114, 128, 0.5);
   transform: scale(1.1);
 }
@@ -585,12 +693,12 @@ a {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, hsl(var(--accent)), hsl(var(--accent-secondary)));
+  background: #9ca3af;
   border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, hsl(var(--accent-secondary)), hsl(var(--accent)));
+  background: #6b7280;
 }
 
 /* Professional Apple-inspired button styles */

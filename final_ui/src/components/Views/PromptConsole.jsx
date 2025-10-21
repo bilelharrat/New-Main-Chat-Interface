@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { ArrowRight, FileText, MessageSquare, Sliders, Maximize2, Minimize2, StickyNote, Copy, Pencil, Clock, Clipboard, CheckSquare, Download, ChevronLeft, ChevronRight, User, X, Search, Inbox, GripVertical, Settings, PanelLeftClose, PanelRightClose, Sun, Moon, Bot, Upload, Star, Sparkles, Send, Trash2, Lightbulb, Zap, Target, Brain } from 'lucide-react';
+import { ArrowRight, FileText, MessageSquare, Sliders, Maximize2, Minimize2, StickyNote, Copy, Pencil, Clock, Clipboard, CheckSquare, Download, ChevronLeft, ChevronRight, User, X, Search, Inbox, GripVertical, Settings, PanelLeftClose, PanelRightClose, Sun, Moon, Bot, Upload, Star, Sparkles, Send, Trash2, Lightbulb, Zap, Target, Brain, Paperclip } from 'lucide-react';
 import { cardClass } from '../../utils/classNames';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -9,6 +9,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { useTheme } from '../../context/ThemeContext';
 import { useSearch } from '../../context/SearchContext';
 import SmartSearchModal from '../SmartSearchModal';
+import { NotebookNotesPanel } from '../Notebook/NotebookNotesPanel';
 
 import ThemePresets from '../ThemePresets';
 
@@ -452,9 +453,9 @@ export default function PromptConsole({ setView, embedded = false, currentView =
   const [citedNotes, setCitedNotes] = useState([]); // {text, messageIdx}
   const messageRefs = useRef([]);
   const [selection, setSelection] = useState({ text: '', messageIdx: null, rect: null });
-  const [notesWidth, setNotesWidth] = useState(384); // default 24rem (w-96)
+  const [notesWidth, setNotesWidth] = useState(480); // default 30rem (w-120)
   const minNotesWidth = 320; // px
-  const maxNotesWidth = 700; // px
+  const maxNotesWidth = 800; // px
   const dragHandleRef = useRef();
   const [writeOpen, setWriteOpen] = useState(false);
   const [writeContent, setWriteContent] = useState("");
@@ -655,6 +656,10 @@ export default function PromptConsole({ setView, embedded = false, currentView =
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
   const [showModeSelector, setShowModeSelector] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+
+  // Modal states
+  const [showAddSourcesModal, setShowAddSourcesModal] = useState(false);
+  const [showFileUploadModal, setShowFileUploadModal] = useState(false);
 
   // Initialize editors properly
   useEffect(() => {
@@ -2173,36 +2178,6 @@ export default function PromptConsole({ setView, embedded = false, currentView =
                     />
               </div>
               
-                  {/* Floating Action Menu */}
-                  <div className="absolute bottom-6 right-6 flex flex-col gap-2">
-                    <button
-                      onClick={() => handleQuickAction('write', 'cite')}
-                      className="relative w-12 h-12 bg-gradient-to-r from-[#007AFF] to-[#5AC8FA] text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 flex items-center justify-center group overflow-hidden"
-                      title="Cite to Chat"
-                    >
-                      {/* Dynamic hover overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                      <MessageSquare size={20} />
-                    </button>
-                                  <button
-                      onClick={() => handleQuickAction('write', 'export')}
-                      className="relative w-12 h-12 bg-gradient-to-r from-[#007AFF] to-[#5AC8FA] text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 flex items-center justify-center group overflow-hidden"
-                      title="Export Writing"
-                    >
-                      {/* Dynamic hover overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                      <Download size={20} />
-                                  </button>
-                                  <button
-                      onClick={() => handleQuickAction('write', 'share')}
-                      className="relative w-12 h-12 bg-gradient-to-r from-[#007AFF] to-[#5AC8FA] text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 flex items-center justify-center group overflow-hidden"
-                      title="Share Document"
-                    >
-                      {/* Dynamic hover overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                      <Send size={20} />
-                                  </button>
-                                </div>
                         </div>
                 </div>
             </div>
@@ -2294,91 +2269,14 @@ export default function PromptConsole({ setView, embedded = false, currentView =
           </div>
         </div>
         {!notesCollapsed && (
-          <div className="flex-1 flex flex-col overflow-y-auto bg-gradient-to-br from-white/90 to-gray-50/90 dark:from-gray-900/90 dark:to-gray-800/90 backdrop-blur-sm"
-            onDragOver={e => e.preventDefault()}
-            onDrop={handleQuillDrop(setNotes)}
-          >
-            {/* Enhanced Notes Editor with AI Features */}
-            <div className="flex-1 flex flex-col">
-
-
-              {/* Enhanced Rich Text Editor */}
-              <div className="flex-1 relative">
-                <div 
-                  onContextMenu={(e) => handleEditorRightClick(e, 'notes')}
+          <div className="flex-1 flex flex-col overflow-hidden">
+            <NotebookNotesPanel
                   className="h-full"
-          >
-            <ReactQuill
-              theme="snow"
-              value={notes}
-              onChange={setNotes}
-                    className="flex-1 bg-transparent apple-notes-editor h-full"
-              style={{ border: 'none' }}
-                    placeholder="Start writing your notes here..."
-                    modules={{
-                      toolbar: [
-                        [{ 'header': [1, 2, 3, false] }],
-                        ['bold', 'italic', 'underline', 'strike'],
-                        [{ 'color': [] }, { 'background': [] }],
-                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                        [{ 'indent': '-1'}, { 'indent': '+1' }],
-                        [{ 'align': [] }],
-                        ['link', 'image', 'code-block'],
-                        ['clean']
-                      ]
-                    }}
-                    formats={[
-                      'header', 'bold', 'italic', 'underline', 'strike',
-                      'color', 'background', 'list', 'bullet', 'indent',
-                      'align', 'link', 'image', 'code-block'
-                    ]}
-                  />
-            </div>
-            
-                {/* Floating Action Menu */}
-                <div className="absolute bottom-6 right-6 flex flex-col gap-2">
-                  <button
-                    onClick={() => handleQuickAction('notes', 'cite')}
-                    className="w-12 h-12 bg-gradient-to-r from-[#007AFF] to-[#5AC8FA] text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 flex items-center justify-center"
-                    title="Cite to Chat"
-                  >
-                    <MessageSquare size={20} />
-                  </button>
-                                <button
-                    onClick={() => handleQuickAction('notes', 'export')}
-                    className="w-12 h-12 bg-gradient-to-r from-[#007AFF] to-[#5AC8FA] text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 flex items-center justify-center"
-                    title="Export Notes"
-                  >
-                    <Download size={20} />
-                                </button>
-                                <button
-                    onClick={() => handleQuickAction('notes', 'share')}
-                    className="w-12 h-12 bg-gradient-to-r from-[#007AFF] to-[#5AC8FA] text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 flex items-center justify-center"
-                    title="Share Notes"
-                  >
-                    <Send size={20} />
-                                </button>
-              </div>
-            </div>
-              </div>
-        {/* Cited Notes List */}
-        {!notesCollapsed && citedNotes.length > 0 && (
-          <div className="border-t border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-800">
-            <div className="font-semibold text-xs text-gray-500 mb-2">Cited Outputs</div>
-            <ul className="space-y-2">
-              {citedNotes.map((note, i) => (
-                <li key={i}>
-                  <button
-                    className="text-left text-xs text-accent hover:underline focus:outline-none"
-                    onClick={() => handleCitedNoteClick(note.messageIdx)}
-                  >
-                    {note.text.length > 60 ? note.text.slice(0, 60) + '...' : note.text}
-                  </button>
-                </li>
-              ))}
-            </ul>
-              </div>
-            )}
+              onInsertToWriter={(content) => console.log('Insert to writer:', content)}
+              onClose={() => setNotesOpen(false)}
+              initialContent={notes}
+              onContentChange={setNotes}
+            />
       </div>
         )}
       </div>
@@ -2397,11 +2295,16 @@ export default function PromptConsole({ setView, embedded = false, currentView =
                 className={`flex my-6 ${msg.role === 'user' ? 'justify-end' : 'justify-center'}`}
               >
                 <div className="flex flex-col max-w-2xl group">
-                  <div className={`relative px-4 py-3 rounded-xl shadow-sm transition-all duration-300 hover:shadow-lg group message-bubble ${
+                  <div className={`relative px-8 py-6 rounded-3xl transition-all duration-500 ease-out group message-bubble ${
                     msg.role === 'user'
-                      ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 border border-[#007AFF]/20/50' 
-                      : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 border border-[#007AFF]/20/50'
-                  }`}>
+                      ? 'bg-white/95 dark:bg-gray-900/95 text-gray-900 dark:text-white shadow-2xl hover:shadow-3xl hover:scale-[1.01] border border-gray-200/30 dark:border-gray-700/30 backdrop-blur-xl' 
+                      : 'bg-white/95 dark:bg-gray-900/95 text-gray-900 dark:text-white shadow-2xl hover:shadow-3xl hover:scale-[1.01] border border-gray-200/30 dark:border-gray-700/30 backdrop-blur-xl'
+                  }`}
+                  style={{
+                    boxShadow: msg.role === 'user' 
+                      ? '0 20px 40px rgba(0, 0, 0, 0.08), 0 8px 16px rgba(0, 0, 0, 0.04)' 
+                      : '0 20px 40px rgba(0, 0, 0, 0.08), 0 8px 16px rgba(0, 0, 0, 0.04)'
+                  }}>
                     {/* Avatar/Icon */}
                     <div className="absolute -left-10 top-2">
                       {msg.role === 'user' ? (
@@ -2414,9 +2317,10 @@ export default function PromptConsole({ setView, embedded = false, currentView =
                         </div>
                       )}
                     </div>
+                    
                     {/* Content with selection styling */}
                     <div className="relative z-10">
-                      <div className={`whitespace-pre-line text-base font-mono ${msg.role === 'ai' ? 'ai-response-text' : ''}`}>{msg.content}</div>
+                      <div className={`whitespace-pre-line text-lg leading-relaxed ${msg.role === 'ai' ? 'ai-response-text font-medium' : 'font-medium tracking-wide'}`}>{msg.content}</div>
                     </div>
                   </div>
                 </div>
@@ -2643,11 +2547,16 @@ export default function PromptConsole({ setView, embedded = false, currentView =
                     {/* Enhanced Message Container */}
                     <div className={`flex flex-col max-w-4xl group transition-all duration-300 hover:scale-[1.01]`}>
                         <div 
-                            className={`relative px-6 py-5 rounded-xl shadow-sm transition-all duration-300 hover:shadow-lg group message-bubble ${
+                            className={`relative px-8 py-6 rounded-3xl transition-all duration-500 ease-out group message-bubble ${
                                 msg.role === 'user' 
-                                    ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 border border-[#007AFF]/20/50' 
-                                    : 'bg-white dark:bg-gray-800/50 text-gray-900 dark:text-gray-200 border border-[#10b981]/50 dark:border-gray-700/50 shadow-apple backdrop-blur-sm'
-                            } ${citedMessageIndices.includes(idx) ? 'ring-2 ring-[#10b981] animate-cited-glow' : ''}`}
+                                    ? 'bg-white/95 dark:bg-gray-900/95 text-gray-900 dark:text-white shadow-2xl hover:shadow-3xl hover:scale-[1.01] border border-gray-200/30 dark:border-gray-700/30 backdrop-blur-xl' 
+                                    : 'bg-white/95 dark:bg-gray-900/95 text-gray-900 dark:text-white shadow-2xl hover:shadow-3xl hover:scale-[1.01] border border-gray-200/30 dark:border-gray-700/30 backdrop-blur-xl'
+                            } ${citedMessageIndices.includes(idx) ? 'ring-2 ring-[#007AFF] animate-cited-glow' : ''}`}
+                            style={{
+                                boxShadow: msg.role === 'user' 
+                                    ? '0 20px 40px rgba(0, 0, 0, 0.08), 0 8px 16px rgba(0, 0, 0, 0.04)' 
+                                    : '0 20px 40px rgba(0, 0, 0, 0.08), 0 8px 16px rgba(0, 0, 0, 0.04)'
+                            }}
                         >
                             {/* AI Message Icons (top-right) */}
                             {msg.role === 'ai' && (
@@ -2657,14 +2566,6 @@ export default function PromptConsole({ setView, embedded = false, currentView =
                                       <StickyNote size={14} />
                                   </div>
                                 )}
-                                    <button
-                                      type="button"
-                                    className="absolute top-1.5 right-1.5 bg-black/5 dark:bg-white/5 text-gray-500 dark:text-gray-400 rounded-full p-1 hover:bg-black/10 dark:hover:bg-white/10 transition-colors duration-200 focus-ring"
-                                    onClick={() => handleCopyMsgLink(idx)}
-                                    title="Copy Message Link"
-                                >
-                                    <Clipboard size={14} />
-                                    </button>
                               </>
                             )}
                             
@@ -2697,25 +2598,25 @@ export default function PromptConsole({ setView, embedded = false, currentView =
                                       </div>
                                     </div>
                                   ) : (
-                                    <div className="whitespace-pre-line text-base font-mono">{msg.content}</div>
+                                    <div className="whitespace-pre-line text-lg font-medium leading-relaxed tracking-wide">{msg.content}</div>
                                   )}
                                 </div>
                             ) : (
-                                <div className="prose prose-base dark:prose-invert max-w-none ai-response-text">
+                                <div className="prose prose-lg dark:prose-invert max-w-none ai-response-text leading-relaxed">
                                   {highlightedMsgIdx === idx
                                     ? highlightQuery(msg.content, highlightedQuery)
                                     : (
                                         <ReactMarkdown
                                           components={{
                                             // Custom styling for different elements
-                                            h1: ({node, ...props}) => <h1 className="text-2xl font-bold mb-3 mt-5 first:mt-0 text-gradient-primary" {...props} />,
-                                            h2: ({node, ...props}) => <h2 className="text-xl font-bold mb-3 mt-4 first:mt-0 text-gradient-primary" {...props} />,
-                                            h3: ({node, ...props}) => <h3 className="text-lg font-bold mb-2 mt-3 first:mt-0" {...props} />,
-                                            p: ({node, ...props}) => <p className="mb-3 last:mb-0 text-base" {...props} />,
-                                            ul: ({node, ...props}) => <ul className="list-disc list-inside mb-3 space-y-2" {...props} />,
-                                            ol: ({node, ...props}) => <ol className="list-decimal list-inside mb-3 space-y-2" {...props} />,
-                                            li: ({node, ...props}) => <li className="ml-2 text-base" {...props} />,
-                                            blockquote: ({node, ...props}) => <blockquote className="border-l-4 border-[#007AFF]/30 dark:border-[#007AFF]/60 pl-4 italic my-3 bg-[#007AFF]/10 dark:bg-[#007AFF]/20 rounded-r-lg text-base" {...props} />,
+                                            h1: ({node, ...props}) => <h1 className="text-3xl font-semibold mb-4 mt-6 first:mt-0 text-gray-900 dark:text-white tracking-tight" {...props} />,
+                                            h2: ({node, ...props}) => <h2 className="text-2xl font-semibold mb-3 mt-5 first:mt-0 text-gray-900 dark:text-white tracking-tight" {...props} />,
+                                            h3: ({node, ...props}) => <h3 className="text-xl font-medium mb-2 mt-4 first:mt-0 text-gray-800 dark:text-gray-200" {...props} />,
+                                            p: ({node, ...props}) => <p className="mb-4 last:mb-0 text-lg leading-relaxed text-gray-700 dark:text-gray-300" {...props} />,
+                                            ul: ({node, ...props}) => <ul className="list-disc list-inside mb-4 space-y-2 text-lg leading-relaxed" {...props} />,
+                                            ol: ({node, ...props}) => <ol className="list-decimal list-inside mb-4 space-y-2 text-lg leading-relaxed" {...props} />,
+                                            li: ({node, ...props}) => <li className="ml-2 text-lg leading-relaxed text-gray-700 dark:text-gray-300" {...props} />,
+                                            blockquote: ({node, ...props}) => <blockquote className="border-l-4 border-[#007AFF] pl-6 italic my-4 bg-gradient-to-r from-[#007AFF]/5 to-transparent rounded-r-xl text-lg leading-relaxed text-gray-600 dark:text-gray-400" {...props} />,
                                             code: ({node, inline, ...props}) => inline ? 
                                               <code className="bg-gray-100 dark:bg-gray-700 px-1.5 py-1 rounded text-base font-mono" {...props} /> :
                                               <code className="block bg-gray-100 dark:bg-gray-700 p-3 rounded-lg text-base font-mono overflow-x-auto border border-gray-200 dark:border-gray-600" {...props} />,
@@ -2739,10 +2640,16 @@ export default function PromptConsole({ setView, embedded = false, currentView =
                         {msg.role === 'ai' && (
                             <div className="mt-3 flex justify-between items-center w-full text-sm text-gray-500 dark:text-gray-400">
                                 <div className="flex items-center gap-2">
-                                  <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 dark:border-emerald-400/30 px-2 py-0.5 text-xs text-emerald-600 dark:text-emerald-400 bg-white/20 dark:bg-gray-800/20 backdrop-blur-sm">
-                                    <span className="h-1 w-1 rounded-full bg-emerald-500"/>
+                                  <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#007AFF]/10 to-[#5AC8FA]/10 dark:from-[#007AFF]/20 dark:to-[#5AC8FA]/20 border border-[#007AFF]/20 dark:border-[#007AFF]/30 backdrop-blur-xl shadow-md transition-all duration-200 hover:translateY(-0.5px) hover:shadow-lg">
+                                    <div className="flex items-center gap-1">
+                                      <div className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-[#007AFF] to-[#5AC8FA] shadow-sm"/>
+                                      <div className="w-0.5 h-0.5 rounded-full bg-white/60"/>
+                                    </div>
+                                    <span className="text-xs font-semibold text-[#007AFF] dark:text-[#5AC8FA] tracking-wide">
                                     Verified by EVES™
                                   </span>
+                                    <div className="w-0.5 h-0.5 rounded-full bg-white/60"/>
+                                  </div>
                                   {backlinks[idx] && backlinks[idx].length > 0 && (
                                     <div className="text-accent bg-gradient-to-r from-[#007AFF] to-[#5AC8FA] text-white rounded-full px-4 py-1.5 text-base shadow-sm">
                                       Backlinked from: {backlinks[idx].join(', ')}
@@ -2750,105 +2657,29 @@ export default function PromptConsole({ setView, embedded = false, currentView =
                                   )}
                                 </div>
 
-                                {/* Center: Response navigation arrows for Auto Selection mode */}
-                                {msg.role === 'ai' && multipleResponses[idx] && selectedMode === "Auto Selection" && (
-                                  <div className="flex items-center gap-1 bg-gray-50 dark:bg-gray-800 rounded-lg px-2 py-1 border border-gray-200 dark:border-gray-700">
+                                {/* Right: Action Menu - Apple-style design */}
+                                <div className="flex gap-2 items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                    {/* Compact Action Menu - Apple-style design */}
+                                    <div className="flex items-center gap-2">
+                                      {/* Primary Actions - Write first, then Notes */}
                                       <button
                                         type="button"
-                                            className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors duration-200"
-                                            onClick={() => {
-                                              const models = Object.keys(multipleResponses[idx].allResponses);
-                                              const currentModel = selectedResponseModel[idx] || multipleResponses[idx].bestModel;
-                                              const currentIndex = models.indexOf(currentModel);
-                                              const prevIndex = currentIndex > 0 ? currentIndex - 1 : models.length - 1;
-                                              const prevModel = models[prevIndex];
-                                              
-                                              setSelectedResponseModel(prev => ({
-                                                ...prev,
-                                                [idx]: prevModel
-                                              }));
-                                              
-                                              setMessages(prev => prev.map((m, i) => 
-                                                i === idx 
-                                                  ? { ...m, content: multipleResponses[idx].allResponses[prevModel] }
-                                                  : m
-                                              ));
-                                            }}
-                                            title="Previous Response"
-                                          >
-                                            <ChevronLeft size={12} className="text-gray-600 dark:text-gray-400" />
+                                        className="group relative flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200"
+                                        onClick={() => handleSendToWrite(msg)}
+                                        title="Send to Write"
+                                      >
+                                        <Pencil size={14} className="text-gray-600 dark:text-gray-400 group-hover:text-green-600 dark:group-hover:text-green-400" />
+                                        <span className="text-xs font-medium text-gray-600 dark:text-gray-400 group-hover:text-green-600 dark:group-hover:text-green-400">Write</span>
                                       </button>
-                                          
-                                          <div className="flex items-center gap-1 px-2">
-                                            <div className="w-1.5 h-1.5 bg-[#007AFF] rounded-full"></div>
-                                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
-                                              {selectedResponseModel[idx] || multipleResponses[idx].bestModel}
-                                            </span>
-                                            <span className="text-sm text-gray-500 dark:text-gray-400">
-                                              {Object.keys(multipleResponses[idx].allResponses).indexOf(selectedResponseModel[idx] || multipleResponses[idx].bestModel) + 1}/{Object.keys(multipleResponses[idx].allResponses).length}
-                                            </span>
-                                          </div>
                                           
                                           <button
                                             type="button"
-                                            className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors duration-200"
-                                            onClick={() => {
-                                              const models = Object.keys(multipleResponses[idx].allResponses);
-                                              const currentModel = selectedResponseModel[idx] || multipleResponses[idx].bestModel;
-                                              const currentIndex = models.indexOf(currentModel);
-                                              const nextIndex = (currentIndex + 1) % models.length;
-                                              const nextModel = models[nextIndex];
-                                              
-                                              setSelectedResponseModel(prev => ({
-                                                ...prev,
-                                                [idx]: nextModel
-                                              }));
-                                              
-                                              setMessages(prev => prev.map((m, i) => 
-                                                i === idx 
-                                                  ? { ...m, content: multipleResponses[idx].allResponses[nextModel] }
-                                                  : m
-                                              ));
-                                            }}
-                                            title="Next Response"
-                                          >
-                                            <ChevronRight size={12} className="text-gray-600 dark:text-gray-400" />
-                                          </button>
-                                        </div>
-                                )}
-
-                                <div className="flex gap-2 items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                    {/* Compare Button */}
-                                    {msg.role === 'ai' && multipleResponses[idx] && (
-                                    <button
-                                      type="button"
-                                        className="flex items-center gap-1 px-3 py-1.5 bg-[#007AFF] text-white rounded-lg shadow-sm hover:bg-[#007AFF] transition-all duration-200 text-sm font-medium"
-                                          onClick={() => openMultiResponseView(idx)}
-                                        title="Compare All Responses"
-                                        >
-                                        <Sparkles size={12} />
-                                        Compare
-                                        </button>
-                                    )}
-                                    {/* Compact Action Menu - Apple-style design */}
-                                    <div className="flex items-center gap-1">
-                                      {/* Primary Actions - Only show essential ones */}
-                                    <button
-                                        type="button"
-                                        className="group relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200"
+                                        className="group relative flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200"
                                       onClick={() => handleCiteToNotes(msg, idx)}
                                       title="Cite to Notes"
                                     >
-                                        <Copy size={16} className="text-gray-600 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400" />
-                                    </button>
-                                    
-                                    <button
-                                      type="button"
-                                        className="group relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200"
-                                      onClick={() => handleSendToWrite(msg)}
-                                      title="Send to Write"
-                                    >
-                                        <Pencil size={16} className="text-gray-600 dark:text-gray-400 group-hover:text-green-600 dark:group-hover:text-green-400" />
+                                        <StickyNote size={14} className="text-gray-600 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400" />
+                                        <span className="text-xs font-medium text-gray-600 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400">Notes</span>
                                     </button>
                                     
                                       {/* More Actions Menu - Contextual and compact */}
@@ -2856,42 +2687,11 @@ export default function PromptConsole({ setView, embedded = false, currentView =
                                       <button
                                         type="button"
                                           className="group relative p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200"
-                                        onClick={() => setOpenActionMenu(openActionMenu === idx ? null : idx)}
-                                        title="More Actions"
+                                        onClick={() => navigator.clipboard.writeText(msg.content)}
+                                        title="Copy Message"
                                       >
-                                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="text-gray-600 dark:text-gray-400 group-hover:text-gray-800 dark:group-hover:text-gray-200">
-                                          <circle cx="12" cy="12" r="1" fill="currentColor"/>
-                                          <circle cx="19" cy="12" r="1" fill="currentColor"/>
-                                          <circle cx="5" cy="12" r="1" fill="currentColor"/>
-                                        </svg>
-                                      </button>
-                                      
-                                        {/* Dropdown Menu */}
-                                      {openActionMenu === idx && (
-                                          <div className="absolute top-full right-0 mt-1 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-50 py-1">
-                                          <button
-                                            onClick={() => setNotesOpen(true)}
-                                              className="w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2 transition-colors"
-                                          >
-                                              <StickyNote size={14} />
-                                              Notes
+                                          <Copy size={14} className="text-gray-600 dark:text-gray-400 group-hover:text-gray-800 dark:group-hover:text-gray-200" />
                                           </button>
-                                          <button
-                                            onClick={() => handleCopyToClipboard(msg.content)}
-                                              className="w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2 transition-colors"
-                                          >
-                                              <Clipboard size={14} />
-                                              Copy
-                                          </button>
-                                          <button
-                                            onClick={() => handleDownloadResponse(msg.content)}
-                                              className="w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2 transition-colors"
-                                          >
-                                              <Download size={14} />
-                                              Download
-                                          </button>
-                                        </div>
-                                      )}
                                       </div>
                                     </div>
                                 </div>
@@ -3018,13 +2818,11 @@ export default function PromptConsole({ setView, embedded = false, currentView =
 
           <form 
             onSubmit={handleSubmit} 
-            className={`w-full ${fullscreen ? 'max-w-6xl' : 'max-w-3xl'} mx-auto card-modern glass rounded-2xl border border-gray-200 dark:border-gray-700 shadow-apple p-2 transition-all duration-300`}
+            className={`w-full ${fullscreen ? 'max-w-6xl' : 'max-w-4xl'} mx-auto bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-3xl border border-gray-200/20 dark:border-gray-700/20 shadow-xl p-3 transition-all duration-300 hover:shadow-2xl`}
           >
             {/* Main input row */}
-            <div className={`flex items-center gap-2 transition-all duration-200 ${fullscreen ? 'min-h-[200px]' : ''}`}>
+            <div className="flex items-end gap-4">
               <div className="relative flex-1 flex flex-col">
-                
-
                 {/* Smart Prompt Suggestor */}
                 <SmartPromptSuggestor
                   prompt={prompt}
@@ -3037,7 +2835,11 @@ export default function PromptConsole({ setView, embedded = false, currentView =
                 <textarea
                   ref={textareaRef}
             value={prompt}
-                  onInput={handleInput}
+                    onInput={(e) => {
+                      handleInput(e);
+                      e.target.style.height = 'auto';
+                      e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
+                    }}
                     onFocus={() => {
                       if (prompt.length >= 3) {
                         setShowPromptSuggestor(true);
@@ -3059,9 +2861,10 @@ export default function PromptConsole({ setView, embedded = false, currentView =
                       }
                     }
                   }}
-                  className={`w-full input-modern ${fullscreen ? 'min-h-[200px] max-h-[400px]' : 'min-h-[24px] max-h-[160px]'} resize-none bg-transparent text-gray-900 dark:text-white px-4 py-2 text-base font-mono focus:outline-none transition-all duration-200 border border-blue-500 dark:border-blue-500 rounded-lg focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500`}
-                    placeholder="Ask Eden... (⌘Enter to send, ⌘/ for suggestions)"
-                  rows={1}
+                    className="w-full px-4 py-3 bg-transparent border-0 resize-none focus:outline-none text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 text-base leading-relaxed"
+                    placeholder="Ask Eden"
+                    rows="1"
+                    disabled={isProcessing}
                   style={{ transition: 'height 0.15s' }}
                 />
                   
@@ -3073,50 +2876,19 @@ export default function PromptConsole({ setView, embedded = false, currentView =
                     </div>
                   )}
                 </div>
-                {/* Scroll Toggle - only show when there's too much text */}
-                {showScrollToggle && !fullscreen && (
-                  <button
-                    type="button"
-                    className="absolute top-1 right-10 z-10 p-1.5 rounded-full bg-black/10 hover:bg-black/20 text-gray-700 dark:text-gray-300 transition-all duration-150 focus-ring"
-                    aria-label="Toggle scroll"
-                    onClick={() => {
-                      if (textareaRef.current) {
-                        textareaRef.current.scrollTop = textareaRef.current.scrollHeight;
-                      }
-                    }}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M7 14L12 9L17 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </button>
-                )}
-                
-                {(isMultiline || fullscreen) && (
-                  <button
-                    type="button"
-                    className="absolute top-1 right-1 z-10 p-1.5 rounded-full bg-black/10 hover:bg-black/20 text-gray-700 dark:text-gray-300 transition-all duration-150 focus-ring"
-                    aria-label={fullscreen ? "Collapse" : "Fullscreen"}
-                    onClick={() => setFullscreen(f => !f)}
-                  >
-                    {fullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
-          </button>
-                )}
-        </div>
+              </div>
+              
               <button 
                 type="submit" 
-                className="relative p-2 rounded-full shadow-lg shadow-[#007AFF]/25 hover:shadow-xl hover:shadow-[#007AFF]/30 flex items-center justify-center h-10 w-10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 bg-white dark:bg-gray-800 border border-[#007AFF] text-[#007AFF] hover:bg-[#007AFF] hover:text-white transform hover:scale-105 group overflow-hidden"
-                disabled={!prompt.trim()}
+                className="group relative p-4 rounded-full shadow-lg hover:shadow-xl flex items-center justify-center h-14 w-14 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 bg-gradient-to-r from-[#007AFF] to-[#0056CC] hover:from-[#0056CC] hover:to-[#003D99] text-white transform hover:scale-105 overflow-hidden"
+                disabled={!prompt.trim() || isProcessing}
               >
-                {/* Hover overlay */}
-                <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none rounded-full"></div>
-                {/* Content with relative positioning */}
-                <div className="relative z-10">
+                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
                   {isProcessing ? (
-                    <div className="apple-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
+                  <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin relative z-10"></div>
                   ) : (
-                    <ArrowRight size={18} className="transition-all duration-300 group-hover:-translate-y-2 group-hover:-rotate-90" style={{ color: '#4285F4' }}/>
+                  <ArrowRight size={20} className="relative z-10 transition-transform duration-200 group-hover:-rotate-90" />
                   )}
-                </div>
               </button>
             </div>
             
@@ -3135,35 +2907,49 @@ export default function PromptConsole({ setView, embedded = false, currentView =
                 </div>
               </div>
             )}
-            {/* Notebook Navigation Menu - Sources Left, Notes Right */}
+            {/* Input Bar Actions - Paperclip Left, Write/Notes Right */}
             <div className="w-full flex justify-between items-center mt-2 pt-2">
-              {/* Sources Button - Left Side */}
+              {/* Left Side - Upload Button */}
               <button
                 type="button"
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
-                  currentView === 'notebook-sources'
-                    ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 shadow-sm'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
-                }`}
-                onClick={() => setView('notebook-sources')}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                onClick={() => setShowFileUploadModal(true)}
+                title="Upload Files"
               >
-                <FileText size={14} />
-                <span>Sources</span>
+                <Paperclip size={14} />
+                <span>Upload</span>
               </button>
               
-              {/* Notes Button - Right Side */}
+              {/* Right Side - Write and Notes Buttons */}
+              <div className="flex items-center gap-2">
+                {/* Write Button */}
               <button
                 type="button"
                 className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
-                  currentView === 'notebook-notes'
+                    writeOpen
                     ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 shadow-sm'
                     : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
                 }`}
-                onClick={() => setView('notebook-notes')}
+                  onClick={() => setWriteOpen(!writeOpen)}
+              >
+                  <Pencil size={14} />
+                  <span>Write</span>
+              </button>
+              
+                {/* Notes Button */}
+              <button
+                type="button"
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
+                    notesOpen
+                    ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 shadow-sm'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
+                }`}
+                  onClick={() => setNotesOpen(!notesOpen)}
               >
                 <StickyNote size={14} />
                 <span>Notes</span>
               </button>
+              </div>
             </div>
           </form>
         </div>
@@ -3622,6 +3408,111 @@ export default function PromptConsole({ setView, embedded = false, currentView =
 
       {/* Format Popup Portal */}
       <FormatPopup />
+
+      {/* Apple-Style File Upload Modal */}
+      {showFileUploadModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300"
+            onClick={() => setShowFileUploadModal(false)}
+          />
+          
+          {/* Modal Container */}
+          <div className="relative w-full max-w-md mx-auto">
+            <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-200/20 dark:border-gray-700/20 overflow-hidden">
+              {/* Header */}
+              <div className="px-8 py-6 border-b border-gray-100/60 dark:border-gray-800/60">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-[#007AFF] to-[#5AC8FA] rounded-2xl flex items-center justify-center shadow-lg">
+                      <Upload size={20} className="text-white" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                        Upload Files
+                      </h2>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Add documents to your workspace
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setShowFileUploadModal(false)}
+                    className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center transition-colors duration-200"
+                  >
+                    <X size={16} className="text-gray-500 dark:text-gray-400" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="px-8 py-6">
+                {/* Drag & Drop Area */}
+                <div className="relative">
+                  <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-2xl p-8 text-center hover:border-[#007AFF] dark:hover:border-[#007AFF] transition-colors duration-300 group">
+                    <div className="w-16 h-16 bg-gradient-to-br from-[#007AFF]/10 to-[#5AC8FA]/10 dark:from-[#007AFF]/20 dark:to-[#5AC8FA]/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                      <Upload size={24} className="text-[#007AFF] dark:text-[#5AC8FA]" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                      Drop files here
+                    </h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                      or click to browse
+                    </p>
+                    <input
+                      type="file"
+                      multiple
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      accept=".pdf,.doc,.docx,.txt,.md,.rtf"
+                    />
+                  </div>
+                </div>
+
+                {/* File Types */}
+                <div className="mt-6">
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                    Supported formats
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {['PDF', 'DOC', 'DOCX', 'TXT', 'MD', 'RTF'].map((format) => (
+                      <span
+                        key={format}
+                        className="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-lg text-xs font-medium"
+                      >
+                        {format}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="px-8 py-4 bg-gray-50/50 dark:bg-gray-800/50 border-t border-gray-100/60 dark:border-gray-800/60">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span>Secure & encrypted</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => setShowFileUploadModal(false)}
+                      className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors duration-200"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      className="px-6 py-2 bg-gradient-to-r from-[#007AFF] to-[#5AC8FA] text-white rounded-xl font-medium hover:from-[#0056CC] hover:to-[#003D99] transition-all duration-200 hover:scale-105 shadow-lg"
+                    >
+                      Upload
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

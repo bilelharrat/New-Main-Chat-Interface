@@ -372,7 +372,8 @@
 }
 
 .apple-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
+  background: rgba(229, 231, 235, 0.3);
+  border-radius: 4px;
 }
 
 .apple-scrollbar::-webkit-scrollbar-thumb {
@@ -471,6 +472,25 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* Walkthrough Highlight Styles */
+.walkthrough-highlight {
+  position: relative;
+  z-index: 99;
+  box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.3), 0 0 20px rgba(0, 122, 255, 0.2) !important;
+  border-radius: 12px !important;
+  transition: all 0.3s ease !important;
+  animation: walkthrough-pulse 2s infinite;
+}
+
+@keyframes walkthrough-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.3), 0 0 20px rgba(0, 122, 255, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(0, 122, 255, 0.4), 0 0 30px rgba(0, 122, 255, 0.3);
+  }
 }
 
 /* Apple-style Dark Mode */

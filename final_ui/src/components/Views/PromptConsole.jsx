@@ -2646,7 +2646,7 @@ export default function PromptConsole({ setView, embedded = false, currentView =
                                       <div className="w-0.5 h-0.5 rounded-full bg-white/60"/>
                                     </div>
                                     <span className="text-xs font-semibold text-[#007AFF] dark:text-[#5AC8FA] tracking-wide">
-                                    Verified by EVES™
+                                    Verified by EVES
                                   </span>
                                     <div className="w-0.5 h-0.5 rounded-full bg-white/60"/>
                                   </div>
@@ -2658,7 +2658,7 @@ export default function PromptConsole({ setView, embedded = false, currentView =
                                 </div>
 
                                 {/* Right: Action Menu - Apple-style design */}
-                                <div className="flex gap-2 items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <div className="flex gap-2 items-center">
                                     {/* Compact Action Menu - Apple-style design */}
                                     <div className="flex items-center gap-2">
                                       {/* Primary Actions - Write first, then Notes */}
@@ -2818,7 +2818,11 @@ export default function PromptConsole({ setView, embedded = false, currentView =
 
           <form 
             onSubmit={handleSubmit} 
-            className={`w-full ${fullscreen ? 'max-w-6xl' : 'max-w-4xl'} mx-auto bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-3xl border border-gray-200/20 dark:border-gray-700/20 shadow-xl p-3 transition-all duration-300 hover:shadow-2xl`}
+            className={`w-full ${fullscreen ? 'max-w-6xl' : prompt.length > 200 ? 'max-w-6xl' : prompt.length > 100 ? 'max-w-5xl' : 'max-w-4xl'} mx-auto bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-3xl border border-gray-200/20 dark:border-gray-700/20 shadow-xl p-3 transition-all duration-300 hover:shadow-2xl`}
+            style={{ 
+              minHeight: prompt.length > 150 ? '200px' : prompt.length > 100 ? '160px' : '100px',
+              transition: 'all 0.3s ease'
+            }}
           >
             {/* Main input row */}
             <div className="flex items-end gap-4">
@@ -2863,7 +2867,7 @@ export default function PromptConsole({ setView, embedded = false, currentView =
                   }}
                     className="w-full px-4 py-3 bg-transparent border-0 resize-none focus:outline-none text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 text-base leading-relaxed"
                     placeholder="Ask Eden"
-                    rows="1"
+                    rows={Math.max(1, Math.min(10, Math.ceil(prompt.length / 30)))}
                     disabled={isProcessing}
                   style={{ transition: 'height 0.15s' }}
                 />
@@ -2880,14 +2884,14 @@ export default function PromptConsole({ setView, embedded = false, currentView =
               
               <button 
                 type="submit" 
-                className="group relative p-4 rounded-full shadow-lg hover:shadow-xl flex items-center justify-center h-14 w-14 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 bg-gradient-to-r from-[#007AFF] to-[#0056CC] hover:from-[#0056CC] hover:to-[#003D99] text-white transform hover:scale-105 overflow-hidden"
+                className="group relative p-3 rounded-full shadow-lg hover:shadow-xl flex items-center justify-center h-12 w-12 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 bg-gradient-to-r from-[#007AFF] to-[#0056CC] hover:from-[#0056CC] hover:to-[#003D99] text-white transform hover:scale-105 overflow-hidden"
                 disabled={!prompt.trim() || isProcessing}
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
                   {isProcessing ? (
                   <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin relative z-10"></div>
                   ) : (
-                  <ArrowRight size={20} className="relative z-10 transition-transform duration-200 group-hover:-rotate-90" />
+                  <ArrowRight size={18} className="relative z-10 transition-transform duration-200 group-hover:-rotate-90" />
                   )}
               </button>
             </div>
@@ -2908,11 +2912,11 @@ export default function PromptConsole({ setView, embedded = false, currentView =
               </div>
             )}
             {/* Input Bar Actions - Paperclip Left, Write/Notes Right */}
-            <div className="w-full flex justify-between items-center mt-2 pt-2">
+            <div className="w-full flex justify-between items-center mt-1 pt-1">
               {/* Left Side - Upload Button */}
               <button
                 type="button"
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                 onClick={() => setShowFileUploadModal(true)}
                 title="Upload Files"
               >
@@ -2925,11 +2929,11 @@ export default function PromptConsole({ setView, embedded = false, currentView =
                 {/* Write Button */}
               <button
                 type="button"
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium transition-all duration-200 ${
                     writeOpen
                     ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 shadow-sm'
                     : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
-                }`}
+                  }`}
                   onClick={() => setWriteOpen(!writeOpen)}
               >
                   <Pencil size={14} />
@@ -2939,11 +2943,11 @@ export default function PromptConsole({ setView, embedded = false, currentView =
                 {/* Notes Button */}
               <button
                 type="button"
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium transition-all duration-200 ${
                     notesOpen
                     ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 shadow-sm'
                     : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
-                }`}
+                  }`}
                   onClick={() => setNotesOpen(!notesOpen)}
               >
                 <StickyNote size={14} />

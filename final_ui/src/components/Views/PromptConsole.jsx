@@ -453,9 +453,9 @@ export default function PromptConsole({ setView, embedded = false, currentView =
   const [citedNotes, setCitedNotes] = useState([]); // {text, messageIdx}
   const messageRefs = useRef([]);
   const [selection, setSelection] = useState({ text: '', messageIdx: null, rect: null });
-  const [notesWidth, setNotesWidth] = useState(480); // default 30rem (w-120)
+  const [notesWidth, setNotesWidth] = useState(600); // default 37.5rem (w-150)
   const minNotesWidth = 320; // px
-  const maxNotesWidth = 800; // px
+  const maxNotesWidth = 900; // px
   const dragHandleRef = useRef();
   const [writeOpen, setWriteOpen] = useState(false);
   const [writeContent, setWriteContent] = useState("");
